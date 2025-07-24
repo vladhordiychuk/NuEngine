@@ -7,7 +7,7 @@
 
 ---
 
-## 🇺🇦 Українська
+## Українська
 
 **NuEngine** — це кастомний рушій для 3D-ігор, написаний на C++, з акцентом на продуктивність, модульність і майбутню підтримку складної симуляції світу.
 
@@ -43,12 +43,9 @@
 - make
 ```
 
-## Автор
 
-Владислав Гордійчук - C++ Game Engine Developer
-[Написати листа](mailto:gordijcukvlad64@gmail.com) [LinkedIn](https://www.linkedin.com/in/%D0%B2%D0%BB%D0%B0%D0%B4%D0%B8%D1%81%D0%BB%D0%B0%D0%B2-%D0%B3%D0%BE%D1%80%D0%B4%D1%96%D0%B9%D1%87%D1%83%D0%BA-8a2704292/)
 
-## 🇬🇧 English
+## English
 
 **NuEngine** is a custom 3D game engine written in C++, focused on performance, modularity, and future support for complex world simulation.
 
