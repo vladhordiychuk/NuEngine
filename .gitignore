@@ -1,0 +1,75 @@
+# Build directories
+/build/
+/out/
+/bin/
+/Debug/
+/Release/
+/x64-Debug/
+/x64-Release/
+
+# Visual Studio files
+*.vcxproj*
+*.sln
+*.user
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.ipch/
+.vs/
+
+# Compiled Object files
+*.obj
+*.o
+*.so
+*.dll
+*.exe
+*.pdb
+*.lib
+*.ilk
+*.exp
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ninja files
+build.ninja
+.ninja_log
+.ninja_deps
+
+# Qt Creator files (якщо є)
+*.pro.user
+*.qbs.user
+*.qmake.stash
+*.moc
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# JetBrains IDE (CLion, Rider, etc)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Backup files
+*~
+*.bak
+
+# Others
+*.swp
+*.swo
+* text=autoThirdParty/glfw/.git
