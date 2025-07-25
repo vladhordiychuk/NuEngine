@@ -36,11 +36,19 @@
 ## Для збірки проєкту необхідно:
 
 ```bash
-- git clone https://github.com/
-- cd NuEngine
-- mkdir build && cd build
-- cmake ..
-- make
+git clone https://github.com/
+```
+```
+cd NuEngine
+```
+```
+mkdir build && cd build
+```
+```
+cmake ..
+```
+```
+make
 ```
 
 
@@ -75,11 +83,19 @@ The library is built around a custom low-level SIMD API `Simd::`, which abstract
 ## 🛠️ Build Instructions
 
 ```bash
-- git clone https://github.com/
-- cd NuEngine
-- mkdir build && cd build
-- cmake ..
-- make
+git clone https://github.com/
+```
+```
+cd NuEngine
+```
+```
+mkdir build && cd build
+```
+```
+cmake ..
+```
+```
+make
 ```
 
 ## Author
