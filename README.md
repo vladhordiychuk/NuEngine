@@ -30,13 +30,13 @@
 
 ## 📂 Структура
 
-
+*скоро буде*
 
 
 ## Для збірки проєкту необхідно:
 
 ```bash
-git clone https://github.com/
+git clone https://github.com/vladhordiychuk/NuEngine.git
 ```
 ```
 cd NuEngine
@@ -83,7 +83,7 @@ The library is built around a custom low-level SIMD API `Simd::`, which abstract
 ## 🛠️ Build Instructions
 
 ```bash
-git clone https://github.com/
+git clone https://github.com/vladhordiychuk/NuEngine.git
 ```
 ```
 cd NuEngine
