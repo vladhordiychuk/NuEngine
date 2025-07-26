@@ -11,38 +11,48 @@ namespace Engine::Math
     class alignas(16) Vector3
     {
     public:
-        Vector3();
+        Vector3() noexcept = default;
         Vector3(float x, float y, float z) noexcept;
-        Vector3(std::initializer_list<float> list);
-        Vector3(const Vector3& other);
+        Vector3(std::initializer_list<float> list) noexcept;
+        Vector3(const Vector3&) noexcept = default;
+        Vector3(Vector3&&) noexcept = default;
 
-        Vector3 operator+(const Vector3& other) const;
-        Vector3 operator-(const Vector3& other) const;
-        Vector3 operator*(float scalar) const;
-        Vector3 operator/(float scalar) const;
+        [[nodiscard]] Vector3 operator+(const Vector3&) const noexcept;
+        [[nodiscard]] Vector3 operator-(const Vector3&) const noexcept;
+        [[nodiscard]] Vector3 operator*(float) const noexcept;
+        [[nodiscard]] Vector3 operator/(float) const noexcept;
 
-        Vector3& operator+=(const Vector3& other);
-        Vector3& operator-=(const Vector3& other);
-        Vector3& operator*=(float scalar);
-        Vector3& operator/=(float scalar);
+        Vector3& operator+=(const Vector3&) noexcept;
+        Vector3& operator-=(const Vector3&) noexcept;
+        Vector3& operator*=(float) noexcept;
+        Vector3& operator/=(float) noexcept;
 
-        float X() const;
-        float Y() const;
-        float Z() const;
+        [[nodiscard]] float GetComponent(int) const noexcept;
 
-        bool operator==(const Vector3& other) const;
-        bool operator!=(const Vector3& other) const;
+        [[nodiscard]] bool operator==(const Vector3&) const noexcept;
+        [[nodiscard]] bool operator!=(const Vector3&) const noexcept;
 
-        float Length() const;
-        float LengthSquared() const;
-        float Dot(const Vector3& other) const;
-        const float* Data() const;
-        const Simd::NuVec4& SimdData() const;
+        [[nodiscard]] float operator[](int) const noexcept;
+        [[nodiscard]] float operator[](int) noexcept
+        Vector3& operator=(const Vector3&) noexcept = default;
+        Vector3& operator=(Vector&&) noexcept = default;
 
-        Vector3 Normalize() const;
-        Vector3 Cross(const Vector3& other) const;
+        [[nodiscard]] static Vector3 Zero() noexcept;
+        [[nodiscard]] static Vector3 One() noexcept;
+        [[nodiscard]] static Vector3 UnitX() noexcept;
+        [[nodiscard]] static Vector3 UnitY() noexcept;
+        [[nodiscard]] static Vector3 UnitZ() noexcept;
 
-        std::string ToString() const;
+        [[nodiscard]] float Length() const noexcept;
+        [[nodiscard]] float LengthSquared() const noexcept;
+        [[nodiscard]] float Dot(const Vector3&) const noexcept;
+        [[nodiscard]] const float* Data() const noexcept;
+        [[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
+
+        [[nodiscard]] Vector3 Normalize() const noexcept;
+        [[nodiscard]] Vector3 Cross(const Vector3&) const noexcept;
+
+        [[nodiscard]] std::string ToString() const;
 
     private:
         Simd::NuVec4 m_data;

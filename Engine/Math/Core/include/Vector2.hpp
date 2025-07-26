@@ -11,32 +11,36 @@ namespace Engine::Math
 	class alignas(16) Vector2
 	{
 	public:
-		Vector2();
-		Vector2(float x, float y);
-		Vector2(std::initializer_list<float> list);
-		Vector2(const Vector2& other);
+		Vector2() noexcept = default;
+		Vector2(float x, float y) noexcept;
+		Vector2(std::initializer_list<float> list) noexcept;
+		Vector2(const Vector2& other) noexcept = default;
 
-		Vector2 operator+(const Vector2& other) const;
-		Vector2 operator-(const Vector2& other) const;
-		Vector2 operator*(float scalar) const;
-		Vector2 operator/(float scalar) const;
+		[[nodiscard]] Vector2 operator+(const Vector2& other) const noexcept;
+		[[nodiscard]] Vector2 operator-(const Vector2& other) const noexcept;
+		[[nodiscard]] Vector2 operator*(float scalar) const noexcept;
+		[[nodiscard]] Vector2 operator/(float scalar) const noexcept;
 		
-		Vector2& operator+=(const Vector2& other);
-		Vector2& operator-=(const Vector2& other);
-		Vector2& operator*=(float scalar);
-		Vector2& operator/=(float scalar);
+		Vector2& operator+=(const Vector2& other) noexcept;
+		Vector2& operator-=(const Vector2& other) noexcept;
+		Vector2& operator*=(float scalar) noexcept;
+		Vector2& operator/=(float scalar) noexcept;
 
-		float X() const;
-		float Y() const;
+		[[nodiscard]] float GetComponent(int) const noexcept;
 
-		bool operator==(const Vector2& other) const;
-		bool operator!=(const Vector2& other) const;
+		[[nodiscard]] bool operator==(const Vector2& other) const noexcept;
+		[[nodiscard]] bool operator!=(const Vector2& other) const noexcept;
 
-		float Length() const;
-		float Dot(const Vector2& other) const;
-		float LengthSquared() const;
+		[[nodiscard]] float operator[](int) const noexcept;
+		[[nodiscard]] float operator[](int) noexcept;
+		Vector2& operator=(const Vector2&) noexcept = default;
+		Vector2& operator=(Vector2&&) noexcept = default;
 
-		Vector2 Normalize() const;
+		[[nodiscard]] float Length() const noexcept;
+		[[nodiscard]] float Dot(const Vector2& other) const noexcept;
+		[[nodiscard]] float LengthSquared() const noexcept;
+
+		[[nodiscard]] Vector2 Normalize() const noexcept;
 
 		std::string ToString() const;
 
