@@ -27,13 +27,20 @@ namespace Engine::Math
 		Vector2& operator/=(float scalar) noexcept;
 
 		[[nodiscard]] float GetComponent(int) const noexcept;
+		[[nodiscard]] float X() const noexcept;
+		[[nodiscard]] float Y() const noexcept;
 
 		[[nodiscard]] bool operator==(const Vector2& other) const noexcept;
 		[[nodiscard]] bool operator!=(const Vector2& other) const noexcept;
 
+		[[nodiscard]] static Vector2 Zero() noexcept;
+		[[nodiscard]] static Vector2 One() noexcept;
+		[[nodiscard]] static Vector2 UnitX() noexcept;
+		[[nodiscard]] static Vector2 UnitY() noexcept;
+
 		[[nodiscard]] float operator[](int) const noexcept;
-		[[nodiscard]] float operator[](int) noexcept;
-		Vector2& operator=(const Vector2&) noexcept = default;
+		float& operator[](int) noexcept;
+		Vector2& operator=(const Vector2&) const noexcept = default;
 		Vector2& operator=(Vector2&&) noexcept = default;
 
 		[[nodiscard]] float Length() const noexcept;

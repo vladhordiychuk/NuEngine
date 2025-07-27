@@ -13,50 +13,57 @@ namespace Engine::Math
 	class Quaternion
 	{
 	public:
-		Quaternion();
-		Quaternion(float x, float y, float z, float w);
-		Quaternion(const Vector4& vec);
-		Quaternion(std::initializer_list<float> list);
-		Quaternion(const Quaternion& other);
+		Quaternion() noexcept = default;
+		Quaternion(float x, float y, float z, float w) noexcept;
+		Quaternion(const Vector4&) noexcept;
+		Quaternion(std::initializer_list<float> list) noexcept;
+		Quaternion(const Quaternion&) noexcept = default;
+		Quaternion(Quaternion&&) noexcept = default;
 
-		float X() const;
-		float Y() const;
-		float Z() const;
-		float W() const;
+		[[nodiscard]] float GetComponent(int) noexcept;
+		[[nodiscard]] float X() const noexcept;
+		[[nodiscard]] float Y() const noexcept;
+		[[nodiscard]] float Z() const noexcept;
+		[[nodiscard]] float W() const noexcept;
 
-		const float* Data() const;
-		const Simd::NuVec4& SimdData() const;
+		[[nodiscard]] const float* Data() const noexcept;
+		[[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
-		Quaternion operator+(const Quaternion& other) const;
-		Quaternion operator-(const Quaternion& other) const;
-		Quaternion operator*(const Quaternion& other) const;
-		Quaternion operator/(const Quaternion& other) const;
-		Quaternion operator*(float scalar) const;
-		Quaternion operator/(float scalar) const;
+		[[nodiscard]] Quaternion operator+(const Quaternion&) const noexcept;
+		[[nodiscard]] Quaternion operator-(const Quaternion&) const noexcept;
+		[[nodiscard]] Quaternion operator*(const Quaternion&) const noexcept;
+		[[nodiscard]] Quaternion operator/(const Quaternion&) const noexcept;
+		[[nodiscard]] Quaternion operator*(float) const noexcept;
+		[[nodiscard]] Quaternion operator/(float) const noexcept;
 
-		Quaternion& operator+=(const Quaternion& other);
-		Quaternion& operator-=(const Quaternion& other);
-		Quaternion& operator*=(const Quaternion& other);
-		Quaternion& operator/=(const Quaternion& other);
-		Quaternion& operator*=(float scalar);
-		Quaternion& operator/=(float scalar);
+		Quaternion& operator+=(const Quaternion&) noexcept;
+		Quaternion& operator-=(const Quaternion&) noexcept;
+		Quaternion& operator*=(const Quaternion&) noexcept;
+		Quaternion& operator/=(const Quaternion&) noexcept;
+		Quaternion& operator*=(float) noexcept;
+		Quaternion& operator/=(float) noexcept;
 
-		bool operator==(const Quaternion& other) const;
-		bool operator!=(const Quaternion& other) const;
+		[[nodiscard]] bool operator==(const Quaternion&) const noexcept;
+		[[nodiscard]] bool operator!=(const Quaternion&) const noexcept;
 
-		float Length() const;
-		float LengthSquared() const;
-		Quaternion Normalize() const;
-		Quaternion Inverse() const;
-		float Dot(const Quaternion& other) const;
+		[[nodiscard]] float operator[](int) const noexcept;
+		float& operator[](int) noexcept;
+		Quaternion& operator=(const Quaternion&) const noexcept = default;
+		Quaternion& operator=(Quaternion&&) noexcept = default;
 
-		Vector3 RotateVector(const Vector3& vec) const;
+		[[nodiscard]] float Length() const noexcept;
+		[[nodiscard]] float LengthSquared() const noexcept;
+		[[nodiscard]] Quaternion Normalize() const noexcept;
+		[[nodiscard]] Quaternion Inverse() const noexcept;
+		[[nodiscard]] float Dot(const Quaternion&) const noexcept;
 
-		static Quaternion Identity() noexcept;
-		static Quaternion FromAxisAngle(const Vector3& vec, float angleRadians);
-		static Quaternion FromEuler(float pitchRadians, float yawRadians, float rollRadians);
+		[[nodiscard]] Vector3 RotateVector(const Vector3&) const noexcept;
 
-		std::string ToString() const;
+		[[nodiscard]] static Quaternion Identity() noexcept;
+		[[nodiscard]] static Quaternion FromAxisAngle(const Vector3& vec, float angleRadians) noexcept;
+		[[nodiscard]] static Quaternion FromEuler(float pitchRadians, float yawRadians, float rollRadians) noexcept;
+
+		[[nodiscard]] std::string ToString() const;
 
 	private:
 		Simd::NuVec4 m_data;

@@ -15,11 +15,11 @@ namespace Engine::Math
 	public:
 		Matrix4x4() noexcept = default;
 		Matrix4x4(const Matrix4x4&) noexcept = default;
-		Matrix4x4(const Matrix4x4&&) noexcept = default;
+		Matrix4x4(Matrix4x4&&) noexcept = default;
 
 		[[nodiscard]] static Matrix4x4 Identity() noexcept;
-		static Matrix4x4 FromRows(const Vector4& row0, const Vector4& row1, const Vector4& row2, const Vector4& row3) noexcept;
-		static Matrix4x4 FromColumns(const Vector4& col0, const Vector4& col1, const Vector4& col2, const Vector4& col3) noexcept;
+		[[nodiscard]] static Matrix4x4 FromRows(const Vector4& row0, const Vector4& row1, const Vector4& row2, const Vector4& row3) noexcept;
+		[[nodiscard]] static Matrix4x4 FromColumns(const Vector4& col0, const Vector4& col1, const Vector4& col2, const Vector4& col3) noexcept;
 
 		[[nodiscard]] Matrix4x4 operator*(const Matrix4x4&) const noexcept;
 		[[nodiscard]] Vector4 operator*(const Vector4&) const noexcept;

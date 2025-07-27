@@ -76,12 +76,31 @@ namespace Engine::Math
 		}
 	}
 
+	float Vector4::X() const noexcept
+	{
+		return Simd::GetX(m_data);
+	}
+	float Vector4::Y() const noexcept
+	{
+		return Simd::GetY(m_data);
+	}
+
+	float Vector4::Z() const noexcept
+	{
+		return Simd::GetZ(m_data);
+	}
+
+	float Vector4::W() const noexcept
+	{
+		return Simd::GetW(m_data);
+	}
+
 	float Vector4::operator[](int index) const noexcept
 	{
 		return Vector4::GetComponent(index);
 	}
 
-	float Vector4::operator[](int index) noexcept
+	float& Vector4::operator[](int index) noexcept
 	{
 		return Vector4::GetComponent(index);
 	}
@@ -159,7 +178,7 @@ namespace Engine::Math
 
 	Vector4 Vector4::One() noexcept
 	{
-		return Simd::Set(1.0f);
+		return Simd::Set(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	Vector4 Vector4::UnitX() noexcept

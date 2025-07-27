@@ -26,75 +26,74 @@ namespace Engine::Math::Simd_SSE
 	// Vectors
 	// =============================================
 
-	inline NuVec4 SetZero()
+	__forceinline NuVec4 SetZero()
 	{
 		return _mm_setzero_ps();
 	}
 
-	inline NuVec4 Set(float x, float y, float z, float w = 0.0f)
+	__forceinline NuVec4 Set(float x, float y, float z = 0.0f, float w = 0.0f)
 	{
 		return _mm_set_ps(w, z, y, x);
 	}
 
-	inline float GetX(NuVec4 v)
+	__forceinline float GetX(NuVec4 v)
 	{
 		return _mm_cvtss_f32(v);
 	}
 
-	inline float GetY(NuVec4 v)
+	__forceinline float GetY(NuVec4 v)
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1)));
 	}
 
-	inline float GetZ(NuVec4 v)
+	__forceinline float GetZ(NuVec4 v)
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2)));
 	}
 
-	inline float GetW(NuVec4 v)
+	__forceinline float GetW(NuVec4 v)
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
 
-	inline NuVec4 Add(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Add(NuVec4 a, NuVec4 b)
 	{
 		return _mm_add_ps(a, b);
 	}
 
-	inline NuVec4 Sub(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Sub(NuVec4 a, NuVec4 b)
 	{
 		return _mm_sub_ps(a, b);
 	}
 
-	inline NuVec4 Mul(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Mul(NuVec4 a, NuVec4 b)
 	{
 		return _mm_mul_ps(a, b);
 	}
 
-	inline NuVec4 Div(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Div(NuVec4 a, NuVec4 b)
 	{
 		return _mm_div_ps(a, b);
 	}
 
-	inline NuVec4 Set(float data)
+	__forceinline NuVec4 Set(float data)
 	{
 		return _mm_set1_ps(data);
 	}
 
-	inline NuVec4 Min(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Min(NuVec4 a, NuVec4 b)
 	{
 		return _mm_min_ps(a, b);
 	}
 
-	inline NuVec4 Max(NuVec4 a, NuVec4 b)
+	__forceinline NuVec4 Max(NuVec4 a, NuVec4 b)
 	{
 		return _mm_max_ps(a, b);
 	}
 
-	inline bool Equal(NuVec4 a, NuVec4 b)
+	__forceinline bool Equal(NuVec4 a, NuVec4 b)
 	{
-		NuVec4 cmp = _mm_cmpeq_ps(a, b);
-		return _mm_movemask_ps(cmp) == 0xF;
+		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
 	}
 
 	inline NuVec4 Abs(NuVec4 v)
@@ -119,7 +118,7 @@ namespace Engine::Math::Simd_SSE
 		return _mm_cvtss_f32(v);
 	}
 
-	inline float SqrtScalar(float value)
+	__forceinline float SqrtScalar(float value)
 	{
 		return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(value)));
 	}
@@ -136,13 +135,14 @@ namespace Engine::Math::Simd_SSE
 
 	inline NuVec4 Cross(NuVec4 a, NuVec4 b)
 	{
-		NuVec4 a_shuffled = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
-		NuVec4 b_shuffled = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 1, 0, 2));
-		NuVec4 mul1 = _mm_mul_ps(a_shuffled, b_shuffled);
+		// a[y, z, x, w], b[z, x, y, w]
+		NuVec4 a_yzx = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
+		NuVec4 b_zxy = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 1, 0, 2));
+		NuVec4 mul1 = _mm_mul_ps(a_yzx, b_zxy);
 
-		a_shuffled = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 1, 0, 2));
-		b_shuffled = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 0, 2, 1));
-		NuVec4 mul2 = _mm_mul_ps(a_shuffled, b_shuffled);
+		NuVec4 a_zxy = _mm_shuffle_ps(a_yzx, a_yzx, _MM_SHUFFLE(3, 0, 2, 1));
+		NuVec4 b_yzx = _mm_blend_ps(b_zxy, b, 0x8);
+		NuVec4 mul2 = _mm_mul_ps(a_zxy, b_yzx);
 
 		return _mm_sub_ps(mul1, mul2);
 	}
@@ -508,7 +508,7 @@ namespace Engine::Math::Simd_SSE
 		outRotationQuat = _mm_setr_ps(qx, qy, qz, qw);
 	}
 
-	inline NuVec4 GetColumn(const NuMat4& m, int index)
+	__forceinline NuVec4 GetColumn(const NuMat4& m, int index)
 	{
 		assert(index >= 0 && index < 4);
 		return m.cols[index];
@@ -535,7 +535,7 @@ namespace Engine::Math::Simd_SSE
 		return tmp[row];
 	}
 
-	inline const float* Data(const NuMat4& m)
+	__forceinline const float* Data(const NuMat4& m)
 	{
 		return reinterpret_cast<const float*>(&m.cols[0]);
 	}

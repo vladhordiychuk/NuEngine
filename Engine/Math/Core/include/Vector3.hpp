@@ -28,13 +28,16 @@ namespace Engine::Math
         Vector3& operator/=(float) noexcept;
 
         [[nodiscard]] float GetComponent(int) const noexcept;
+        [[nodiscard]] float X() const noexcept;
+        [[nodiscard]] float Y() const noexcept;
+        [[nodiscard]] float Z() const noexcept;
 
         [[nodiscard]] bool operator==(const Vector3&) const noexcept;
         [[nodiscard]] bool operator!=(const Vector3&) const noexcept;
 
         [[nodiscard]] float operator[](int) const noexcept;
-        [[nodiscard]] float operator[](int) noexcept
-        Vector3& operator=(const Vector3&) noexcept = default;
+        float& operator[](int) noexcept;
+        Vector3& operator=(const Vector3&) const noexcept = default;
         Vector3& operator=(Vector&&) noexcept = default;
 
         [[nodiscard]] static Vector3 Zero() noexcept;
