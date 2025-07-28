@@ -19,6 +19,7 @@ namespace Engine::Math
 
         [[nodiscard]] Vector4 operator+(const Vector4&) const noexcept;
         [[nodiscard]] Vector4 operator-(const Vector4&) const noexcept;
+        [[nodiscard]] Vector4 operator*(const Vector4&) const noexcept;
         [[nodiscard]] Vector4 operator*(float) const noexcept;
         [[nodiscard]] Vector4 operator/(float) const noexcept;
 
@@ -39,7 +40,6 @@ namespace Engine::Math
         [[nodiscard]] Vector4 operator-() const noexcept;
 
         [[nodiscard]] float operator[](int) const noexcept;
-        float& operator[](int) noexcept;
         Vector4& operator=(const Vector4&) noexcept = default;
         Vector4& operator=(Vector4&&) noexcept = default;
 
@@ -53,12 +53,15 @@ namespace Engine::Math
         [[nodiscard]] float Length() const noexcept;
         [[nodiscard]] float Dot(const Vector4&) const noexcept;
         [[nodiscard]] float LengthSquared() const noexcept;
+        [[nodiscard]] float Distance(const Vector4&) const noexcept;
+
         [[nodiscard]] const float* Data() const noexcept;
         [[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
         [[nodiscard]] Vector4 Normalize() const noexcept;
 
         [[nodiscard]] std::string ToString() const;
+        friend std::ostream& operator<<(std::ostream&, const Vector4&);
 
     private:
         Simd::NuVec4 m_data;

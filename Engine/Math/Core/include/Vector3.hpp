@@ -5,6 +5,7 @@
 #include <string>
 #include <initializer_list>
 #include <sstream>
+#include <stdexcept>
 
 namespace Engine::Math
 {
@@ -13,21 +14,23 @@ namespace Engine::Math
     public:
         Vector3() noexcept = default;
         Vector3(float x, float y, float z) noexcept;
-        Vector3(std::initializer_list<float> list) noexcept;
+        Vector3(std::initializer_list<float> list);
         Vector3(const Vector3&) noexcept = default;
         Vector3(Vector3&&) noexcept = default;
 
         [[nodiscard]] Vector3 operator+(const Vector3&) const noexcept;
         [[nodiscard]] Vector3 operator-(const Vector3&) const noexcept;
+        [[nodiscard]] Vector3 operator*(const Vector3&) const noexcept;
         [[nodiscard]] Vector3 operator*(float) const noexcept;
         [[nodiscard]] Vector3 operator/(float) const noexcept;
 
         Vector3& operator+=(const Vector3&) noexcept;
         Vector3& operator-=(const Vector3&) noexcept;
+        Vector3& operator*=(const Vector3&) noexcept;
         Vector3& operator*=(float) noexcept;
         Vector3& operator/=(float) noexcept;
 
-        [[nodiscard]] float GetComponent(int) const noexcept;
+        [[nodiscard]] float GetComponent(int) const;
         [[nodiscard]] float X() const noexcept;
         [[nodiscard]] float Y() const noexcept;
         [[nodiscard]] float Z() const noexcept;
@@ -36,9 +39,8 @@ namespace Engine::Math
         [[nodiscard]] bool operator!=(const Vector3&) const noexcept;
 
         [[nodiscard]] float operator[](int) const noexcept;
-        float& operator[](int) noexcept;
-        Vector3& operator=(const Vector3&) const noexcept = default;
-        Vector3& operator=(Vector&&) noexcept = default;
+        Vector3& operator=(const Vector3&) noexcept = default;
+        Vector3& operator=(Vector3&&) noexcept = default;
 
         [[nodiscard]] static Vector3 Zero() noexcept;
         [[nodiscard]] static Vector3 One() noexcept;
@@ -49,6 +51,8 @@ namespace Engine::Math
         [[nodiscard]] float Length() const noexcept;
         [[nodiscard]] float LengthSquared() const noexcept;
         [[nodiscard]] float Dot(const Vector3&) const noexcept;
+        [[nodiscard]] float Distance(const Vector3&) const noexcept;
+
         [[nodiscard]] const float* Data() const noexcept;
         [[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
@@ -56,6 +60,8 @@ namespace Engine::Math
         [[nodiscard]] Vector3 Cross(const Vector3&) const noexcept;
 
         [[nodiscard]] std::string ToString() const;
+
+        friend std::ostream& operator<<(std::ostream&, const Vector3&);
 
     private:
         Simd::NuVec4 m_data;

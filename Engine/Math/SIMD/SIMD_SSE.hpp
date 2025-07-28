@@ -23,7 +23,7 @@ namespace Engine::Math::Simd_SSE
 	};
 
 	// =============================================
-	// Vectors
+	// Setters
 	// =============================================
 
 	__forceinline NuVec4 SetZero()
@@ -35,6 +35,15 @@ namespace Engine::Math::Simd_SSE
 	{
 		return _mm_set_ps(w, z, y, x);
 	}
+
+	__forceinline NuVec4 SetAll(float value)
+	{
+		return _mm_set1_ps(value);
+	}
+
+	// =============================================
+	// Getters
+	// =============================================
 
 	__forceinline float GetX(NuVec4 v)
 	{
@@ -56,45 +65,26 @@ namespace Engine::Math::Simd_SSE
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
 
-	__forceinline NuVec4 Add(NuVec4 a, NuVec4 b)
-	{
-		return _mm_add_ps(a, b);
-	}
+	// =============================================
+	// Basic Arithmetic
+	// =============================================
 
-	__forceinline NuVec4 Sub(NuVec4 a, NuVec4 b)
-	{
-		return _mm_sub_ps(a, b);
-	}
+	__forceinline NuVec4 Add(NuVec4 a, NuVec4 b) { return _mm_add_ps(a, b); }
+	__forceinline NuVec4 Sub(NuVec4 a, NuVec4 b) { return _mm_sub_ps(a, b); }
+	__forceinline NuVec4 Mul(NuVec4 a, NuVec4 b) { return _mm_mul_ps(a, b); }
+	__forceinline NuVec4 Div(NuVec4 a, NuVec4 b) { return _mm_div_ps(a, b); }
 
-	__forceinline NuVec4 Mul(NuVec4 a, NuVec4 b)
-	{
-		return _mm_mul_ps(a, b);
-	}
-
-	__forceinline NuVec4 Div(NuVec4 a, NuVec4 b)
-	{
-		return _mm_div_ps(a, b);
-	}
-
-	__forceinline NuVec4 Set(float data)
-	{
-		return _mm_set1_ps(data);
-	}
-
-	__forceinline NuVec4 Min(NuVec4 a, NuVec4 b)
-	{
-		return _mm_min_ps(a, b);
-	}
-
-	__forceinline NuVec4 Max(NuVec4 a, NuVec4 b)
-	{
-		return _mm_max_ps(a, b);
-	}
+	__forceinline NuVec4 Min(NuVec4 a, NuVec4 b) { return _mm_min_ps(a, b); }
+	__forceinline NuVec4 Max(NuVec4 a, NuVec4 b) { return _mm_max_ps(a, b); }
 
 	__forceinline bool Equal(NuVec4 a, NuVec4 b)
 	{
 		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
 	}
+
+	// =============================================
+	// Special Ops
+	// =============================================
 
 	inline NuVec4 Abs(NuVec4 v)
 	{
@@ -102,49 +92,100 @@ namespace Engine::Math::Simd_SSE
 		return _mm_and_ps(v, mask);
 	}
 
-	inline float HorizontalAdd3(NuVec4 v) //don't use last element
-	{
-		NuVec4 temp = _mm_movehl_ps(v, v);
-		v = _mm_add_ps(v, temp);
-		temp = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
-		v = _mm_add_ss(v, temp);
-		return _mm_cvtss_f32(v);
-	}
-
-	inline float HorizontalAdd2(NuVec4 v)
-	{
-		NuVec4 temp = _mm_movehl_ps(v, v);
-		v = _mm_add_ps(v, temp);
-		return _mm_cvtss_f32(v);
-	}
-
 	__forceinline float SqrtScalar(float value)
 	{
 		return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(value)));
 	}
 
-	inline NuVec4 Normalize(NuVec4 v)
+	inline float HorizontalAdd4(NuVec4 v)
+	{
+		NuVec4 shuf = _mm_movehdup_ps(v);
+		NuVec4 sums = _mm_add_ps(v, shuf);       
+		shuf = _mm_movehl_ps(shuf, sums); 
+		sums = _mm_add_ss(sums, shuf);   
+		return _mm_cvtss_f32(sums);
+	}
+
+	inline float HorizontalAdd3(NuVec4 v)
+	{
+		NuVec4 shuf1 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 1, 0, 3)); 
+		NuVec4 shuf2 = _mm_movehl_ps(shuf1, shuf1); 
+		NuVec4 sum = _mm_add_ps(v, shuf2); 
+		sum = _mm_add_ss(sum, _mm_shuffle_ps(sum, sum, _MM_SHUFFLE(1, 1, 1, 1)));
+		return _mm_cvtss_f32(sum); 
+	}
+
+	inline float HorizontalAdd2(NuVec4 v)
+	{
+		return GetX(v) + GetY(v);
+	}
+
+	inline NuVec4 Normilize2(NuVec4)
+	{
+		// Обчислюємо x^2 + y^2
+		NuVec4 squared = Mul(v, v);
+		float lenSq = HorizontalAdd2(squared);
+
+		if (lenSq <= 0.0f)
+			return SetZero();
+
+		float invLen = 1.0f / SqrtScalar(lenSq);
+		NuVec4 scale = Set(invLen, invLen, 1.0f, 1.0f);
+
+		return Mul(v, scale);
+	}
+
+	inline NuVec4 Normalize3(NuVec4 v)
 	{
 		NuVec4 squared = Mul(v, v);
 		float lengthSquared = HorizontalAdd3(squared);
 		if (lengthSquared <= 0.0f)
 			return SetZero();
 		float invLength = 1.0f / SqrtScalar(lengthSquared);
-		return Mul(v, Set(invLength));
+		return Mul(v, SetAll(invLength));
+	}
+
+	inline NuVec4 Normilize4(NuVec4)
+	{
+		NuVec4 squared = Mul(v, v);
+		float lengthSquared = HorizontalAdd4(squared);
+
+		if (lengthSquared <= 0.0f)
+			return SetZero();
+
+		float invLength = 1.0f / SqrtScalar(lengthSquared);
+		return Mul(v, SetAll(invLength));
 	}
 
 	inline NuVec4 Cross(NuVec4 a, NuVec4 b)
 	{
-		// a[y, z, x, w], b[z, x, y, w]
 		NuVec4 a_yzx = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
-		NuVec4 b_zxy = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 1, 0, 2));
-		NuVec4 mul1 = _mm_mul_ps(a_yzx, b_zxy);
+		NuVec4 b_yzx = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 0, 2, 1));
+		NuVec4 c = _mm_sub_ps(
+			_mm_mul_ps(a, b_yzx),
+			_mm_mul_ps(a_yzx, b)
+		);
+		return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
+	}
 
-		NuVec4 a_zxy = _mm_shuffle_ps(a_yzx, a_yzx, _MM_SHUFFLE(3, 0, 2, 1));
-		NuVec4 b_yzx = _mm_blend_ps(b_zxy, b, 0x8);
-		NuVec4 mul2 = _mm_mul_ps(a_zxy, b_yzx);
+	// =============================================
+	// Extra Math Utilities
+	// =============================================
 
-		return _mm_sub_ps(mul1, mul2);
+	__forceinline float Dot3(NuVec4 a, NuVec4 b)
+	{
+		return HorizontalAdd3(Mul(a, b));
+	}
+
+	__forceinline float Length3(NuVec4 v)
+	{
+		return SqrtScalar(HorizontalAdd3(Mul(v, v)));
+	}
+
+	__forceinline NuVec4 Lerp(NuVec4 a, NuVec4 b, float t)
+	{
+		NuVec4 diff = Sub(b, a);
+		return Add(a, Mul(diff, SetAll(t)));
 	}
 
 	// =============================================

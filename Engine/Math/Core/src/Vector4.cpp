@@ -30,6 +30,11 @@ namespace Engine::Math
 		return Vector4(Simd::Sub(m_data, other.m_data));
 	}
 
+	Vector4 Vector4::operator*(const Vector4& other) const noexcept
+	{
+		return Vector4(Simd::Mul(m_data, other.m_data));
+	}
+
 	Vector4 Vector4::operator*(float scalar) const noexcept
 	{
 		return Vector4(Simd::Mul(m_data, Simd::Set(scalar)));
@@ -49,6 +54,12 @@ namespace Engine::Math
 	Vector4& Vector4::operator-=(const Vector4& other)
 	{
 		m_data = Simd::Sub(m_data, other.m_data);
+		return *this;
+	}
+
+	Vector4& Vector4::operator*=(const Vector4& other)
+	{
+		m_data = Simd::Mul(m_data, other.m_data);
 		return *this;
 	}
 
@@ -100,11 +111,6 @@ namespace Engine::Math
 		return Vector4::GetComponent(index);
 	}
 
-	float& Vector4::operator[](int index) noexcept
-	{
-		return Vector4::GetComponent(index);
-	}
-
 	Vector4 Vector4::operator-() const noexcept
 	{
 		return Vector4(Simd::Mul(m_data, Simd::Set(-1.0f)));
@@ -141,24 +147,29 @@ namespace Engine::Math
 	float Vector4::Length() const noexcept
 	{
 		Simd::NuVec4 mul = Simd::Mul(m_data, m_data);
-		return Simd::SqrtScalar(Simd::HorizontalAdd3(mul));
+		return Simd::SqrtScalar(Simd::HorizontalAdd4(mul));
 	}
 
 	Vector4 Vector4::Normalize() const noexcept
 	{
-		return Vector4(Simd::Normalize(m_data));
+		return Vector4(Simd::Normalize4(m_data));
 	}
 
 	float Vector4::Dot(const Vector4& other) const noexcept
 	{
 		Simd::NuVec4 mul = Simd::Mul(m_data, other.m_data);
-		return Simd::HorizontalAdd3(mul);
+		return Simd::HorizontalAdd4(mul);
 	}
 
 	float Vector4::LengthSquared() const noexcept
 	{
 		Simd::NuVec4 mul = Simd::Mul(m_data, m_data);
-		return Simd::HorizontalAdd3(mul);
+		return Simd::HorizontalAdd4(mul);
+	}
+
+	float Vector4::Distance(const Vector4& other) const noexcept
+	{
+		return (*this - other).Length();
 	}
 
 	const float* Vector4::Data() const noexcept
@@ -173,32 +184,32 @@ namespace Engine::Math
 
 	Vector4 Vector4::Zero() noexcept
 	{
-		return Simd::SetZero();
+		return Vector4(Simd::SetZero());
 	}
 
 	Vector4 Vector4::One() noexcept
 	{
-		return Simd::Set(1.0f, 1.0f, 1.0f, 1.0f);
+		return Vector4(Simd::Set(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	Vector4 Vector4::UnitX() noexcept
 	{
-		return Simd::Set(1.0f, 0.0f, 0.0f, 0.0f);
+		return Vector4(Simd::Set(1.0f, 0.0f, 0.0f, 0.0f));
 	}
 
 	Vector4 Vector4::UnitY() noexcept
 	{
-		return Simd::Set(0.0f, 1.0f, 0.0f, 0.0f);
+		return Vector4(Simd::Set(0.0f, 1.0f, 0.0f, 0.0f));
 	}
 
 	Vector4 Vector4::UnitZ() noexcept
 	{
-		return Simd::Set(0.0f, 0.0f, 1.0f, 0.0f);
+		return Vector4(Simd::Set(0.0f, 0.0f, 1.0f, 0.0f));
 	}
 
 	Vector4 Vector4::UnitW() noexcept
 	{
-		return Simd::Set(0.0f, 0.0f, 0.0f, 1.0f);
+		return Vector4(Simd::Set(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	std::string Vector4::ToString() const
@@ -206,5 +217,11 @@ namespace Engine::Math
 		std::ostringstream oss;
 		oss << "(" << GetComponent(0) << ", " << GetComponent(1) << ", " << GetComponent(2) << ", " << GetComponent(3) << ")";
 		return oss.str();
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Vector4& vec)
+	{
+		os << vec.ToString();
+		return os;
 	}
 }

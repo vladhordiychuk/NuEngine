@@ -7,7 +7,7 @@ namespace Engine::Math
 	}
 
 	Vector2::Vector2(float x, float y) noexcept  
-		: m_data(Simd::Set(x, y, 0, 0))
+		: m_data(Simd::Set(x, y, 0.0f, 0.0f))
 	{
 	}
 
@@ -15,7 +15,9 @@ namespace Engine::Math
 	{
 		assert(list.size() == 2);
 		auto it = list.begin();
-		m_data = Simd::Set(it[0], it[1], 0, 0);
+		float x = *it++;
+		float y = *it++;
+		m_data = Simd::Set(x, y, 0.0f, 0.0f);
 	}
 
 	Vector2::Vector2(const Vector2& other) noexcept
@@ -31,6 +33,11 @@ namespace Engine::Math
 	Vector2 Vector2::operator-(const Vector2& other) const noexcept
 	{
 		return Vector2(Simd::Sub(m_data, other.m_data));
+	}
+
+	Vector2 Vector2::operator*(const Vector2& other) const noexcept
+	{
+		return Vector2(Simd::Mul(m_data, other.m_data));
 	}
 
 	Vector2 Vector2::operator*(float scalar) const noexcept
@@ -52,6 +59,12 @@ namespace Engine::Math
 	Vector2& Vector2::operator-=(const Vector2& other) noexcept
 	{
 		m_data = Simd::Sub(m_data, other.m_data);
+		return *this;
+	}
+
+	Vector2& Vector2::operator*=(const Vector2& other) noexcept
+	{
+		m_data = Simd::Mul(m_data, other.m_data);
 		return *this;
 	}
 
@@ -103,7 +116,7 @@ namespace Engine::Math
 
 	Vector2 Vector2::Normalize() const noexcept
 	{
-		return Vector2(Simd::Normalize(m_data));
+		return Vector2(Simd::Normalize2(m_data));
 	}
 
 	float Vector2::LengthSquared() const noexcept
@@ -112,7 +125,12 @@ namespace Engine::Math
 		return Simd::HorizontalAdd2(mul);
 	}
 
-	Vector2 Vector2::operator=(const Vector2& other)noexcept
+	float Vector2::Distance(const Vector2& other) noexcept
+	{
+		return (*this - other).Length();
+	}
+
+	Vector2& Vector2::operator=(const Vector2& other) noexcept
 	{
 		if (this != &other)
 		{
@@ -121,7 +139,7 @@ namespace Engine::Math
 		return *this;
 	}
 
-	Vector2& Vector2::operator=(Vecto2&& other) noexcept
+	Vector2& Vector2::operator=(Vector2&& other) noexcept
 	{
 		if (this != &other)
 		{
@@ -131,11 +149,6 @@ namespace Engine::Math
 	}
 
 	float Vector2::operator[](int index) const noexcept
-	{
-		return GetComponent(index);
-	}
-
-	float& Vector2::operator[](int index) noexcept
 	{
 		return GetComponent(index);
 	}
@@ -150,22 +163,36 @@ namespace Engine::Math
 		}
 	}
 
-	float Vector2::GetX() const noexcept
+	Vector2 Vector2::Zero() noexcept
 	{
-		return Simd::GetX(m_data);
+		return Vector2(Simd::SetZero());
 	}
 
-	float Vector2::GetY() const noexcept
+	Vector2 Vector2::One() noexcept
 	{
-		return Simd::GetY(m_data);
+		return Vector2(Simd::Set(1.0f, 1.0f));
 	}
 
+	Vector2 Vector2::UnitX() noexcept
+	{
+		return Vector2(Simd::Set(1.0f, 0.0f));
+	}
 
+	Vector2 Vector2::UnitY() noexcept
+	{
+		return Vector2(Simd::Set(0.0f, 1.0f));
+	}
 
 	std::string Vector2::ToString() const
 	{
 		std::ostringstream oss;
 		oss << "(" << X() << ", " << Y() << ")";
 		return oss.str();
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Vector2& vec)
+	{
+		os << vec.ToString();
+		return os;
 	}
 }

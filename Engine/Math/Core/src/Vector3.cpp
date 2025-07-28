@@ -8,7 +8,7 @@ namespace Engine::Math
     }
 
     Vector3::Vector3(float x, float y, float z) noexcept
-        : m_data(Simd::Set(x, y, z))
+        : m_data(Simd::Set(x, y, z, 0.0f))
     {
     }
 
@@ -16,7 +16,10 @@ namespace Engine::Math
     {
         assert(list.size() == 3);
         auto it = list.begin();
-        m_data = Simd::Set(it[0], it[1], it[2], 0);
+        float x = *it++;
+        float y = *it++;
+        float z = *it++;
+        m_data = Simd::Set(x, y, z, 0.0f);
     }
 
     Vector3::Vector3(const Vector3& other) noexcept
@@ -32,6 +35,11 @@ namespace Engine::Math
     Vector3 Vector3::operator-(const Vector3& other) const noexcept
     {
         return Vector3(Simd::Sub(m_data, other.m_data));
+    }
+
+    Vector3 Vector3::operator*(const Vector3& other) noexcept
+    {
+        return Vector3(Simd::Mul(m_data, other.m_data));
     }
 
     Vector3 Vector3::operator*(float scalar) const noexcept
@@ -53,6 +61,12 @@ namespace Engine::Math
     Vector3& Vector3::operator-=(const Vector3& other) noexcept
     {
         m_data = Simd::Sub(m_data, other.m_data);
+        return *this;
+    }
+
+    Vector3& Vector3::operator*(const Vector3& other) noexcept
+    {
+        m_data = SImd::Mul(m_data, other.m_data);
         return *this;
     }
 
@@ -98,16 +112,11 @@ namespace Engine::Math
         return GetComponent(index);
     }
 
-    float& Vector3::operator[](int index) noexcept
-    {
-        return GetComponent(index);
-    }
-
     Vector3& Vector3::operator=(const Vector3& other) noexcept
     {
         if (this != &other)
         {
-            m_data = other.m_data
+            m_data = other.m_data;
         }
         return *this;
     }
@@ -121,44 +130,44 @@ namespace Engine::Math
         return *this;
     }
 
-    float Vector3::Zero() noexcept
+    Vector3 Vector3::Zero() noexcept
     {
-        return Simd::SetZero();
+        return Vector3(Simd::SetZero());
     }
 
-    float Vector3::One() noexcept
+    Vector3 Vector3::One() noexcept
     {
-        return Simd::Set(1.0f, 1.0f, 1.0f);
+        return Vector3(Simd::Set(1.0f, 1.0f, 1.0f));
     }
 
-    float Vector3::UnitX() noexcept
+    Vector3 Vector3::UnitX() noexcept
     {
-        return Simd::Set(1.0f, 0.0f, 0.0f);
+        return Vector3(Simd::Set(1.0f, 0.0f, 0.0f));
     }
 
-    float Vector3::UnitY() noexcept
+    Vector3 Vector3::UnitY() noexcept
     {
-        return Simd::Set(0.0f, 1.0f, 0.0f);
+        return Vector3(Simd::Set(0.0f, 1.0f, 0.0f));
     }
 
-    float Vector3::UnitZ() noexcept
+    Vector3 Vector3::UnitZ() noexcept
     {
-        return Simd::Set(0.0f, 0.0f, 1.0f);
+        return Vector3(Simd::Set(0.0f, 0.0f, 1.0f));
     }
 
     float Vector3::Length() const noexcept
     {
-        return Simd::SqrtScalar(Simd::HorizontalAdd3(Simd::Mul(m_data, m_data)));
+        return Simd::Length3(m_data);
     }
 
     float Vector3::Dot(const Vector3& other) const noexcept
     {
-        return Simd::HorizontalAdd3(Simd::Mul(m_data, other.m_data));
+        return Simd::Dot3(m_data, other.m_data);
     }
 
     Vector3 Vector3::Normalize() const noexcept
     {
-        return Vector3(Simd::Normalize(m_data));
+        return Vector3(Simd::Normalize3(m_data));
     }
 
     Vector3 Vector3::Cross(const Vector3& other) const noexcept
@@ -169,6 +178,11 @@ namespace Engine::Math
     float Vector3::LengthSquared() const noexcept
     {
         return Simd::HorizontalAdd3(Simd::Mul(m_data, m_data));
+    }
+
+    float Vector3::Distance(const Vector3& other) noexcept
+    {
+        return (*this - other).Length();
     }
 
     const float* Vector3::Data() const noexcept
@@ -188,7 +202,7 @@ namespace Engine::Math
         case 0: return Simd::GetX(m_data);
         case 1: return Simd::GetY(m_data);
         case 2: return Simd::GetZ(m_data);
-        default: assert(false); return 0.0f;
+        default: throw std::out_of_range("Vector3 component index out of range");;
         }
     }
 
@@ -197,5 +211,11 @@ namespace Engine::Math
         std::ostringstream oss;
         oss << "(" << X() << ", " << Y() << ", " << Z() << ")";
         return oss.str();
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Vector3& vec)
+    {
+        os << vec.ToString();
+        return os;
     }
 }
