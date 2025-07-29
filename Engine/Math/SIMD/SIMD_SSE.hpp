@@ -120,9 +120,8 @@ namespace Engine::Math::Simd_SSE
 		return GetX(v) + GetY(v);
 	}
 
-	inline NuVec4 Normilize2(NuVec4)
+	inline NuVec4 Normalize2(NuVec4 v)
 	{
-		// Обчислюємо x^2 + y^2
 		NuVec4 squared = Mul(v, v);
 		float lenSq = HorizontalAdd2(squared);
 
@@ -145,7 +144,7 @@ namespace Engine::Math::Simd_SSE
 		return Mul(v, SetAll(invLength));
 	}
 
-	inline NuVec4 Normilize4(NuVec4)
+	inline NuVec4 Normalize4(NuVec4 v)
 	{
 		NuVec4 squared = Mul(v, v);
 		float lengthSquared = HorizontalAdd4(squared);

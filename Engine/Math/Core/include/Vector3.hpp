@@ -38,7 +38,7 @@ namespace Engine::Math
         [[nodiscard]] bool operator==(const Vector3&) const noexcept;
         [[nodiscard]] bool operator!=(const Vector3&) const noexcept;
 
-        [[nodiscard]] float operator[](int) const noexcept;
+        [[nodiscard]] float operator[](int) const;
         Vector3& operator=(const Vector3&) noexcept = default;
         Vector3& operator=(Vector3&&) noexcept = default;
 
@@ -54,6 +54,7 @@ namespace Engine::Math
         [[nodiscard]] float Distance(const Vector3&) const noexcept;
 
         [[nodiscard]] const float* Data() const noexcept;
+        [[nodiscard]] float* Data() noexcept;
         [[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
         [[nodiscard]] Vector3 Normalize() const noexcept;

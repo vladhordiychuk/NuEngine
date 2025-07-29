@@ -12,7 +12,7 @@ namespace Engine::Math
     {
     }
 
-    Vector3::Vector3(std::initializer_list<float> list) noexcept
+    Vector3::Vector3(std::initializer_list<float> list)
     {
         assert(list.size() == 3);
         auto it = list.begin();
@@ -66,7 +66,7 @@ namespace Engine::Math
 
     Vector3& Vector3::operator*(const Vector3& other) noexcept
     {
-        m_data = SImd::Mul(m_data, other.m_data);
+        m_data = Simd::Mul(m_data, other.m_data);
         return *this;
     }
 
@@ -180,7 +180,7 @@ namespace Engine::Math
         return Simd::HorizontalAdd3(Simd::Mul(m_data, m_data));
     }
 
-    float Vector3::Distance(const Vector3& other) noexcept
+    float Vector3::Distance(const Vector3& other) const noexcept
     {
         return (*this - other).Length();
     }
@@ -190,19 +190,24 @@ namespace Engine::Math
         return reinterpret_cast<const float*>(&m_data);
     }
 
+    float* Data() noexcept 
+    {
+        return reinterpret_cast<float*>(&m_data);
+    }
+
     const Simd::NuVec4& Vector3::SimdData() const noexcept
     {
         return m_data;
     }
 
-    float Vector3::GetComponent(int index) const noexcept
+    float Vector3::GetComponent(int index) const
     {
         switch (index)
         {
         case 0: return Simd::GetX(m_data);
         case 1: return Simd::GetY(m_data);
         case 2: return Simd::GetZ(m_data);
-        default: throw std::out_of_range("Vector3 component index out of range");;
+        default: throw std::out_of_range("Vector3 component index out of range");
         }
     }
 

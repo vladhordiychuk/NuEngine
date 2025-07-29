@@ -11,7 +11,7 @@ namespace Engine::Math
 	{
 	}
 
-	Vector2::Vector2(std::initializer_list<float> list) noexcept
+	Vector2::Vector2(std::initializer_list<float> list)
 	{
 		assert(list.size() == 2);
 		auto it = list.begin();
@@ -125,7 +125,7 @@ namespace Engine::Math
 		return Simd::HorizontalAdd2(mul);
 	}
 
-	float Vector2::Distance(const Vector2& other) noexcept
+	float Vector2::Distance(const Vector2& other) const noexcept
 	{
 		return (*this - other).Length();
 	}
@@ -148,18 +148,18 @@ namespace Engine::Math
 		return *this;
 	}
 
-	float Vector2::operator[](int index) const noexcept
+	float Vector2::operator[](int index) const
 	{
 		return GetComponent(index);
 	}
 
-	float Vector2::GetComponent(int index) const noexcept
+	float Vector2::GetComponent(int index) const
 	{
 		switch (index)
 		{
 		case 0: return Simd::GetX(m_data);
 		case 1:return Simd::GetY(m_data);
-		default: assert(false); return 1.0f;
+		default: throw std::out_of_range("Vector2 component index out of range");
 		}
 	}
 
@@ -181,6 +181,20 @@ namespace Engine::Math
 	Vector2 Vector2::UnitY() noexcept
 	{
 		return Vector2(Simd::Set(0.0f, 1.0f));
+	}
+
+	const float* Vector2::Data() const noexcept
+	{
+		return reinterpret_cast<const float*>(&m_data);
+	}
+
+	float* Vector2::Data() noexcept {
+		return reinterpret_cast<float*>(&m_data);
+	}
+
+	const Simd::NuVec4& Vector2::SimdData() const noexcept
+	{
+		return m_data;
 	}
 
 	std::string Vector2::ToString() const

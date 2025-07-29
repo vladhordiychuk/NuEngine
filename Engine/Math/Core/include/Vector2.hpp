@@ -40,7 +40,7 @@ namespace Engine::Math
 		[[nodiscard]] static Vector2 UnitX() noexcept;
 		[[nodiscard]] static Vector2 UnitY() noexcept;
 
-		[[nodiscard]] float operator[](int) const noexcept;
+		[[nodiscard]] float operator[](int) const;
 		Vector2& operator=(const Vector2&) noexcept = default;
 		Vector2& operator=(Vector2&&) noexcept = default;
 
@@ -50,6 +50,7 @@ namespace Engine::Math
 		[[nodiscard]] float Distance(const Vector2&) const noexcept;
 
 		[[nodiscard]] const float* Data() const noexcept;
+		[[nodiscard]] float* Data() noexcept;
 		[[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
 		[[nodiscard]] Vector2 Normalize() const noexcept;
