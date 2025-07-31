@@ -37,7 +37,7 @@ namespace Engine::Math
         return Vector3(Simd::Sub(m_data, other.m_data));
     }
 
-    Vector3 Vector3::operator*(const Vector3& other) noexcept
+    Vector3 Vector3::operator*(const Vector3& other) const noexcept
     {
         return Vector3(Simd::Mul(m_data, other.m_data));
     }
@@ -64,7 +64,7 @@ namespace Engine::Math
         return *this;
     }
 
-    Vector3& Vector3::operator*(const Vector3& other) noexcept
+    Vector3& Vector3::operator*=(const Vector3& other) noexcept
     {
         m_data = Simd::Mul(m_data, other.m_data);
         return *this;
@@ -130,6 +130,11 @@ namespace Engine::Math
         return *this;
     }
 
+    Vector3 Vector3::operator-() const noexcept
+    {
+        return Vecto3(Simd::Neg(m_data));
+    }
+
     Vector3 Vector3::Zero() noexcept
     {
         return Vector3(Simd::SetZero());
@@ -190,7 +195,7 @@ namespace Engine::Math
         return reinterpret_cast<const float*>(&m_data);
     }
 
-    float* Data() noexcept 
+    float* Vector3::Data() noexcept 
     {
         return reinterpret_cast<float*>(&m_data);
     }

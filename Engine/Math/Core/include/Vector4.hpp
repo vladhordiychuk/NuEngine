@@ -132,7 +132,7 @@ namespace Engine::Math
         * 
         * Performs component-wise multiplication and updates the current vector.
         * 
-        * @param other
+        * @param other The vector to multiply.
         * @return A reference to this vector after the multiplication.
         */
         Vector4& operator*=(const Vector4& other) noexcept;
@@ -213,7 +213,7 @@ namespace Engine::Math
         * 
         * Each component of the resulting vector is the negation of the corresponding component in this vector.
         * 
-        * @return A negated vector
+        * @return A negated vector.
         */
         [[nodiscard]] Vector4 operator-() const noexcept;
 
@@ -304,19 +304,19 @@ namespace Engine::Math
         [[nodiscard]] float Length() const noexcept;
 
         /*
+        * @brief Calculates the squared length of the vector.
+        *
+        * @return Squared length.
+        */
+        [[nodiscard]] float LengthSquared() const noexcept;
+
+        /*
         * @brief Computes the dot product with another vector.
         * 
         * @param other The vector to compute the dot product with.
         * @return Dot product result.
         */
         [[nodiscard]] float Dot(const Vector4& other) const noexcept;
-
-        /*
-        * @brief Calculates the squared length of the vector.
-        * 
-        * @return Squared length.
-        */
-        [[nodiscard]] float LengthSquared() const noexcept;
 
         /*
         * @brief Calculates the distance to another vector.
@@ -348,8 +348,9 @@ namespace Engine::Math
         [[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
 
         /*
-        * @brief Normalizes the vector
-        * @return Normalized vector
+        * @brief Normalizes the vector.
+        * 
+        * @return Normalized vector.
         */
         [[nodiscard]] Vector4 Normalize() const noexcept;
 
@@ -364,14 +365,14 @@ namespace Engine::Math
         * @brief Writes the vector to the output stream.
         * 
         * @param os Output stream.
-        * @param vec Vector to write.
+        * @param vec Vector4 to write.
         * @return Reference to the output stream.
         */
-        friend std::ostream& operator<<(std::ostream&, const Vector4&);
+        friend std::ostream& operator<<(std::ostream& os, const Vector4& other);
 
     private:
         /*
-        * @brief SIMD-data that stores vector components
+        * @brief SIMD-data that stores vector components.
         */
         Simd::NuVec4 m_data;
 

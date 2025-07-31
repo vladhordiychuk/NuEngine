@@ -73,6 +73,11 @@ namespace Engine::Math::Simd_SSE
 	__forceinline NuVec4 Sub(NuVec4 a, NuVec4 b) { return _mm_sub_ps(a, b); }
 	__forceinline NuVec4 Mul(NuVec4 a, NuVec4 b) { return _mm_mul_ps(a, b); }
 	__forceinline NuVec4 Div(NuVec4 a, NuVec4 b) { return _mm_div_ps(a, b); }
+	__forceinline NuVec4 Neg(NuVec4 v) 
+	{
+		const NuVec4 sign_mask = _mm_set1_ps(-0.0f);
+		return _mm_xor_ps(v, sign_mask);
+	}
 
 	__forceinline NuVec4 Min(NuVec4 a, NuVec4 b) { return _mm_min_ps(a, b); }
 	__forceinline NuVec4 Max(NuVec4 a, NuVec4 b) { return _mm_max_ps(a, b); }
