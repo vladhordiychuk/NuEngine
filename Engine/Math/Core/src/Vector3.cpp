@@ -132,7 +132,7 @@ namespace Engine::Math
 
     Vector3 Vector3::operator-() const noexcept
     {
-        return Vecto3(Simd::Neg(m_data));
+        return Vector3(Simd::Neg(m_data));
     }
 
     Vector3 Vector3::Zero() noexcept
