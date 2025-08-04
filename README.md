@@ -47,11 +47,6 @@ mkdir build && cd build
 ```
 cmake ..
 ```
-```
-make
-```
-
-
 
 ## English
 
@@ -93,9 +88,6 @@ mkdir build && cd build
 ```
 ```
 cmake ..
-```
-```
-make
 ```
 
 ## Author
