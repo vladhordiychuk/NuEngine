@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "Shader.hpp"
-#include "Core/Logger.hpp"
+#include "Core/Logging/Logger.hpp"
 
 namespace Engine::Renderer::OpenGL 
 {
