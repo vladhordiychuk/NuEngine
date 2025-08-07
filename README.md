@@ -23,17 +23,54 @@
 - ✅ Трансформації: `Transform`, `Scale`, `Rotate`, `Translate`
 - ✅ SIMD-функції: додавання, віднімання, множення, dot/cross product, порівняння
 - ✅ Строгі перевірки assert'ами
+- ✅ Unit-тести і Benchmark
 
 Бібліотека побудована навколо власного low-level SIMD-API `Simd::`, який абстрагує роботу з `__m128` для зручності та безпеки.
 
 ---
 
-## 📂 Структура
+### 📅 У планах
 
-*скоро буде*
+- Розробка ECS (Entity Component System)
+- Інтеграція AI-поведінки
+- Створення редактора рівнів (Qt)
+- Модуль графіки
+- Підтримка фізики (PhysX, власні рішення)
 
+---
+
+## 📂 Структура проекту
+
+<details>
+  <summary>Показати структуру проекту</summary>
+  
+  ```plaintext
+  NuEngine/
+  ├── Game/
+  ├── Editor/
+  ├── Engine/
+  │   ├── Math/
+  │   ├── Core/
+  │   ├── Platform/
+  │   ├── ECS/
+  │   ├── Graphics/
+  │   └── CMakeLists.txt
+  ├── Tests/
+  │   ├── Unit/
+  │   ├── Benchmark/
+  │   ├── CMakeLists.txt
+  │   └── test_main.cpp
+  ├── Thirdparty/
+  ├── CMakeLists.txt
+  └── README.md
+  ```
+</details>
+
+---
 
 ## Для збірки проєкту необхідно:
+
+Підтримувані платформи: Windows (Linux — в розробці)
 
 ```bash
 git clone https://github.com/vladhordiychuk/NuEngine.git
@@ -64,18 +101,54 @@ At the current stage, a high-performance SIMD math library has been implemented 
 - ✅ Transformations: `Transform`, `Scale`, `Rotate`, `Translate`
 - ✅ SIMD functions: addition, subtraction, multiplication, dot/cross product, comparisons
 - ✅ Strict assert-based validations
+- ✅ Unit tests and benchmarks
 
 The library is built around a custom low-level SIMD API `Simd::`, which abstracts `__m128` operations for ease of use and safety.
 
 ---
 
+### 📅 Roadmap
+
+- ECS system development
+- AI behavior integration
+- Level editor (Qt)
+- Graphics module
+- Physics support (PhysX and custom)
+
+---
+
 ## 📂 Project Structure
 
-*to be added*
+<details>
+  <summary>Show the project structure</summary>
+  
+  ```plaintext
+  NuEngine/
+  ├── Game/
+  ├── Editor/
+  ├── Engine/
+  │   ├── Math/
+  │   ├── Core/
+  │   ├── Platform/
+  │   ├── ECS/
+  │   ├── Graphics/
+  │   └── CMakeLists.txt
+  ├── Tests/
+  │   ├── Unit/
+  │   ├── Benchmark/
+  │   ├── CMakeLists.txt
+  │   └── test_main.cpp
+  ├── Thirdparty/
+  ├── CMakeLists.txt
+  └── README.md
+  ```
+</details>
 
 ---
 
 ## 🛠️ Build Instructions
+
+Supported platforms: Windows (Linux - in development)
 
 ```bash
 git clone https://github.com/vladhordiychuk/NuEngine.git
