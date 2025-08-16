@@ -10,15 +10,12 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Wno-unused-parameter)
 endif()
 
-add_subdirectory(thirdparty/glm)
-add_subdirectory(thirdparty/googletest)
-add_subdirectory(thirdparty/benchmark)
-add_subdirectory(thirdparty/glfw)
-add_library(glad STATIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c)
-target_include_directories(glad PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/include)
+add_subdirectory(thirdparty/glm ${CMAKE_BINARY_DIR}/glm)
+add_subdirectory(thirdparty/googletest ${CMAKE_BINARY_DIR}/googletest)
+add_subdirectory(thirdparty/benchmark ${CMAKE_BINARY_DIR}/benchmark)
+add_subdirectory(thirdparty/glfw ${CMAKE_BINARY_DIR}/glfw)
 
 add_subdirectory(Engine)
-
 add_subdirectory(Game)
 
 enable_testing()

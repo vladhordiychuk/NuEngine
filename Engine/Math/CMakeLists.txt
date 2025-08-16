@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.16)
 project(Math)
 
 option(NU_USE_SSE "Use SSE backend for SIMD" ON)
