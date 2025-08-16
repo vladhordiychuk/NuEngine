@@ -10,7 +10,7 @@ target_include_directories(Game PRIVATE
     ${CMAKE_SOURCE_DIR}/Engine/Math/include
 )
 
-ttarget_link_libraries(Game PRIVATE 
+target_link_libraries(Game PRIVATE 
     Engine
     glfw
     glad
