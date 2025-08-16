@@ -17,8 +17,8 @@ add_subdirectory(thirdparty/glfw)
 add_library(glad STATIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c)
 target_include_directories(glad PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/include)
 
+add_subdirectory(Math)
 add_subdirectory(Engine)
-
 add_subdirectory(Game)
 
 enable_testing()
