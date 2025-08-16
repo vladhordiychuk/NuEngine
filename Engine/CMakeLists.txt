@@ -10,11 +10,7 @@ target_include_directories(Engine PUBLIC
     ${CMAKE_SOURCE_DIR}/Math/include
 )
 
-target_link_libraries(Engine PUBLIC
-    Math
-    glfw
-    glad
-)
+target_link_libraries(Engine PUBLIC Math glfw glad)
 
 if (WIN32)
     find_package(OpenGL REQUIRED)
