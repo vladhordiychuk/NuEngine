@@ -11,5 +11,3 @@ target_include_directories(Game PRIVATE
 )
 
 target_link_libraries(Game PRIVATE Engine glfw glad)
-
-

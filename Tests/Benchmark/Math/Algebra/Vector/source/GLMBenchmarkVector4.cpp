@@ -4,9 +4,6 @@ namespace Benchmark
 {
     void RegisterVector4Benchmarks_GLM()
     {
-        REGISTER_VECTOR_BENCHMARK(glm::vec4, Add_Array100k, BM_Vector_Array_BinaryOp,
-            [](auto& a, auto& b) { return a + b; });
-
         REGISTER_VECTOR_BENCHMARK(glm::vec4, Add, BM_Vector_BinaryOp,
             [](auto& a, auto& b) { return a + b; });
 

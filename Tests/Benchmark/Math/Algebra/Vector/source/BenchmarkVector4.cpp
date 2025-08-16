@@ -4,9 +4,6 @@ namespace Benchmark
 {
 	void RegisterVector4Benchmarks()
 	{
-		REGISTER_VECTOR_BENCHMARK(NuEngine::Math::Vector4, Add_Array100k, BM_Vector_Array_BinaryOp,
-			[](auto& a, auto& b) { return a + b; });
-
 		REGISTER_VECTOR_BENCHMARK(NuEngine::Math::Vector4, Add, BM_Vector_BinaryOp,
 			[](auto& a, auto& b) { return a + b; });
 
