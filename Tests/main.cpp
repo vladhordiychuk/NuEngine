@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+
+#ifdef RUN_BENCHMARKS
 #include <benchmark/benchmark.h>
 #include <windows.h>
 
@@ -10,7 +12,7 @@
 #include "Benchmark/Math/Algebra/Vector/include/GLMBenchmarkVector3.hpp"
 #include "Benchmark/Math/Algebra/Vector/include/GLMBenchmarkVector4.hpp"
 
-void PinToCore(size_t coreId = 0) 
+void PinToCore(size_t coreId = 0)
 {
     DWORD_PTR mask = (1ull << coreId);
     SetProcessAffinityMask(GetCurrentProcess(), mask);
@@ -19,21 +21,22 @@ void PinToCore(size_t coreId = 0)
 void WarmupCPU()
 {
     volatile double x = 1.0;
-    for (int i = 0; i < 100000000; ++i) 
+    for (int i = 0; i < 100000000; ++i)
     {
         x *= 1.0000001;
         x /= 1.0000001;
     }
 }
+#endif // RUN_BENCHMARKS
 
 int main(int argc, char** argv)
 {
-    PinToCore(0);
-
     ::testing::InitGoogleTest(&argc, argv);
     int test_result = RUN_ALL_TESTS();
     if (test_result != 0) return test_result;
 
+#ifdef RUN_BENCHMARKS
+    PinToCore(0);
     WarmupCPU();
 
     ::benchmark::Initialize(&argc, argv);
@@ -46,15 +49,8 @@ int main(int argc, char** argv)
     Benchmark::RegisterVector3Benchmarks_GLM();
     Benchmark::RegisterVector4Benchmarks_GLM();
 
-    int fake_argc = 3;
-    const char* fake_argv[] = 
-    {
-        argv[0],
-        "--benchmark_min_time=2s",      // 2 seconds
-        "--benchmark_repetitions=1",   // 3 repeats
-    };
-    ::benchmark::Initialize(&fake_argc, const_cast<char**>(fake_argv));
-
     ::benchmark::RunSpecifiedBenchmarks();
+#endif
+
     return 0;
 }
