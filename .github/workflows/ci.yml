@@ -2,9 +2,9 @@ name: Math Unit Tests
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main, dev]
 
 jobs:
   build-and-test:
@@ -20,11 +20,17 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_BENCHMARKS=OFF \
+            -DBUILD_TESTS=ON
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
+        run: cmake --build build --config ${{ matrix.build_type }} --target Tests
 
       - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+        run: |
+          cd build
+          ctest --output-on-failure --timeout 60
 
