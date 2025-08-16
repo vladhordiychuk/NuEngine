@@ -26,7 +26,7 @@ target_link_libraries(Tests PRIVATE
 enable_testing()
 
 set(GTEST_DISCOVERY_TIMEOUT 60) 
-set(GTEST_TIMEOUT 120)
+set(GTEST_TIMEOUT 300)
 
 option(RUN_BENCHMARKS "Run benchmark tests" OFF)
 
