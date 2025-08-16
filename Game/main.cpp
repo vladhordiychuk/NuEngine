@@ -1,14 +1,14 @@
 #include "Core/Application.hpp"
-#include <NuMath.hpp>
+#include <Math/Math.hpp>
 
 #include <iostream>
 
 int main() 
 {
-    Engine::Core::Application::Application app;
+    NuEngine::Core::Application::Application app;
     app.Run();
 
-    using namespace Engine::Math;
+    using namespace NuEngine::Math;
 
     Vector3 a(1.0f, 2.0f, 3.0f);
     Vector3 b(3.0f, 2.0f, 1.0f);

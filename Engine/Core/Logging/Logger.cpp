@@ -14,7 +14,7 @@
 #define WHITE   "\033[37m"
 #endif
 
-namespace Engine::Core::Logging
+namespace NuEngine::Core::Logging
 {
     void Logger::Init(const std::string& logFilePath)
     {

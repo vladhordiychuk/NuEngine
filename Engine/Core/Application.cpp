@@ -5,7 +5,7 @@
 #include "Logging/Logger.hpp"
 #include "../Platform/Window.hpp"
 
-namespace Engine::Core::Application 
+namespace NuEngine::Core::Application 
 {
     Application::Application() 
     {
@@ -41,7 +41,7 @@ namespace Engine::Core::Application
 
     void Application::MainLoop() const
     {
-        Engine::Core::WindowSystem::Window window(800, 600, "OpenGL Triangle");
+        NuEngine::Core::WindowSystem::Window window(800, 600, "OpenGL Triangle");
 
         std::vector<float> vertices = 
         {
@@ -52,7 +52,7 @@ namespace Engine::Core::Application
 
         std::vector<unsigned int> indices = { 0, 1, 2 };
 
-        Engine::Renderer::OpenGL::Mesh triangleMesh(vertices, indices);
+        NuEngine::Renderer::OpenGL::Mesh triangleMesh(vertices, indices);
 
         std::string vertexShaderSource = R"(
             #version 450 core
@@ -70,7 +70,7 @@ namespace Engine::Core::Application
             }
         )";
 
-        Engine::Renderer::OpenGL::Shader shader(vertexShaderSource, fragmentShaderSource);
+        NuEngine::Renderer::OpenGL::Shader shader(vertexShaderSource, fragmentShaderSource);
 
         while (!window.ShouldClose() && m_isRunning) 
         {

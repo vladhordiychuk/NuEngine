@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Vladyslav Hordiychuk
+// All rights reserved.
+// Unauthorized copying or use of this file is strictly prohibited.
+
 #pragma once
 
 #include <string>
@@ -5,7 +9,7 @@
 #include <source_location>
 #include <format>
 
-namespace Engine::Core::Logging
+namespace NuEngine::Core::Logging
 {
     enum class LogLevel
     {
@@ -45,9 +49,9 @@ namespace Engine::Core::Logging
     };
 }
 
-#define LOG_TRACE(...)    Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Trace, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_DEBUG(...)    Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Debug, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_INFO(...)     Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Info, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_WARNING(...)  Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Warning, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_ERROR(...)    Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Error, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_CRITICAL(...) Engine::Core::Logging::Logger::Log(Engine::Core::Logging::LogLevel::Critical, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_TRACE(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Trace, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_DEBUG(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Debug, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_INFO(...)     NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Info, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_WARNING(...)  NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Warning, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_ERROR(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Error, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_CRITICAL(...) NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Critical, std::format(__VA_ARGS__), std::source_location::current())

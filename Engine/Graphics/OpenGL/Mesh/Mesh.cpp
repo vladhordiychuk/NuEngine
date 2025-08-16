@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-namespace Engine::Renderer::OpenGL 
+namespace NuEngine::Renderer::OpenGL 
 {
     Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices) 
     {

@@ -1,0 +1,14 @@
+Copyright (c) 2025 Vladyslav Hordiychuk
+
+All rights reserved.
+
+This software and associated documentation files (the "Software") are the proprietary
+and confidential property of the author.
+
+No part of this software may be copied, modified, distributed, or used without
+explicit prior written permission from the author.
+
+Unauthorized use, reproduction, or distribution of this software, or any portion of it,
+may result in civil and criminal penalties.
+
+For licensing inquiries, please contact: gordijcukvlad64@gmail.com

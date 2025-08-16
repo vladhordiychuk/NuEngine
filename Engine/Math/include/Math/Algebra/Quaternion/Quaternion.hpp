@@ -1,0 +1,77 @@
+// Copyright (c) 2025 Vladyslav Hordiychuk
+// All rights reserved.
+// Unauthorized copying or use of this file is strictly prohibited.
+
+#pragma once
+
+#include <Math/Detail/SIMD/SIMDBackend.hpp>
+#include <Math/Algebra/Vector/Vector4.hpp>
+#include <Math/Algebra/Vector/Vector3.hpp>
+
+#include <initializer_list>
+#include <string>
+#include <sstream>
+
+namespace NuEngine::Math
+{
+	class Quaternion
+	{
+	public:
+		Quaternion() noexcept;
+		Quaternion(float x, float y, float z, float w) noexcept;
+		Quaternion(const Vector4& other) noexcept;
+		Quaternion(std::initializer_list<float> list) noexcept;
+		Quaternion(const Quaternion& other) noexcept;
+		Quaternion(Quaternion&& other) noexcept;
+
+		[[nodiscard]] float GetComponent(int) noexcept;
+		[[nodiscard]] float X() const noexcept;
+		[[nodiscard]] float Y() const noexcept;
+		[[nodiscard]] float Z() const noexcept;
+		[[nodiscard]] float W() const noexcept;
+
+		[[nodiscard]] const float* Data() const noexcept;
+		[[nodiscard]] const Simd::NuVec4& SimdData() const noexcept;
+
+		[[nodiscard]] Quaternion operator+(const Quaternion& other) const noexcept;
+		[[nodiscard]] Quaternion operator-(const Quaternion& other) const noexcept;
+		[[nodiscard]] Quaternion operator*(const Quaternion& other) const noexcept;
+		[[nodiscard]] Quaternion operator/(const Quaternion& other) const noexcept;
+		[[nodiscard]] Quaternion operator*(float scalar) const noexcept;
+		[[nodiscard]] Quaternion operator/(float scalar) const noexcept;
+
+		Quaternion& operator+=(const Quaternion& other) noexcept;
+		Quaternion& operator-=(const Quaternion& other) noexcept;
+		Quaternion& operator*=(const Quaternion& other) noexcept;
+		Quaternion& operator/=(const Quaternion& other) noexcept;
+		Quaternion& operator*=(float scalar) noexcept;
+		Quaternion& operator/=(float scalar) noexcept;
+
+		[[nodiscard]] bool operator==(const Quaternion& other) const noexcept;
+		[[nodiscard]] bool operator!=(const Quaternion& other) const noexcept;
+
+		[[nodiscard]] float operator[](int index) const noexcept;
+		float& operator[](int) noexcept;
+		Quaternion& operator=(const Quaternion& other) const noexcept;
+		Quaternion& operator=(Quaternion&& other) noexcept;
+
+		[[nodiscard]] float Length() const noexcept;
+		[[nodiscard]] float LengthSquared() const noexcept;
+		[[nodiscard]] Quaternion Normalize() const noexcept;
+		[[nodiscard]] Quaternion Inverse() const noexcept;
+		[[nodiscard]] float Dot(const Quaternion& other) const noexcept;
+
+		[[nodiscard]] Vector3 RotateVector(const Vector3&) const noexcept;
+
+		[[nodiscard]] static Quaternion Identity() noexcept;
+		[[nodiscard]] static Quaternion FromAxisAngle(const Vector3& vec, float angleRadians) noexcept;
+		[[nodiscard]] static Quaternion FromEuler(float pitchRadians, float yawRadians, float rollRadians) noexcept;
+
+		[[nodiscard]] std::string ToString() const;
+
+	private:
+		Simd::NuVec4 m_data;
+
+		explicit Quaternion(Simd::NuVec4 vec) : m_data(vec) {};
+	};
+}

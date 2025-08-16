@@ -5,4 +5,4 @@ file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS
 
 add_executable(Game ${GAME_SRC})
 
-target_link_libraries(Game PRIVATE Engine)
+target_link_libraries(Game PRIVATE NuEngine)

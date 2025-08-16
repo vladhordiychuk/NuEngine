@@ -10,16 +10,13 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Wno-unused-parameter)
 endif()
 
-
-add_subdirectory(thirdparty/googletest)
+add_subdirectory(thirdparty/glm ${CMAKE_BINARY_DIR}/glm)
+add_subdirectory(thirdparty/googletest ${CMAKE_BINARY_DIR}/googletest)
+add_subdirectory(thirdparty/benchmark ${CMAKE_BINARY_DIR}/benchmark)
+add_subdirectory(thirdparty/glfw ${CMAKE_BINARY_DIR}/glfw)
 
 add_subdirectory(Engine)
-
 add_subdirectory(Game)
 
 enable_testing()
 add_subdirectory(Tests)
-
-
-
-

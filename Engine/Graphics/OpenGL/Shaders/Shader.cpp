@@ -5,7 +5,7 @@
 #include "Shader.hpp"
 #include "Core/Logging/Logger.hpp"
 
-namespace Engine::Renderer::OpenGL 
+namespace NuEngine::Renderer::OpenGL 
 {
     Shader::Shader(const std::string& vertexSource, const std::string& fragmentSource) 
     {

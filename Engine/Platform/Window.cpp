@@ -2,7 +2,7 @@
 #include "Window.hpp"
 #include <iostream>
 
-namespace Engine::Core::WindowSystem
+namespace NuEngine::Core::WindowSystem
 {
 
     Window::Window(int width, int height, const std::string& title) {

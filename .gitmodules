@@ -4,3 +4,12 @@
 [submodule "ThirdParty/googletest"]
 	path = ThirdParty/googletest
 	url = https://github.com/google/googletest.git
+[submodule "ThirdParty/ThirdParty/benchmark"]
+	path = ThirdParty/ThirdParty/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "ThirdParty/benchmark"]
+	path = ThirdParty/benchmark
+	url = https://github.com/google/benchmark.git
+[submodule "ThirdParty/glm"]
+	path = ThirdParty/glm
+	url = https://github.com/g-truc/glm.git
