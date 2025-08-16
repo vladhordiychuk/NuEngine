@@ -1,4 +1,4 @@
-name: Math CI
+name: Math Unit Tests
 
 on:
   push:
@@ -8,18 +8,16 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       matrix:
-        os: [windows-latest]
         build_type: [Debug, Release]
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up MSVC (only for Windows)
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
@@ -28,5 +26,5 @@ jobs:
         run: cmake --build build --config ${{ matrix.build_type }}
 
       - name: Run tests
-        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure
+        run: ctest --test-dir build --output-on-failure
 
