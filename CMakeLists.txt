@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Engine)
+project(NuEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,8 +14,10 @@ add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/googletest)
 add_subdirectory(thirdparty/benchmark)
 add_subdirectory(thirdparty/glfw)
+add_subdirectory(thirdparty/glad)
 
 add_subdirectory(Engine)
+
 add_subdirectory(Game)
 
 enable_testing()

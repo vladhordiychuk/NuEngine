@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
 project(Math)
 
 option(NU_USE_SSE "Use SSE backend for SIMD" ON)
@@ -27,7 +26,3 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         target_compile_options(Math INTERFACE -msse4.1)
     endif()
 endif()
-
-
-
-
