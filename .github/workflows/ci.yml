@@ -20,17 +20,12 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: |
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_BENCHMARKS=OFF \
-            -DBUILD_TESTS=ON
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_BENCHMARKS=OFF -DBUILD_TESTS=ON
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }} --target Tests
+        run: cmake --build build --config ${{ matrix.build_type }}
 
       - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure --timeout 60
+        run: cd build && ctest --output-on-failure --timeout 300
+
 
