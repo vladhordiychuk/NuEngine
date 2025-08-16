@@ -1,14 +1,12 @@
-project(Engine)
-
 file(GLOB_RECURSE ENGINE_SRC CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
 )
 
 add_library(Engine STATIC ${ENGINE_SRC})
 
 target_include_directories(Engine PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/Math/include
 )
 

@@ -1,5 +1,3 @@
-project(Game)
-
 file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
@@ -13,5 +11,4 @@ target_include_directories(Game PRIVATE
 )
 
 target_link_libraries(Game PRIVATE Engine glfw glad)
-
 
