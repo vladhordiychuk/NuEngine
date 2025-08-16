@@ -653,16 +653,6 @@ namespace NuEngine::Math::Simd_Scalar
 	* 
 	* 
 	*/
-	NU_FORCEINLINE SimdMat4 Inverse(const SimdMat4& mat)
-	{
-
-	}
-
-	/*
-	* @brief
-	* 
-	* 
-	*/
 	NU_FORCEINLINE SimdMat4 CreateTranslation(const NuVec4& v)
 	{
 		SimdMat4 result(SetIdentityMatrix());

@@ -6,7 +6,10 @@ add_subdirectory(Math)
 
 add_library(Engine STATIC ${ENGINE_SRC})
 
-target_include_directories(Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}) 
+target_include_directories(Engine PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Math/include
+) 
 
 target_link_libraries(Engine
     PUBLIC Math

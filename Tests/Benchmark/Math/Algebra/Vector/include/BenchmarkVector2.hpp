@@ -6,7 +6,6 @@
 
 #include <benchmark/benchmark.h>
 #include "BenchmarkVectorCommon.hpp"
-#define NU_MATH_BACKEND 0
 #include <Math/Math.hpp>
 
 namespace Benchmark

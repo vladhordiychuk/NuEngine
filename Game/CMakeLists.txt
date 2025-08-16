@@ -10,5 +10,9 @@ target_include_directories(Game PRIVATE
     ${CMAKE_SOURCE_DIR}/Engine/Math/include
 )
 
-target_link_libraries(Game PRIVATE NuEngine)
-
+ttarget_link_libraries(Game PRIVATE 
+    Engine
+    glfw
+    glad
+    OpenGL::GL
+)

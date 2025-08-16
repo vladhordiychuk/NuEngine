@@ -7,7 +7,7 @@ file(GLOB_RECURSE BENCHMARK_SOURCES CONFIGURE_DEPENDS
 )
 
 add_executable(Tests
-    main.cpp
+    test_main.cpp
     ${UNIT_TEST_SOURCES}
     ${BENCHMARK_SOURCES}
 )
@@ -25,6 +25,7 @@ target_link_libraries(Tests PRIVATE
 
 enable_testing()
 
+set(GTEST_DISCOVERY_TIMEOUT 60)
 include(GoogleTest)
 gtest_discover_tests(Tests)
 
