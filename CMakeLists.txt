@@ -14,7 +14,8 @@ add_subdirectory(thirdparty/glm)
 add_subdirectory(thirdparty/googletest)
 add_subdirectory(thirdparty/benchmark)
 add_subdirectory(thirdparty/glfw)
-add_subdirectory(thirdparty/glad)
+add_library(glad STATIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/src/glad.c)
+target_include_directories(glad PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/glad/include)
 
 add_subdirectory(Engine)
 
