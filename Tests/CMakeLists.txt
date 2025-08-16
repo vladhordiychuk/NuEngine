@@ -25,6 +25,21 @@ target_link_libraries(Tests PRIVATE
 
 enable_testing()
 
-include(GoogleTest)
-gtest_discover_tests(Tests)
+set(GTEST_DISCOVERY_TIMEOUT 60) 
+set(GTEST_TIMEOUT 120)
 
+option(RUN_BENCHMARKS "Run benchmark tests" OFF)
+
+include(GoogleTest)
+if(RUN_BENCHMARKS)
+    gtest_discover_tests(Tests
+        DISCOVERY_TIMEOUT 60
+        PROPERTIES TIMEOUT 120
+    )
+else()
+    gtest_discover_tests(Tests
+        DISCOVERY_TIMEOUT 30
+        PROPERTIES TIMEOUT 60
+        TEST_FILTER "-*Benchmark*"
+    )
+endif()
