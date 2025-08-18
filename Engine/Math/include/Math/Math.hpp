@@ -4,9 +4,6 @@
 
 #pragma once
 
-// SIMD
-
-
 // Algebra
 #include <Math/Algebra/Vector/Vector2.hpp>
 #include <Math/Algebra/Vector/Vector3.hpp>

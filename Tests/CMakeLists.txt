@@ -1,7 +1,7 @@
 file(GLOB_RECURSE UNIT_TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Unit/*.cpp)
 
 add_executable(Tests
-    main.cpp
+    testMain.cpp
     ${UNIT_TEST_SOURCES}
 )
 
@@ -18,7 +18,7 @@ if(RUN_BENCHMARKS)
     file(GLOB_RECURSE BENCHMARK_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Benchmark/*.cpp)
 
     add_executable(Benchmarks
-        main.cpp
+        testMain.cpp
         ${BENCHMARK_SOURCES}
     )
     target_compile_definitions(Benchmarks PRIVATE RUN_BENCHMARKS)

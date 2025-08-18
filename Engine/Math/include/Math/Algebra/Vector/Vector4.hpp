@@ -47,7 +47,7 @@ namespace NuEngine::Math
         * @brief Initialization with initializer_list.
         * @param Initialization list of 4 elements.
         */
-        NU_FORCEINLINE Vector4(std::initializer_list<float> list)
+        NU_FORCEINLINE Vector4(std::initializer_list<float> list) noexcept
         {
             assert(list.size() == 4);
             auto it = list.begin();
@@ -153,7 +153,7 @@ namespace NuEngine::Math
         * @param scalar The scalar value to divide by.
         * @return A new Vector4 that is the result of the division.
         */
-        [[nodiscard]] NU_FORCEINLINE Vector4 operator/(float scalar) const
+        [[nodiscard]] NU_FORCEINLINE Vector4 operator/(float scalar) const noexcept
         {
             assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
             return Vector4(Simd::Div(m_data, Simd::SetAll(scalar)));
@@ -223,7 +223,7 @@ namespace NuEngine::Math
         * @param scalar The scalar value to divide the vector by.
         * @return A reference to this vector after the division.
         */
-        NU_FORCEINLINE Vector4& operator/=(float scalar)
+        NU_FORCEINLINE Vector4& operator/=(float scalar) noexcept
         {
             assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
             m_data = Simd::Div(m_data, Simd::SetAll(scalar));

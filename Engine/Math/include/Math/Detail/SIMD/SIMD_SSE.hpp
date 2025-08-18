@@ -8,6 +8,9 @@
 #include <cassert>
 #include <cmath>
 
+#include <Math/Algebra/Vector/VectorAPI.hpp>
+#include <Math/Algebra/Matrix/MatrixAPI.hpp>
+
 #ifdef _MSC_VER
 #define NU_FORCEINLINE __forceinline
 #else
@@ -20,22 +23,16 @@ namespace NuEngine::Math::Simd_SSE
 	// Common types
 	// =============================================
 
-	/*
-	* 
-	*/
+	/// \copydoc NuEngine::Math::Docs::Simd::NuVec4
 	using NuVec4 = __m128;
 
-	/*
-	* 
-	*/
+	/// \copydoc NuEngine::Math::Docs::Simd::NuMat4
 	struct alignas(16) NuMat4
 	{
 		__m128 cols[4];
 	};
 
-	/*
-	* 
-	*/
+	/// \copydoc NuEngine::Math::Docs::Simd::NuMat3
 	struct alignas(16) NuMat3
 	{
 		__m128 cols[3];
@@ -45,146 +42,101 @@ namespace NuEngine::Math::Simd_SSE
 	// Vectors
 	// =============================================
 
-	// =============================================
-	// Setters
-	// =============================================
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Set(float x, float y, float z = 0.0f, float w = 0.0f)
+	/// \copydoc NuEngine::Math::Docs::Simd::Set
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(float x, float y, float z = 0.0f, float w = 0.0f) noexcept
 	{
 		return _mm_set_ps(w, z, y, x);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 SetAll(float value)
+	/// \copydoc NuEngine::Math::Docs::Simd::SetAll
+	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(float scalar) noexcept
 	{
-		return _mm_set1_ps(value);
+		return _mm_set1_ps(scalar);
 	}
 
-	/*
-	*
-	*/
-	NU_FORCEINLINE NuVec4 SetZero()
+	// \copydoc NuEngine::Math::Docs::Simd::SetZero
+	[[nodiscard]] NU_FORCEINLINE NuVec4 SetZero() noexcept
 	{
 		return _mm_setzero_ps();
 	}
 
-	// =============================================
-	// Getters
-	// =============================================
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float GetX(NuVec4 v)
+	// \copydoc NuEngine::Math::Docs::Simd::GetX
+	[[nodiscard]] NU_FORCEINLINE float GetX(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(v);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float GetY(NuVec4 v)
+	// \copydoc NuEngine::Math::Docs::Simd::GetY
+	[[nodiscard]] NU_FORCEINLINE float GetY(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1)));
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float GetZ(NuVec4 v)
+	// \copydoc NuEngine::Math::Docs::Simd::GetZ
+	[[nodiscard]] NU_FORCEINLINE float GetZ(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2)));
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float GetW(NuVec4 v)
+	// \copydoc NuEngine::Math::Docs::Simd::GetW
+	[[nodiscard]] NU_FORCEINLINE float GetW(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
 
-	// =============================================
-	// Basic Arithmetic
-	// =============================================
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_add_ps(a, b); 
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) { return _mm_add_ps(a, b); }
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_sub_ps(a, b);
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) { return _mm_sub_ps(a, b); }
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_mul_ps(a, b); 
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) { return _mm_mul_ps(a, b); }
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_div_ps(a, b); 
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) { return _mm_div_ps(a, b); }
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Neg(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Neg(NuVec4 v) noexcept
 	{
 		const NuVec4 sign_mask = _mm_set1_ps(-0.0f);
 		return _mm_xor_ps(v, sign_mask);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Min(NuVec4 a, NuVec4 b) { return _mm_min_ps(a, b); }
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Min(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_min_ps(a, b); 
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Max(NuVec4 a, NuVec4 b) { return _mm_max_ps(a, b); }
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Max(NuVec4 a, NuVec4 b) noexcept
+	{ 
+		return _mm_max_ps(a, b); 
+	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)
+	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
 	{
 		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
 	}
 
-	/*
-	*
-	*/
-	NU_FORCEINLINE NuVec4 Abs(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Abs(NuVec4 v) noexcept
 	{
 		const NuVec4 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
 		return _mm_and_ps(v, mask);
 	}
 
-	/*
-	*
-	*/
-	NU_FORCEINLINE float SqrtScalar(float value)
+	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float value) noexcept
 	{
 		return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(value)));
 	}
 
-	// =============================================
-	// Special Ops
-	// =============================================
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float HorizontalAdd4(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);
 		NuVec4 sums = _mm_add_ps(v, shuf);       
@@ -193,30 +145,21 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(sums);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float HorizontalAdd3(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);      
 		NuVec4 sums = _mm_add_ps(v, shuf);      
 		return _mm_cvtss_f32(_mm_add_ss(sums, _mm_shuffle_ps(sums, sums, _MM_SHUFFLE(2, 2, 2, 2))));
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float HorizontalAdd2(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
 		NuVec4 sum = _mm_add_ss(v, shuf);
 		return _mm_cvtss_f32(sum);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
 		float lenSq = HorizontalAdd2(squared);
@@ -230,10 +173,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, scale);
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
 		float lengthSquared = HorizontalAdd3(squared);
@@ -243,10 +183,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, SetAll(invLength));
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
 		float lengthSquared = HorizontalAdd4(squared);
@@ -258,14 +195,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, SetAll(invLength));
 	}
 
-	// =============================================
-	// Extra Math Utilities
-	// =============================================
-
-	/*
-	*
-	*/
-	NU_FORCEINLINE NuVec4 Cross(NuVec4 a, NuVec4 b)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Cross(NuVec4 a, NuVec4 b) noexcept
 	{
 		NuVec4 a_yzx = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
 		NuVec4 b_yzx = _mm_shuffle_ps(b, b, _MM_SHUFFLE(3, 0, 2, 1));
@@ -276,12 +206,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
 	}
 
-
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float Dot3(NuVec4 a, NuVec4 b)
+	[[nodiscard]] NU_FORCEINLINE float Dot3(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
 		NuVec4 dp = _mm_dp_ps(a, b, 0x71);
@@ -297,10 +222,7 @@ namespace NuEngine::Math::Simd_SSE
 #endif
 	}
 
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float Dot4(NuVec4 a, NuVec4 b)
+	[[nodiscard]] NU_FORCEINLINE float Dot4(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
 		NuVec4 dp = _mm_dp_ps(a, b, 0xF1);
@@ -316,22 +238,12 @@ namespace NuEngine::Math::Simd_SSE
 #endif
 	}
 
-
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE float Length3(NuVec4 v)
+	[[nodiscard]] NU_FORCEINLINE float Length3(NuVec4 v) noexcept
 	{
 		return SqrtScalar(Dot3(v, v));
 	}
 
-
-
-	/*
-	* 
-	*/
-	NU_FORCEINLINE NuVec4 Lerp(NuVec4 a, NuVec4 b, float t)
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Lerp(NuVec4 a, NuVec4 b, float t) noexcept
 	{
 		NuVec4 diff = Sub(b, a);
 		return Add(a, Mul(diff, SetAll(t)));
@@ -341,9 +253,6 @@ namespace NuEngine::Math::Simd_SSE
 	// Matricies
 	// =============================================
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 SetIdentityMatrix() {
 		NuMat4 result{};
 		result.cols[0] = _mm_setr_ps(1.0f, 0.0f, 0.0f, 0.0f);
@@ -353,9 +262,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 Add(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
@@ -366,9 +272,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 Sub(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
@@ -379,9 +282,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 Multiply(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
@@ -407,9 +307,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuVec4 Multiply(const NuMat4& mat, const NuVec4& v)
 	{
 		NuVec4 x = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
@@ -426,9 +323,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 Transpose(const NuMat4& mat)
 	{
 		NuMat4 result = mat;
@@ -436,9 +330,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 FromRows(const float* row0, const float* row1, const float* row2, const float* row3)
 	{
 		NuMat4 result{};
@@ -458,9 +349,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 FromColumns(const float* col0, const float* col1, const float* col2, const float* col3)
 	{
 		NuMat4 result{};
@@ -471,9 +359,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE float Determinant(const NuMat4& m)
 	{
 		NuVec4 Vec0 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(1, 0, 3, 2));
@@ -502,9 +387,6 @@ namespace NuEngine::Math::Simd_SSE
 		return determinant;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 Inverse(const NuMat4& m)
 	{
 		NuVec4 Fac0, Fac1, Fac2, Fac3;
@@ -589,9 +471,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 CreateRotation(const NuVec4& quat)
 	{
 		float x = GetX(quat);
@@ -619,9 +498,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 CreateScale(const NuVec4& scale)
 	{
 		NuMat4 result = SetIdentityMatrix();
@@ -633,9 +509,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 CreateLookAt(const NuVec4& eye, const NuVec4& target, const NuVec4& up)
 	{
 		// forward = normalize(target - eye)
@@ -661,9 +534,6 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuMat4 CreatePerspective(float fovY, float aspect, float nearZ, float farZ)
 	{
 		float f = 1.0f / std::tan(fovY * 0.5f);
@@ -679,18 +549,12 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuVec4 GetColumn(const NuMat4& m, int index)
 	{
 		assert(index >= 0 && index < 4);
 		return m.cols[index];
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE NuVec4 GetRow(const NuMat4& m, int index)
 	{
 		assert(index >= 0 && index < 4);
@@ -704,9 +568,6 @@ namespace NuEngine::Math::Simd_SSE
 		return Set(tmp[0][index], tmp[1][index], tmp[2][index], tmp[3][index]);
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE float Access(const NuMat4& m, int row, int col)
 	{
 		assert(row >= 0 && row < 4 && col >= 0 && col < 4);
@@ -715,17 +576,11 @@ namespace NuEngine::Math::Simd_SSE
 		return tmp[row];
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE const float* Data(const NuMat4& m)
 	{
 		return reinterpret_cast<const float*>(&m.cols[0]);
 	}
 
-	/*
-	* 
-	*/
 	NU_FORCEINLINE bool IsIdentity(const NuMat4& m, float epsilon = 0.0f)
 	{
 		NuMat4 identity = SetIdentityMatrix();

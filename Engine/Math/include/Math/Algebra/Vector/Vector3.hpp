@@ -47,7 +47,7 @@ namespace NuEngine::Math
         * @brief Initialization with initializer_list.
         * @param Initialization list of 3 elements.
         */
-        NU_FORCEINLINE Vector3(std::initializer_list<float> list)
+        NU_FORCEINLINE Vector3(std::initializer_list<float> list) noexcept
         {
             assert(list.size() == 3);
             auto it = list.begin();
@@ -90,7 +90,10 @@ namespace NuEngine::Math
         *
         * @param simd The SIMD vector (NuVec4) used to initialize this Vector3.
         */
-        explicit NU_FORCEINLINE Vector3(Simd::NuVec4 simd) : m_data(simd) {}
+        explicit NU_FORCEINLINE Vector3(Simd::NuVec4 simd) noexcept
+            : m_data(simd) 
+        {
+        }
 
         /*
         * @brief Adding another vector to this one.
