@@ -34,6 +34,7 @@ int main(int argc, char** argv)
     int test_result = RUN_ALL_TESTS();
     if (test_result != 0) return test_result;
 
+#ifndef CI
     WarmupCPU();
 
     ::benchmark::Initialize(&argc, argv);
@@ -50,11 +51,12 @@ int main(int argc, char** argv)
     const char* fake_argv[] =
     {
         argv[0],
-        "--benchmark_min_time=2s",    
-        "--benchmark_repetitions=1",   
+        "--benchmark_min_time=2s",
+        "--benchmark_repetitions=1",
     };
     ::benchmark::Initialize(&fake_argc, const_cast<char**>(fake_argv));
-
     ::benchmark::RunSpecifiedBenchmarks();
+#endif
+
     return 0;
 }

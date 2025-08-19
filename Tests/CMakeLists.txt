@@ -1,3 +1,7 @@
+if(DEFINED ENV{CI})
+    add_compile_definitions(CI)
+endif()
+
 file(GLOB_RECURSE UNIT_TEST_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/Unit/*.cpp
 )
@@ -24,6 +28,5 @@ target_link_libraries(Tests PRIVATE
 )
 
 enable_testing()
-
 include(GoogleTest)
 gtest_discover_tests(Tests)
