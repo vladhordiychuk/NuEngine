@@ -84,58 +84,69 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Add
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_add_ps(a, b); 
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Sub
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_sub_ps(a, b);
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_mul_ps(a, b); 
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Div
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_div_ps(a, b); 
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Neg
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Neg(NuVec4 v) noexcept
 	{
 		const NuVec4 sign_mask = _mm_set1_ps(-0.0f);
 		return _mm_xor_ps(v, sign_mask);
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Min
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Min(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_min_ps(a, b); 
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Max
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Max(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_max_ps(a, b); 
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Equal
 	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
 	{
 		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::Abs
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Abs(NuVec4 v) noexcept
 	{
 		const NuVec4 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
 		return _mm_and_ps(v, mask);
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::SqrtScalar
 	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float value) noexcept
 	{
 		return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(value)));
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd4
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);
@@ -145,6 +156,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(sums);
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd3
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);      
@@ -152,6 +164,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(_mm_add_ss(sums, _mm_shuffle_ps(sums, sums, _MM_SHUFFLE(2, 2, 2, 2))));
 	}
 
+	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd2
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));

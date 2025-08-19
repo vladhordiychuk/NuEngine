@@ -143,31 +143,36 @@ namespace NuEngine::Math::Simd_Scalar
 		return v.x + v.y;
 	}
 
+	NU_FORCEINLINE float fast_inverse_sqrt(float x) noexcept 
+	{
+		const float xhalf = 0.5f * x;
+		int i = *(int*)&x;          
+		i = 0x5f3759df - (i >> 1);  
+		x = *(float*)&i;            
+		return x * (1.5f - xhalf * x * x); 
+	}
+
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(const NuVec4& v) noexcept
 	{
-		float lengthSquared = v.x * v.x + v.y * v.y;
-		if (lengthSquared <= 0.0f)
-			return { 0.0f, 0.0f, v.z, v.w };
-
-		float invLength = 1.0f / std::sqrt(lengthSquared);
-		return { v.x * invLength, v.y * invLength, v.z, v.w };
+		float lenSq = v.x * v.x + v.y * v.y;
+		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		float invLen = fast_inverse_sqrt(lenSq);
+		return { v.x * invLen, v.y * invLen, v.z, v.w };
 	}
 
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(const NuVec4& v) noexcept
 	{
-		float lengthSquared = v.x * v.x + v.y * v.y + v.z * v.z;
-		if (lengthSquared <= 0.0f)
-			return { 0.0f, 0.0f, 0.0f, v.w };
-
-		float invLength = 1.0f / std::sqrt(lengthSquared);
-		return { v.x * invLength, v.y * invLength, v.z * invLength, v.w };
+		const float lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
+		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		const float invLen = fast_inverse_sqrt(lenSq);
+		return { v.x * invLen, v.y * invLen, v.z * invLen, v.w };
 	}
 
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(const NuVec4& v) noexcept
 	{
-		float lengthSquared = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
-		if (lengthSquared == 0.0f) return { 0, 0, 0, 0 };
-		float invLength = 1.0f / std::sqrt(lengthSquared);
+		float lenSq = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		float invLength = fast_inverse_sqrt(lenSq);
 		return { v.x * invLength, v.y * invLength, v.z * invLength, v.w * invLength };
 	}
 

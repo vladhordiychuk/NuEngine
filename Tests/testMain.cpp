@@ -1,6 +1,4 @@
 #include <gtest/gtest.h>
-
-#ifdef RUN_BENCHMARKS
 #include <benchmark/benchmark.h>
 #include <windows.h>
 
@@ -27,16 +25,15 @@ void WarmupCPU()
         x /= 1.0000001;
     }
 }
-#endif // RUN_BENCHMARKS
 
 int main(int argc, char** argv)
 {
+    PinToCore(0);
+
     ::testing::InitGoogleTest(&argc, argv);
     int test_result = RUN_ALL_TESTS();
     if (test_result != 0) return test_result;
 
-#ifdef RUN_BENCHMARKS
-    PinToCore(0);
     WarmupCPU();
 
     ::benchmark::Initialize(&argc, argv);
@@ -49,8 +46,15 @@ int main(int argc, char** argv)
     Benchmark::RegisterVector3Benchmarks_GLM();
     Benchmark::RegisterVector4Benchmarks_GLM();
 
-    ::benchmark::RunSpecifiedBenchmarks();
-#endif
+    int fake_argc = 3;
+    const char* fake_argv[] =
+    {
+        argv[0],
+        "--benchmark_min_time=2s",    
+        "--benchmark_repetitions=1",   
+    };
+    ::benchmark::Initialize(&fake_argc, const_cast<char**>(fake_argv));
 
+    ::benchmark::RunSpecifiedBenchmarks();
     return 0;
 }

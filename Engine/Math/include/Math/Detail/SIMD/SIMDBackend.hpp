@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define NU_MATH_BACKEND 0
+
 #ifndef SIMD_DISPATCH_HPP
 #define SIMD_DISPATCH_HPP
 
