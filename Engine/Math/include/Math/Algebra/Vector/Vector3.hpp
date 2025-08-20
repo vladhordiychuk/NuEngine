@@ -135,6 +135,9 @@ namespace NuEngine::Math
             return Vector3(Simd::Mul(m_data, other.m_data));
         }
 
+        /*
+        * 
+        */
         [[nodiscard]] NU_FORCEINLINE Vector3 operator/(Vector3 other) const noexcept
         {
             return Vector3(Simd::Div(m_data, other.m_data));
@@ -208,6 +211,9 @@ namespace NuEngine::Math
             return *this;
         }
 
+        /*
+        * 
+        */
         NU_FORCEINLINE Vector3& operator/=(const Vector3& other) noexcept
         {
             m_data = Simd::Div(m_data, other.m_data);

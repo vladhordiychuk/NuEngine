@@ -131,6 +131,14 @@ namespace NuEngine::Math
         {
             return Vector4(Simd::Mul(m_data, other.m_data));
         }
+        
+        /*
+        * 
+        */
+        [[nodiscard]] NU_FORCEINLINE Vector4 operator/(Vector4 other) const noexcept
+        {
+            return Vector4(Simd::Div(m_data, other.m_data));
+        }
 
         /*
         * @brief Multiplies the vector by a scalar.
@@ -198,6 +206,15 @@ namespace NuEngine::Math
         NU_FORCEINLINE Vector4& operator*=(Vector4 other) noexcept
         {
             m_data = Simd::Mul(m_data, other.m_data);
+            return *this;
+        }
+
+        /*
+        * 
+        */
+        NU_FORCEINLINE Vector4& operator/=(Vector4 other) noexcept
+        {
+            m_data = Simd::Div(m_data, other.m_data);
             return *this;
         }
 
