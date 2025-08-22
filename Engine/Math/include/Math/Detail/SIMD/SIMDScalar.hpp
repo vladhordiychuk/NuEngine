@@ -12,7 +12,16 @@
 
 namespace NuEngine::Math::Simd_Scalar
 {
+	// =============================================
+	// Common types
+	// =============================================
 
+	/*
+	* @brief 4-component vector type with 16-byte alignment.
+	*
+	* Represents a SIMD-friendly vector with four float components (x, y, z, w).
+	* The structure is aligned to 16 bytes for optimal SIMD operations.
+	*/
 	struct alignas(16) NuVec4
 	{
 		float x, y, z, w;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Math/Detail/SIMD/SIMDBackend.hpp>
+#include <Math/Algebra/Vector/VectorAPI.hpp>
 
 #include <string>
 #include <sstream>
@@ -27,7 +27,7 @@ namespace NuEngine::Math
         * @brief Creates a zero vector (0.0f, 0.0f, 0.0f, 0.0f).
         */
         NU_FORCEINLINE Vector4() noexcept
-            : m_data(Simd::SetZero())
+            : m_data(VectorAPI::SetZero())
         {
         }
 
@@ -39,7 +39,7 @@ namespace NuEngine::Math
         * @param w Value on W.
         */
         NU_FORCEINLINE Vector4(float x, float y, float z, float w) noexcept
-            : m_data(Simd::Set(x, y, z, w))
+            : m_data(VectorAPI::Set(x, y, z, w))
         {
         }
 
@@ -51,7 +51,7 @@ namespace NuEngine::Math
         {
             assert(list.size() == 4);
             auto it = list.begin();
-            m_data = Simd::Set(it[0], it[1], it[2], it[3]);
+            m_data = VectorAPI::Set(it[0], it[1], it[2], it[3]);
         }
 
         /*
@@ -87,8 +87,8 @@ namespace NuEngine::Math
         *
         * @param simd The SIMD vector (NuVec4) used to initialize this Vector4.
         */
-        explicit NU_FORCEINLINE Vector4(Simd::NuVec4 simd) noexcept 
-            : m_data(simd) 
+        explicit NU_FORCEINLINE Vector4(VectorAPI::NuVec4 vec) noexcept
+            : m_data(vec) 
         {
         }
 
@@ -102,7 +102,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator+(Vector4 other) const noexcept
         {
-            return Vector4(Simd::Add(m_data, other.m_data));
+            return Vector4(VectorAPI::Add(m_data, other.m_data));
         }
 
         /*
@@ -115,7 +115,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator-(Vector4 other) const noexcept
         {
-            return Vector4(Simd::Sub(m_data, other.m_data));
+            return Vector4(VectorAPI::Sub(m_data, other.m_data));
         }
 
         /*
@@ -129,7 +129,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator*(Vector4 other) const noexcept
         {
-            return Vector4(Simd::Mul(m_data, other.m_data));
+            return Vector4(VectorAPI::Mul(m_data, other.m_data));
         }
         
         /*
@@ -137,7 +137,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator/(Vector4 other) const noexcept
         {
-            return Vector4(Simd::Div(m_data, other.m_data));
+            return Vector4(VectorAPI::Div(m_data, other.m_data));
         }
 
         /*
@@ -150,7 +150,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator*(float scalar) const noexcept
         {
-            return Vector4(Simd::Mul(m_data, Simd::SetAll(scalar)));
+            return Vector4(VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar)));
         }
 
         /*
@@ -164,7 +164,7 @@ namespace NuEngine::Math
         [[nodiscard]] NU_FORCEINLINE Vector4 operator/(float scalar) const noexcept
         {
             assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
-            return Vector4(Simd::Div(m_data, Simd::SetAll(scalar)));
+            return Vector4(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
         }
 
         /*
@@ -177,7 +177,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator+=(Vector4 other) noexcept
         {
-            m_data = Simd::Add(m_data, other.m_data);
+            m_data = VectorAPI::Add(m_data, other.m_data);
             return *this;
         }
 
@@ -191,7 +191,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator-=(Vector4 other) noexcept
         {
-            m_data = Simd::Sub(m_data, other.m_data);
+            m_data = VectorAPI::Sub(m_data, other.m_data);
             return *this;
         }
 
@@ -205,7 +205,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator*=(Vector4 other) noexcept
         {
-            m_data = Simd::Mul(m_data, other.m_data);
+            m_data = VectorAPI::Mul(m_data, other.m_data);
             return *this;
         }
 
@@ -214,7 +214,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator/=(Vector4 other) noexcept
         {
-            m_data = Simd::Div(m_data, other.m_data);
+            m_data = VectorAPI::Div(m_data, other.m_data);
             return *this;
         }
 
@@ -228,7 +228,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator*=(float scalar) noexcept
         {
-            m_data = Simd::Mul(m_data, Simd::SetAll(scalar));
+            m_data = VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar));
             return *this;
         }
 
@@ -243,7 +243,7 @@ namespace NuEngine::Math
         NU_FORCEINLINE Vector4& operator/=(float scalar) noexcept
         {
             assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
-            m_data = Simd::Div(m_data, Simd::SetAll(scalar));
+            m_data = VectorAPI::Div(m_data, VectorAPI::SetAll(scalar));
             return *this;
         }
 
@@ -252,7 +252,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float X() const noexcept
         {
-            return Simd::GetX(m_data);
+            return VectorAPI::GetX(m_data);
         }
 
         /*
@@ -260,7 +260,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float Y() const noexcept
         {
-            return Simd::GetY(m_data);
+            return VectorAPI::GetY(m_data);
         }
 
         /*
@@ -268,7 +268,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float Z() const noexcept
         {
-            return Simd::GetZ(m_data);
+            return VectorAPI::GetZ(m_data);
         }
 
         /*
@@ -276,7 +276,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float W() const noexcept
         {
-            return Simd::GetW(m_data);
+            return VectorAPI::GetW(m_data);
         }
 
         /*
@@ -287,7 +287,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE bool operator==(Vector4 other) const noexcept
         {
-            return Simd::Equal(m_data, other.m_data);
+            return VectorAPI::Equal(m_data, other.m_data);
         }
 
         /*
@@ -310,7 +310,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator-() const noexcept
         {
-            return Vector4(Simd::Neg(m_data));
+            return Vector4(VectorAPI::Neg(m_data));
         }
 
         /*
@@ -378,7 +378,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 Zero() noexcept
         {
-            return Vector4(Simd::SetZero());
+            return Vector4(VectorAPI::SetZero());
         }
 
         /*
@@ -390,7 +390,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 One() noexcept
         {
-            return Vector4(Simd::Set(1.0f, 1.0f, 1.0f, 1.0f));
+            return Vector4(VectorAPI::Set(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
         /*
@@ -402,7 +402,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitX() noexcept
         {
-            return Vector4(Simd::Set(1.0f, 0.0f, 0.0f, 0.0f));
+            return Vector4(VectorAPI::Set(1.0f, 0.0f, 0.0f, 0.0f));
         }
 
         /*
@@ -414,7 +414,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitY() noexcept
         {
-            return Vector4(Simd::Set(0.0f, 1.0f, 0.0f, 0.0f));
+            return Vector4(VectorAPI::Set(0.0f, 1.0f, 0.0f, 0.0f));
         }
 
         /*
@@ -426,7 +426,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitZ() noexcept
         {
-            return Vector4(Simd::Set(0.0f, 0.0f, 1.0f, 0.0f));
+            return Vector4(VectorAPI::Set(0.0f, 0.0f, 1.0f, 0.0f));
         }
 
         /*
@@ -438,7 +438,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitW() noexcept
         {
-            return Vector4(Simd::Set(0.0f, 0.0f, 0.0f, 1.0f));
+            return Vector4(VectorAPI::Set(0.0f, 0.0f, 0.0f, 1.0f));
         }
 
         /*
@@ -448,8 +448,8 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float Length() const noexcept
         {
-            Simd::NuVec4 mul = Simd::Mul(m_data, m_data);
-            return Simd::SqrtScalar(Simd::HorizontalAdd4(mul));
+            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
+            return VectorAPI::SqrtScalar(VectorAPI::HorizontalAdd4(mul));
         }
 
         /*
@@ -459,8 +459,8 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float LengthSquared() const noexcept
         {
-            Simd::NuVec4 mul = Simd::Mul(m_data, m_data);
-            return Simd::HorizontalAdd4(mul);
+            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
+            return VectorAPI::HorizontalAdd4(mul);
         }
 
         /*
@@ -471,8 +471,8 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE float Dot(Vector4 other) const noexcept
         {
-            Simd::NuVec4 mul = Simd::Mul(m_data, other.m_data);
-            return Simd::HorizontalAdd4(mul);
+            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, other.m_data);
+            return VectorAPI::HorizontalAdd4(mul);
         }
 
         /*
@@ -511,7 +511,7 @@ namespace NuEngine::Math
         * 
         * @return Reference to the SIMD vector.
         */
-        [[nodiscard]] NU_FORCEINLINE const Simd::NuVec4& SimdData() const noexcept
+        [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4& SimdData() const noexcept
         {
             return m_data;
         }
@@ -523,7 +523,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 Normalize() const noexcept
         {
-            return Vector4(Simd::Normalize4(m_data));
+            return Vector4(VectorAPI::Normalize4(m_data));
         }
 
         /*
@@ -560,7 +560,7 @@ namespace NuEngine::Math
         */
         union 
         {
-            Simd::NuVec4 m_data; // SIMD-vector
+            VectorAPI::NuVec4 m_data; // SIMD-vector
             float m_components[4]; // float-array
         };
     };

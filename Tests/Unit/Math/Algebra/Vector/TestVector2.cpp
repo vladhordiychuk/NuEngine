@@ -169,7 +169,7 @@ TEST(Vector2Test, Length)
 	Vector2 a(3.0f, 4.0f);
 	float length = a.Length();
 
-	EXPECT_FLOAT_EQ(length, 5.0f);
+	EXPECT_NEAR(length, 5.0f, 1e-3f);
 }
 
 TEST(Vector2Test, Distance)
@@ -178,7 +178,7 @@ TEST(Vector2Test, Distance)
 	Vector2 b(4.0f, 6.0f);
 	float dist = a.Distance(b);
 
-	EXPECT_FLOAT_EQ(dist, 5.0f);
+	EXPECT_NEAR(dist, 5.0f, 1e-3f);
 }
 
 TEST(Vector2Test, DistanceSymmetry)

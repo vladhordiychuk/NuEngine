@@ -4,31 +4,15 @@
 
 #pragma once
 
-#include <cmath>
-#include <cassert>
+#include <Math/Detail/SIMD/SIMDBackend.hpp>
 
-#ifdef _MSC_VER
-#define NU_FORCEINLINE __forceinline
-#else
-#define NU_FORCEINLINE inline __attribute__((always_inline))
-#endif
-
-namespace NuEngine::Math::Docs::Vector
+namespace NuEngine::Math::VectorAPI
 {
 	// =============================================
-	// Common types
+	// Type definitions
 	// =============================================
 
-	/*
-	* @brief 4-component vector type with 16-byte alignment.
-	*
-	* Represents a SIMD-friendly vector with four float components (x, y, z, w).
-	* The structure is aligned to 16 bytes for optimal SIMD operations.
-	*/
-	struct alignas(16) NuVec4
-	{
-		float x, y, z, w;
-	};
+	using NuVec4 = Simd::NuVec4;
 
 	// =============================================
 	// Setters
@@ -47,7 +31,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 with the specified component values.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(float x, float y, float z, float w = 0.0f) noexcept;
+	using Simd::Set;
 
 	/*
 	* @brief Create a 4-component vector with identical values.
@@ -58,7 +42,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 with all components equal to scalar.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(float scalar) noexcept;
+	using Simd::SetAll;
 
 	/*
 	* @brief Create a 4-component vector with zero values.
@@ -67,7 +51,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 with all components equal to zero.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 SetZero() noexcept;
+	using Simd::SetZero;
 
 	// =============================================
 	// Getters
@@ -82,7 +66,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return float Value of X component.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float GetX(const NuVec4& v) noexcept;
+	using Simd::GetX;
 
 	/*
 	* @brief Get the Y component of 4D vector.
@@ -93,7 +77,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return float Value of Y component.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float GetY(const NuVec4& v) noexcept;
+	using Simd::GetY;
 
 	/*
 	* @brief Get the Z component of 4D vector.
@@ -104,7 +88,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return float Value of Z component.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float GetZ(const  NuVec4& v) noexcept;
+	using Simd::GetZ;
 
 	/*
 	* @brief Get the W component of 4D vector.
@@ -115,7 +99,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return float Value of W component.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float GetW(const NuVec4& v) noexcept;
+	using Simd::GetW;
 
 	// =============================================
 	// Basic Arithmetic
@@ -131,7 +115,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component is a[i] + b[i].
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Add;
 
 	/*
 	* @brief Component-wise subtaction of two 4D vectors.
@@ -143,7 +127,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component is a[i] - b[i].
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Sub;
 
 	/*
 	* @brief Component-wise multiplication of two 4D vectors.
@@ -155,7 +139,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component a[i] * b[i].
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Mul;
 
 	/*
 	* @brief Component-wise division of two 4D vectors.
@@ -167,7 +151,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component a[i] / b[i].
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Div;
 
 	/*
 	* @brief Negates all components of a 4D vector.
@@ -178,7 +162,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 with negated components.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Neg(const NuVec4& a) noexcept;
+	using Simd::Neg;
 
 	/*
 	* @brief Component-wise minimum of two vectors.
@@ -191,7 +175,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component is min(a[i], b[i]).
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Min(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Min;
 
 	/*
 	* @brief Component-wise maximum of two vectors.
@@ -204,7 +188,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 where each component is max(a[i], b[i]).
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Max(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Max;
 
 	/*
 	* @brief Component-wise absolute value.
@@ -215,7 +199,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return New NuVec4 with absolute values.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Abs(const NuVec4& v) noexcept;
+	using Simd::Abs;
 
 	/*
 	* @brief Exact floating-point vector equality comparison.
@@ -229,7 +213,7 @@ namespace NuEngine::Math::Docs::Vector
 	* @return true if all components are exactly equal.
 	* @warning Floating-point imprecision may affect results.
 	*/
-	[[nodiscard]] NU_FORCEINLINE bool Equal(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Equal;
 
 	/*
 	* @brief Computes the square root of a scalar floating-point value.
@@ -241,7 +225,7 @@ namespace NuEngine::Math::Docs::Vector
 	* @return The square root of the input value.
 	* @warning Scalar value must be >= 0 for valid result (Input values < 0 will return NaN).
 	*/
-	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float scalar) noexcept;
+	using Simd::SqrtScalar;
 
 	// =============================================
 	// Special Ops
@@ -256,7 +240,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Sum of x, y, z and w components.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(const NuVec4& v) noexcept;
+	using Simd::HorizontalAdd4;
 
 	/*
 	* @brief Computes the horizontal sum of the first three components of a 4D vector.
@@ -267,7 +251,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Sum of x, y, and z components.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(const NuVec4& v) noexcept;
+	using Simd::HorizontalAdd3;
 
 	/*
 	* @brief Computes the horizontal sum of the first two components of a 4D vector.
@@ -278,7 +262,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Sum of x and y components.
 	*/
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(const NuVec4& v) noexcept;
+	using Simd::HorizontalAdd2;
 
 	/*
 	* @brief NNormalizes first 2 components (x,y) of 4D vector.
@@ -289,7 +273,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Normalized vector with original z/w.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(const NuVec4& v) noexcept;
+	using Simd::Normalize2;
 
 	/*
 	* @brief Normalizes first 3 components (x,y,z) of 4D vector.
@@ -300,7 +284,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Normalized vector with original w component.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(const NuVec4& v) noexcept;
+	using Simd::Normalize3;
 
 	/*
 	* @brief Normalizes full 4D vector.
@@ -311,7 +295,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Fully normalized vector.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(const NuVec4& v) noexcept;
+	using Simd::Normalize4;
 
 	// =============================================
 	// Extra Math Utilities
@@ -327,7 +311,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Cross product vector {a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x, 0}.
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Cross(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Cross;
 
 	/*
 	* @brief Computes 3D dot product (ignores w components)
@@ -339,7 +323,7 @@ namespace NuEngine::Math::Docs::Vector
 	*
 	* @return Dot product (a.x*b.x + a.y*b.y + a.z*b.z).
 	*/
-	[[nodiscard]] NU_FORCEINLINE float Dot3(const NuVec4& a, const NuVec4& b) noexcept;
+	using Simd::Dot3;
 
 	/*
 	* @brief Computes 3D vector length (ignores w component).
@@ -349,5 +333,5 @@ namespace NuEngine::Math::Docs::Vector
 	* @param v Input vector.
 	* @return Length of vector (sqrt(x² + y² + z²)).
 	*/
-	[[nodiscard]] NU_FORCEINLINE float Length3(const NuVec4& v) noexcept;
+	using Simd::Length3;
 }

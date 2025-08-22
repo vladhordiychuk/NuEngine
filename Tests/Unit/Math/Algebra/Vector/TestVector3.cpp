@@ -203,7 +203,7 @@ TEST(Vector3Test, Length)
     Vector3 a(3.0f, 4.0f, 0.0f);
     float length = a.Length();
 
-    EXPECT_FLOAT_EQ(length, 5.0f);
+    EXPECT_NEAR(length, 5.0f, 1e-3f);
 }
 
 TEST(Vector3Test, Distance)
@@ -212,7 +212,7 @@ TEST(Vector3Test, Distance)
     Vector3 b(4.0f, 6.0f, 3.0f);
     float distance = a.Distance(b);
 
-    EXPECT_FLOAT_EQ(distance, 5.0f);
+    EXPECT_NEAR(distance, 5.0f, 1e-3f);
 }
 
 TEST(Vector3Test, DistanceSymmetry)

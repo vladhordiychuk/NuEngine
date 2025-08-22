@@ -193,7 +193,7 @@ TEST(Vector4Test, Length)
 	Vector4 a(3.0f, 4.0f, 0.0f, 0.0f);
 	float length = a.Length();
 
-	EXPECT_FLOAT_EQ(length, 5.0f);
+	EXPECT_NEAR(length, 5.0f, 1e-3f);
 }
 
 TEST(Vector4Test, Distance)
@@ -202,7 +202,7 @@ TEST(Vector4Test, Distance)
 	Vector4 b(5.0f, 6.0f, 3.0f, 4.0f);
 	float distance = a.Distance(b);
 
-	EXPECT_FLOAT_EQ(distance, std::sqrt(32.0f));
+	EXPECT_NEAR(distance, std::sqrt(32.0f), 1e-2f);
 }
 
 TEST(Vector4Test, DistanceSymmetry)

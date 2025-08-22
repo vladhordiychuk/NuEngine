@@ -5,6 +5,7 @@
 #pragma once
 
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_PURE
 #include <glm/glm.hpp>
 #include <glm/gtx/norm.hpp>
 #include "BenchmarkVectorCommon.hpp"

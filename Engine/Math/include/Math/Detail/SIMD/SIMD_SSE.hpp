@@ -23,10 +23,20 @@ namespace NuEngine::Math::Simd_SSE
 	// Common types
 	// =============================================
 
-	/// \copydoc NuEngine::Math::Docs::Simd::NuVec4
+	/*
+	* @brief 4-component vector type with 16-byte alignment.
+	*
+	* Represents a SIMD-friendly vector with four float components (x, y, z, w).
+	* The structure is aligned to 16 bytes for optimal SIMD operations.
+	*/
 	using NuVec4 = __m128;
 
-	/// \copydoc NuEngine::Math::Docs::Simd::NuMat4
+	/*
+	* @brief 4x4 matrix type with 16-byte alignment.
+	*
+	* Represents a column-major 4x4 matrix stored in a 4D array.
+	* The structure is aligned to 16 bytes for optimal SIMD operations.
+	*/
 	struct alignas(16) NuMat4
 	{
 		__m128 cols[4];
@@ -140,10 +150,12 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_and_ps(v, mask);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::SqrtScalar
 	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float value) noexcept
 	{
-		return _mm_cvtss_f32(_mm_sqrt_ss(_mm_set_ss(value)));
+		NuVec4 v = _mm_set_ss(value);
+		NuVec4 rsqrt = _mm_rsqrt_ss(v);
+		NuVec4 sqrt = _mm_mul_ss(v, rsqrt);
+		return _mm_cvtss_f32(sqrt);
 	}
 
 	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd4

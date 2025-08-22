@@ -6,8 +6,6 @@
 
 #include <benchmark/benchmark.h>
 #include "GLMBenchmarkVectorCommon.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtx/norm.hpp> 
 
 namespace Benchmark
 {
