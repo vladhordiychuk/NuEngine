@@ -42,7 +42,6 @@ namespace NuEngine::Math::Simd_SSE
 		__m128 cols[4];
 	};
 
-	/// \copydoc NuEngine::Math::Docs::Simd::NuMat3
 	struct alignas(16) NuMat3
 	{
 		__m128 cols[3];
@@ -52,98 +51,98 @@ namespace NuEngine::Math::Simd_SSE
 	// Vectors
 	// =============================================
 
-	/// \copydoc NuEngine::Math::Docs::Simd::Set
+	/// \copydoc NuEngine::Math::VectorAPI::Set
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(float x, float y, float z = 0.0f, float w = 0.0f) noexcept
 	{
 		return _mm_set_ps(w, z, y, x);
 	}
 
-	/// \copydoc NuEngine::Math::Docs::Simd::SetAll
+	/// \copydoc NuEngine::Math::VectorAPI::SetAll
 	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(float scalar) noexcept
 	{
 		return _mm_set1_ps(scalar);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::SetZero
+	// \copydoc NuEngine::Math::VectorAPI::SetZero
 	[[nodiscard]] NU_FORCEINLINE NuVec4 SetZero() noexcept
 	{
 		return _mm_setzero_ps();
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::GetX
+	// \copydoc NuEngine::Math::VectorAPI::GetX
 	[[nodiscard]] NU_FORCEINLINE float GetX(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(v);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::GetY
+	// \copydoc NuEngine::Math::VectorAPI::GetY
 	[[nodiscard]] NU_FORCEINLINE float GetY(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1)));
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::GetZ
+	// \copydoc NuEngine::Math::VectorAPI::GetZ
 	[[nodiscard]] NU_FORCEINLINE float GetZ(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2)));
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::GetW
+	// \copydoc NuEngine::Math::VectorAPI::GetW
 	[[nodiscard]] NU_FORCEINLINE float GetW(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Add
+	// \copydoc NuEngine::Math::VectorAPI::Add
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_add_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Sub
+	// \copydoc NuEngine::Math::VectorAPI::Sub
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_sub_ps(a, b);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Mul
+	// \copydoc NuEngine::Math::VectorAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_mul_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Div
+	// \copydoc NuEngine::Math::VectorAPI::Div
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_div_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Neg
+	// \copydoc NuEngine::Math::VectorAPI::Neg
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Neg(NuVec4 v) noexcept
 	{
 		const NuVec4 sign_mask = _mm_set1_ps(-0.0f);
 		return _mm_xor_ps(v, sign_mask);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Min
+	// \copydoc NuEngine::Math::VectorAPI::Min
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Min(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_min_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Max
+	// \copydoc NuEngine::Math::VectorAPI::Max
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Max(NuVec4 a, NuVec4 b) noexcept
 	{ 
 		return _mm_max_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Equal
+	// \copydoc NuEngine::Math::VectorAPI::Equal
 	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
 	{
 		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::Abs
+	// \copydoc NuEngine::Math::VectorAPI::Abs
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Abs(NuVec4 v) noexcept
 	{
 		const NuVec4 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
@@ -158,7 +157,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(sqrt);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd4
+	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd4
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);
@@ -168,7 +167,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(sums);
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd3
+	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd3
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);      
@@ -176,7 +175,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(_mm_add_ss(sums, _mm_shuffle_ps(sums, sums, _MM_SHUFFLE(2, 2, 2, 2))));
 	}
 
-	// \copydoc NuEngine::Math::Docs::Simd::HorizontalAdd2
+	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd2
 	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
@@ -184,6 +183,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_cvtss_f32(sum);
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Normalize2
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
@@ -198,6 +198,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, scale);
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Normalize3
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
@@ -208,6 +209,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, SetAll(invLength));
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Normalize4
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
@@ -220,6 +222,7 @@ namespace NuEngine::Math::Simd_SSE
 		return Mul(v, SetAll(invLength));
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Cross
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Cross(NuVec4 a, NuVec4 b) noexcept
 	{
 		NuVec4 a_yzx = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 0, 2, 1));
@@ -231,6 +234,7 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Dot3
 	[[nodiscard]] NU_FORCEINLINE float Dot3(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
@@ -247,6 +251,7 @@ namespace NuEngine::Math::Simd_SSE
 #endif
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Dot4
 	[[nodiscard]] NU_FORCEINLINE float Dot4(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
@@ -263,11 +268,13 @@ namespace NuEngine::Math::Simd_SSE
 #endif
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Length3
 	[[nodiscard]] NU_FORCEINLINE float Length3(NuVec4 v) noexcept
 	{
 		return SqrtScalar(Dot3(v, v));
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Lerp
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Lerp(NuVec4 a, NuVec4 b, float t) noexcept
 	{
 		NuVec4 diff = Sub(b, a);
