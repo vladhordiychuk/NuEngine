@@ -8,17 +8,14 @@
 #include <cassert>
 #include <cmath>
 
-#include <Math/Algebra/Vector/VectorAPI.hpp>
-#include <Math/Algebra/Matrix/MatrixAPI.hpp>
-
-#ifdef _MSC_VER
-#define NU_FORCEINLINE __forceinline
-#else
-#define NU_FORCEINLINE inline __attribute__((always_inline))
-#endif
+#include <Core/Types/Types.hpp>
 
 namespace NuEngine::Math::Simd_SSE
 {
+	using NuFloat = NuEngine::Core::Types::NuFloat;
+	using NuBool = NuEngine::Core::Types::NuBool;
+	using NuInt32 = NuEngine::Core::Types::NuInt32;
+
 	// =============================================
 	// Common types
 	// =============================================
@@ -39,26 +36,21 @@ namespace NuEngine::Math::Simd_SSE
 	*/
 	struct alignas(16) NuMat4
 	{
-		__m128 cols[4];
+		NuVec4 cols[4];
 	};
-
-	struct alignas(16) NuMat3
-	{
-		__m128 cols[3];
-	};
-
+	
 	// =============================================
 	// Vectors
 	// =============================================
 
 	/// \copydoc NuEngine::Math::VectorAPI::Set
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(float x, float y, float z = 0.0f, float w = 0.0f) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(NuFloat x, NuFloat y, NuFloat z = 0.0f, NuFloat w = 0.0f) noexcept
 	{
 		return _mm_set_ps(w, z, y, x);
 	}
 
 	/// \copydoc NuEngine::Math::VectorAPI::SetAll
-	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(float scalar) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(NuFloat scalar) noexcept
 	{
 		return _mm_set1_ps(scalar);
 	}
@@ -70,25 +62,25 @@ namespace NuEngine::Math::Simd_SSE
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetX
-	[[nodiscard]] NU_FORCEINLINE float GetX(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetX(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(v);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetY
-	[[nodiscard]] NU_FORCEINLINE float GetY(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetY(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1)));
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetZ
-	[[nodiscard]] NU_FORCEINLINE float GetZ(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetZ(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2)));
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetW
-	[[nodiscard]] NU_FORCEINLINE float GetW(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetW(NuVec4 v) noexcept
 	{
 		return _mm_cvtss_f32(_mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3)));
 	}
@@ -136,12 +128,6 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_max_ps(a, b); 
 	}
 
-	// \copydoc NuEngine::Math::VectorAPI::Equal
-	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
-	{
-		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
-	}
-
 	// \copydoc NuEngine::Math::VectorAPI::Abs
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Abs(NuVec4 v) noexcept
 	{
@@ -149,7 +135,22 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_and_ps(v, mask);
 	}
 
-	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float value) noexcept
+	// \copydoc NuEngine::Math::VectorAPI::Equal
+	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
+	{
+		return _mm_movemask_ps(_mm_cmpeq_ps(a, b)) == 0xF;
+	}
+
+	// \copydoc NuEngine::Math::VectorAPI::NearEqual
+	[[nodiscard]] NU_FORCEINLINE NuBool NearEqual(NuVec4 a, NuVec4 b, NuFloat epsilon) noexcept
+	{
+		NuVec4 diff = _mm_sub_ps(a, b);
+		NuVec4 absDiff = Abs(diff);
+		NuVec4 cmp = _mm_cmple_ps(absDiff, _mm_set1_ps(epsilon));
+		return _mm_movemask_ps(cmp) == 0xF;
+	}
+
+	[[nodiscard]] NU_FORCEINLINE NuFloat SqrtScalar(NuFloat value) noexcept
 	{
 		NuVec4 v = _mm_set_ss(value);
 		NuVec4 rsqrt = _mm_rsqrt_ss(v);
@@ -158,7 +159,7 @@ namespace NuEngine::Math::Simd_SSE
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd4
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd4(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);
 		NuVec4 sums = _mm_add_ps(v, shuf);       
@@ -168,7 +169,7 @@ namespace NuEngine::Math::Simd_SSE
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd3
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd3(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);      
 		NuVec4 sums = _mm_add_ps(v, shuf);      
@@ -176,7 +177,7 @@ namespace NuEngine::Math::Simd_SSE
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd2
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd2(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
 		NuVec4 sum = _mm_add_ss(v, shuf);
@@ -187,12 +188,9 @@ namespace NuEngine::Math::Simd_SSE
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
-		float lenSq = HorizontalAdd2(squared);
-
-		if (lenSq <= 0.0f)
-			return SetZero();
-
-		float invLen = 1.0f / SqrtScalar(lenSq);
+		NuFloat lenSq = HorizontalAdd2(squared);
+		NuEngine::Core::Types::NuAssert(lenSq > 0.0f && "Cannot normalize zero vector!");
+		NuFloat invLen = 1.0f / SqrtScalar(lenSq);
 		NuVec4 scale = Set(invLen, invLen, 1.0f, 1.0f);
 
 		return Mul(v, scale);
@@ -202,10 +200,9 @@ namespace NuEngine::Math::Simd_SSE
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
-		float lengthSquared = HorizontalAdd3(squared);
-		if (lengthSquared <= 0.0f)
-			return SetZero();
-		float invLength = 1.0f / SqrtScalar(lengthSquared);
+		NuFloat lengthSquared = HorizontalAdd3(squared);
+		NuEngine::Core::Types::NuAssert(lengthSquared > 0.0f && "Cannot normalize zero vector!");
+		NuFloat invLength = 1.0f / SqrtScalar(lengthSquared);
 		return Mul(v, SetAll(invLength));
 	}
 
@@ -213,12 +210,11 @@ namespace NuEngine::Math::Simd_SSE
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v) noexcept
 	{
 		NuVec4 squared = Mul(v, v);
-		float lengthSquared = HorizontalAdd4(squared);
+		NuFloat lengthSquared = HorizontalAdd4(squared);
 
-		if (lengthSquared <= 0.0f)
-			return SetZero();
+		NuEngine::Core::Types::NuAssert(lengthSquared > 0.0f && "Cannot normalize zero vector!");
 
-		float invLength = 1.0f / SqrtScalar(lengthSquared);
+		NuFloat invLength = 1.0f / SqrtScalar(lengthSquared);
 		return Mul(v, SetAll(invLength));
 	}
 
@@ -234,25 +230,38 @@ namespace NuEngine::Math::Simd_SSE
 		return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
 	}
 
-	// \copydoc NuEngine::Math::VectorAPI::Dot3
-	[[nodiscard]] NU_FORCEINLINE float Dot3(NuVec4 a, NuVec4 b) noexcept
+	// \copydoc NuEngine::Math::VectorAPI::Dot2
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot2(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
-		NuVec4 dp = _mm_dp_ps(a, b, 0x71);
+		NuVec4 dp = _mm_dp_ps(a, b, 0x31);
 		return _mm_cvtss_f32(dp);
 #else
 		NuVec4 mul = _mm_mul_ps(a, b);
-		NuVec4 shuf = _mm_movehdup_ps(mul);
-		NuVec4 sums = _mm_add_ps(mul, shuf);
-		shuf = _mm_movehl_ps(shuf, sums);
-		sums = _mm_add_ss(sums, shuf);
+		NuFloat sum = _mm_cvtss_f32(mul) + _mm_cvtss_f32(_mm_shuffle_ps(mul, mul, _MM_SHUFFLE(1, 1, 1, 1)));
+		return sum;
+#endif
+	}
 
-		return _mm_cvtss_f32(sums);
+	// \copydoc NuEngine::Math::VectorAPI::Dot3
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot3(NuVec4 a, NuVec4 b) noexcept
+	{
+#if defined(__SSE4_1__)
+		NuVec4 dp = _mm_dp_ps(a, b, 0x7F);
+		return _mm_cvtss_f32(dp);
+#else
+		NuVec4 mul = _mm_mul_ps(a, b);
+		NuVec4 shuf1 = _mm_shuffle_ps(mul, mul, _MM_SHUFFLE(0, 0, 1, 1));
+		NuVec4 sum1 = _mm_add_ss(mul, shuf1);
+		NuVec4 shuf2 = _mm_shuffle_ps(mul, mul, _MM_SHUFFLE(2, 2, 2, 2));
+		NuVec4 sum2 = _mm_add_ss(sum1, shuf2);
+
+		return _mm_cvtss_f32(sum2);
 #endif
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Dot4
-	[[nodiscard]] NU_FORCEINLINE float Dot4(NuVec4 a, NuVec4 b) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot4(NuVec4 a, NuVec4 b) noexcept
 	{
 #if defined(__SSE4_1__)
 		NuVec4 dp = _mm_dp_ps(a, b, 0xF1);
@@ -263,22 +272,33 @@ namespace NuEngine::Math::Simd_SSE
 		NuVec4 sums = _mm_add_ps(mul, shuf);
 		shuf = _mm_movehl_ps(shuf, sums);
 		sums = _mm_add_ss(sums, shuf);
-
 		return _mm_cvtss_f32(sums);
 #endif
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Length2
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length2(NuVec4 v) noexcept
+	{
+		return SqrtScalar(Dot2(v, v));
+	}
+
 	// \copydoc NuEngine::Math::VectorAPI::Length3
-	[[nodiscard]] NU_FORCEINLINE float Length3(NuVec4 v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length3(NuVec4 v) noexcept
 	{
 		return SqrtScalar(Dot3(v, v));
 	}
 
-	// \copydoc NuEngine::Math::VectorAPI::Lerp
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Lerp(NuVec4 a, NuVec4 b, float t) noexcept
+	// \copydoc NuEngine::Math::VectorAPI::Length4
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length4(NuVec4 v) noexcept
 	{
-		NuVec4 diff = Sub(b, a);
-		return Add(a, Mul(diff, SetAll(t)));
+		return SqrtScalar(Dot4(v, v));
+	}
+
+	// \copydoc NuEngine::Math::VectorAPI::Lerp
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Lerp(NuVec4 a, NuVec4 b, NuFloat t) noexcept
+	{
+		NuVec4 t_vec = _mm_set1_ps(t);
+		return _mm_add_ps(a, _mm_mul_ps(_mm_sub_ps(b, a), t_vec));
 	}
 
 	// =============================================

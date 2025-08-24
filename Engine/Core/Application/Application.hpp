@@ -4,6 +4,12 @@
 
 #pragma once 
 
+#include "../../Graphics/OpenGL/Mesh/Mesh.hpp"
+#include "../../Graphics/OpenGL/Shaders/Shader.hpp"
+
+#include "../Logging/Logger.hpp"
+#include "../../Platform/Window.hpp"
+
 namespace NuEngine::Core::Application 
 {
     class Application 

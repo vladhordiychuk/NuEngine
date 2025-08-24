@@ -12,6 +12,10 @@
 
 namespace NuEngine::Math
 {
+	using NuFloat = NuEngine::Core::Types::NuFloat;
+	using NuInt32 = NuEngine::Core::Types::NuInt32;
+	using NuBool = NuEngine::Core::Types::NuBool;
+
 	/*
 	* @brief 2D Vector with SIMD support.
 	*
@@ -37,7 +41,7 @@ namespace NuEngine::Math
 		* @param x Value on X.
 		* @param y Value on Y.
 		*/
-		NU_FORCEINLINE Vector2(float x, float y) noexcept
+		NU_FORCEINLINE Vector2(NuFloat x, NuFloat y) noexcept
 			: m_data(VectorAPI::Set(x, y, 0.0f, 0.0f))
 		{
 		}
@@ -45,14 +49,14 @@ namespace NuEngine::Math
 		/*
 		* @brief Initialization with initializer_list.
 		* 
-		* @param Initialization list of 2 elements.
+		* @param list An initializer list containing exactly 2 elements (x, y).
 		*/
-		NU_FORCEINLINE Vector2(std::initializer_list<float> list) noexcept
+		NU_FORCEINLINE Vector2(std::initializer_list<NuFloat> list) noexcept
 		{
-			assert(list.size() == 2);
+			NuEngine::Core::Types::NuAssert(list.size() == 2);
 			auto it = list.begin();
-			float x = *it++;
-			float y = *it++;
+			NuFloat x = *it++;
+			NuFloat y = *it++;
 			m_data = VectorAPI::Set(x, y, 0.0f, 0.0f);
 		}
 
@@ -85,7 +89,7 @@ namespace NuEngine::Math
 		/*
 		* @brief Constructs a Vector2 from a SIMD vector.
 		*
-		* Initializes the Vector3 using the given SIMD vector without performing
+		* Initializes the Vector2 using the given SIMD vector without performing
 		* any additional computations or conversions.
 		*
 		* @param simd The SIMD vector (NuVec4) used to initialize this Vector2.
@@ -136,7 +140,12 @@ namespace NuEngine::Math
 		}
 
 		/*
-		* 
+		* @brief Divides this vector by another component-wise.
+		*
+		* Performs component-wise division of this vector by the other vector.
+		*
+		* @param other The vector to divide by.
+		* @return A new Vector2 that is the result of the division.
 		*/
 		[[nodiscard]] NU_FORCEINLINE Vector2 operator/(Vector2 other) const noexcept
 		{
@@ -151,7 +160,7 @@ namespace NuEngine::Math
 		* @param scalar The scalar value to multiply by.
 		* @return A new Vector2 that is the result of the multiplication.
 		*/
-		[[nodiscard]] NU_FORCEINLINE Vector2 operator*(float scalar) const noexcept
+		[[nodiscard]] NU_FORCEINLINE Vector2 operator*(NuFloat scalar) const noexcept
 		{
 			return Vector2(VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar)));
 		}
@@ -164,9 +173,9 @@ namespace NuEngine::Math
 		* @param scalar The scalar value to divide by.
 		* @return A new Vector2 that is the result of the division.
 		*/
-		[[nodiscard]] NU_FORCEINLINE Vector2 operator/(float scalar) const noexcept
+		[[nodiscard]] NU_FORCEINLINE Vector2 operator/(NuFloat scalar) const noexcept
 		{
-			assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
+			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
 			return Vector2(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
 		}
 		
@@ -211,6 +220,14 @@ namespace NuEngine::Math
 			return *this;
 		}
 
+		/*
+		* @brief Divides this vector by another component-wise.
+		*
+		* Performs component-wise division of this vector by the other vector.
+		*
+		* @param other The vector to divide by.
+		* @return A reference to this vector after the division.
+*		*/
 		NU_FORCEINLINE Vector2& operator/=(Vector2 other) noexcept
 		{
 			m_data = VectorAPI::Div(m_data, other.m_data);
@@ -225,7 +242,7 @@ namespace NuEngine::Math
 		* @param scalar The scalar value to multiply the vector by.
 		* @return A reference to this vector after the multiplication.
 		*/
-		NU_FORCEINLINE Vector2& operator*=(float scalar) noexcept
+		NU_FORCEINLINE Vector2& operator*=(NuFloat scalar) noexcept
 		{
 			m_data = VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar));
 			return *this;
@@ -239,9 +256,9 @@ namespace NuEngine::Math
 		* @param scalar The scalar value to divide the vector by.
 		* @return A reference to this vector after the division.
 		*/
-		NU_FORCEINLINE Vector2& operator/=(float scalar) noexcept
+		NU_FORCEINLINE Vector2& operator/=(NuFloat scalar) noexcept
 		{
-			assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
+			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
 			m_data = VectorAPI::Div(m_data, VectorAPI::SetAll(scalar));
 			return *this;
 		}
@@ -249,7 +266,7 @@ namespace NuEngine::Math
 		/*
 		* @brief Returns the x-component
 		*/
-		[[nodiscard]] NU_FORCEINLINE float X() const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat X() const noexcept
 		{
 			return VectorAPI::GetX(m_data);
 		}
@@ -258,20 +275,68 @@ namespace NuEngine::Math
 		/*
 		* @brief Returns the y-component
 		*/
-		[[nodiscard]] NU_FORCEINLINE float Y() const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat Y() const noexcept
 		{
 			return VectorAPI::GetY(m_data);
+		}
+
+		/*
+		* @brief Returns a vector with the minimum components between this vector and another.
+		*
+		* @param other The other vector to compare with.
+		* 
+		* @return Vector2 A vector containing the minimum values component-wise.
+		*/
+		[[nodiscard]] NU_FORCEINLINE Vector2 Min(Vector2 other) const noexcept
+		{
+			return Vector2(VectorAPI::Min(m_data, other.m_data));
+		}
+
+		/*
+		* @brief Returns a vector with the maximum components between this vector and another.
+		*
+		* @param other The other vector to compare with.
+		* 
+		* @return Vector2 A vector containing the maximum values component-wise.
+		*/
+		[[nodiscard]] NU_FORCEINLINE Vector2 Max(Vector2 other) const noexcept
+		{
+			return Vector2(VectorAPI::Max(m_data, other.m_data));
+		}
+
+		/*
+		* @brief Returns a vector with the absolute values of each component.
+		*
+		* @return Vector2 A vector containing the absolute values of this vector's components.
+		*/
+		[[nodiscard]] NU_FORCEINLINE Vector2 Abs() const noexcept
+		{
+			return Vector2(VectorAPI::Abs(m_data));
 		}
 
 		/*
 		* @brief Compares two Vector2 instances for equality.
 		*
 		* @param other The vector to compare with.
-		* @result true if all components are equal, false otherwise.
+		* 
+		* @return true if all components are equal, false otherwise.
 		*/
-		[[nodiscard]] NU_FORCEINLINE bool operator==(Vector2 other) const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuBool operator==(Vector2 other) const noexcept
 		{
 			return VectorAPI::Equal(m_data, other.m_data);
+		}
+
+		/*
+		* @brief Checks if two Vector2 instances are nearly equal within a tolerance.
+		*
+		* @param other The vector to compare with.
+		* @param epsilon The maximum allowed difference for components.
+		* 
+		* @return true if all components differ no more than epsilon, false otherwise.
+		*/
+		[[nodiscard]] NU_FORCEINLINE NuBool NearEqual(Vector2 other, NuFloat epsilon) const noexcept
+		{
+			return VectorAPI::NearEqual(m_data, other.m_data, epsilon);
 		}
 
 		/*
@@ -280,7 +345,7 @@ namespace NuEngine::Math
 		* @param other The vector to compare with.
 		* @result true if any component differs, false otherwise.
 		*/
-		[[nodiscard]] NU_FORCEINLINE bool operator!=(Vector2 other) const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuBool operator!=(Vector2 other) const noexcept
 		{
 			return !(*this == other);
 		}
@@ -352,9 +417,9 @@ namespace NuEngine::Math
 		* @return The value of the component at the specified index.
 		* @throws Assertion failure if index is out of bounds.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float operator[](int index) const
+		[[nodiscard]] NU_FORCEINLINE const NuFloat& operator[](NuInt32 index) const
 		{
-			assert(index >= 0 && index < 2);
+			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2);
 			return m_components[index];
 		}
 
@@ -365,9 +430,9 @@ namespace NuEngine::Math
 		* @return Reference to the component at the specified index.
 		* @throws Assertion failure if index is out of bounds.
 		*/
-		NU_FORCEINLINE float& operator[](int index)
+		NU_FORCEINLINE NuFloat& operator[](NuInt32 index)
 		{
-			assert(index >= 0 && index < 2);
+			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2);
 			return m_components[index];
 		}
 
@@ -406,10 +471,9 @@ namespace NuEngine::Math
 		*
 		* @return Length of the vector.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float Length() const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat Length() const noexcept
 		{
-			VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
-			return VectorAPI::SqrtScalar(VectorAPI::HorizontalAdd2(mul));
+			return VectorAPI::Length2(m_data);
 		}
 
 		/*
@@ -417,10 +481,9 @@ namespace NuEngine::Math
 		*
 		* @return Squared length.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float LengthSquared() const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat LengthSquared() const noexcept
 		{
-			VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
-			return VectorAPI::HorizontalAdd2(mul);
+			return VectorAPI::Dot2(m_data, m_data);
 		}
 
 		/*
@@ -429,11 +492,9 @@ namespace NuEngine::Math
 		* @param other The vector to compute the dot product with.
 		* @return Dot product result.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float Dot(Vector2 other) const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat Dot(Vector2 other) const noexcept
 		{
-			VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, other.m_data);
-			float dot = VectorAPI::HorizontalAdd2(mul);
-			return dot;
+			return VectorAPI::HorizontalAdd2(VectorAPI::Mul(m_data, other.m_data));
 		}
 
 		/*
@@ -442,7 +503,7 @@ namespace NuEngine::Math
 		* @param other The vector to calculate the distance to.
 		* @return Distance between the vectors.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float Distance(Vector2 other) const noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat Distance(Vector2 other) const noexcept
 		{
 			return (*this - other).Length();
 		}
@@ -452,7 +513,7 @@ namespace NuEngine::Math
 		*
 		* @return Pointer to the float array.
 		*/
-		[[nodiscard]] NU_FORCEINLINE const float* Data() const noexcept
+		[[nodiscard]] NU_FORCEINLINE const NuFloat* Data() const noexcept
 		{
 			return m_components;
 		}
@@ -462,7 +523,7 @@ namespace NuEngine::Math
 		*
 		* @return Pointer to the float array.
 		*/
-		[[nodiscard]] NU_FORCEINLINE float* Data() noexcept
+		[[nodiscard]] NU_FORCEINLINE NuFloat* Data() noexcept
 		{
 			return m_components;
 		}
@@ -503,7 +564,7 @@ namespace NuEngine::Math
 		* @brief Writes the vector to the output stream.
 		*
 		* @param os Output stream.
-		* @param vec Vector3 to write.
+		* @param vec Vector2 to write.
 		* @return Reference to the output stream.
 		*/
 		friend std::ostream& operator<<(std::ostream& os, const Vector2& vec)
@@ -523,7 +584,7 @@ namespace NuEngine::Math
 		union
 		{
 			VectorAPI::NuVec4 m_data; // SIMD-vector
-			float m_components[4]; // float-array
+			NuFloat m_components[4]; // float-array
 		};
 	};
 }

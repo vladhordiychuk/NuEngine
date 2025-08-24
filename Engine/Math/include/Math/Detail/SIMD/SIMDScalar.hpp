@@ -6,12 +6,16 @@
 
 #include <cmath>
 #include <cassert>
+#include <bit>
 
-#include <Math/Algebra/Vector/VectorAPI.hpp>
-#include <Math/Algebra/Matrix/MatrixAPI.hpp>
+#include <Core/Types/Types.hpp>
 
 namespace NuEngine::Math::Simd_Scalar
 {
+	using NuInt32 = NuEngine::Core::Types::NuInt32;
+	using NuFloat = NuEngine::Core::Types::NuFloat;
+	using NuBool = NuEngine::Core::Types::NuBool;
+
 	// =============================================
 	// Common types
 	// =============================================
@@ -24,7 +28,7 @@ namespace NuEngine::Math::Simd_Scalar
 	*/
 	struct alignas(16) NuVec4
 	{
-		float x, y, z, w;
+		NuFloat x, y, z, w;
 	};
 
 	/*
@@ -35,21 +39,21 @@ namespace NuEngine::Math::Simd_Scalar
 	*/
 	struct alignas(16) SimdMat4
 	{
-		float mat[4][4];
+		NuFloat mat[4][4];
 	};
 
 	// =============================================
 	// Vectors
 	// =============================================
 
-		// \copydoc NuEngine::Math::VectorAPI::Set
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(float x, float y, float z, float w = 0.0f) noexcept
+	// \copydoc NuEngine::Math::VectorAPI::Set
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(NuFloat x, NuFloat y, NuFloat z, NuFloat w = 0.0f) noexcept
 	{
 		return { x, y, z, w };
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::SetAll
-	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(float scalar) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuVec4 SetAll(NuFloat scalar) noexcept
 	{
 		return { scalar, scalar, scalar, scalar };
 	}
@@ -61,25 +65,25 @@ namespace NuEngine::Math::Simd_Scalar
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetX
-	[[nodiscard]] NU_FORCEINLINE float GetX(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetX(const NuVec4& v) noexcept
 	{
 		return v.x;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetY
-	[[nodiscard]] NU_FORCEINLINE float GetY(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetY(const NuVec4& v) noexcept
 	{
 		return v.y;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetZ
-	[[nodiscard]] NU_FORCEINLINE float GetZ(const  NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetZ(const  NuVec4& v) noexcept
 	{
 		return v.z;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetW
-	[[nodiscard]] NU_FORCEINLINE float GetW(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetW(const NuVec4& v) noexcept
 	{
 		return v.w;
 	}
@@ -143,69 +147,78 @@ namespace NuEngine::Math::Simd_Scalar
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Equal
-	[[nodiscard]] NU_FORCEINLINE bool Equal(const NuVec4& a, const NuVec4& b) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuBool Equal(const NuVec4& a, const NuVec4& b) noexcept
 	{
 		return (a.x == b.x) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w);
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::NearEqual
+	[[nodiscard]] NU_FORCEINLINE NuBool NearEqual(const NuVec4& a, const NuVec4& b, NuFloat epsilon) noexcept
+	{
+		return (std::fabs(a.x - b.x) <= epsilon) &&
+			   (std::fabs(a.y - b.y) <= epsilon) &&
+			   (std::fabs(a.z - b.z) <= epsilon) &&
+			   (std::fabs(a.w - b.w) <= epsilon);
+	}
+
 	// \copydoc NuEngine::Math::VectorAPI::SqrtScalar
-	[[nodiscard]] NU_FORCEINLINE float SqrtScalar(float scalar) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat SqrtScalar(NuFloat scalar) noexcept
 	{ 
 		return std::sqrt(scalar);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd4
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd4(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd4(const NuVec4& v) noexcept
 	{
 		return v.x + v.y + v.z + v.w;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd3
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd3(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd3(const NuVec4& v) noexcept
 	{
 		return v.x + v.y + v.z;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd2
-	[[nodiscard]] NU_FORCEINLINE float HorizontalAdd2(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd2(const NuVec4& v) noexcept
 	{
 		return v.x + v.y;
 	}
 
-	// \copydoc NuEngine::Math::VectorAPI::fast_inverse_sqrt
-	NU_FORCEINLINE float fast_inverse_sqrt(float x) noexcept 
+	// \copydoc NuEngine::Math::VectorAPI::FastInverseSqrt
+	NU_FORCEINLINE NuFloat FastInverseSqrt(NuFloat x) noexcept
 	{
-		const float xhalf = 0.5f * x;
-		int i = *(int*)&x;          
-		i = 0x5f3759df - (i >> 1);  
-		x = *(float*)&i;            
-		return x * (1.5f - xhalf * x * x); 
+		const NuFloat xhalf = 0.5f * x;
+		NuInt32 i = std::bit_cast<NuInt32>(x);
+		i = 0x5f3759df - (i >> 1);
+		x = std::bit_cast<NuFloat>(i);
+		return x * (1.5f - xhalf * x * x);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Normalize2
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(const NuVec4& v) noexcept
 	{
-		float lenSq = v.x * v.x + v.y * v.y;
-		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		float invLen = fast_inverse_sqrt(lenSq);
+		NuFloat lenSq = v.x * v.x + v.y * v.y;
+		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		NuFloat invLen = FastInverseSqrt(lenSq);
 		return { v.x * invLen, v.y * invLen, v.z, v.w };
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Normalize3
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(const NuVec4& v) noexcept
 	{
-		const float lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
-		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		const float invLen = fast_inverse_sqrt(lenSq);
+		const NuFloat lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
+		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		const NuFloat invLen = FastInverseSqrt(lenSq);
 		return { v.x * invLen, v.y * invLen, v.z * invLen, v.w };
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Normalize4
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(const NuVec4& v) noexcept
 	{
-		float lenSq = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
-		assert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		float invLength = fast_inverse_sqrt(lenSq);
+		NuFloat lenSq = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
+		NuFloat invLength = FastInverseSqrt(lenSq);
 		return { v.x * invLength, v.y * invLength, v.z * invLength, v.w * invLength };
 	}
 
@@ -220,16 +233,40 @@ namespace NuEngine::Math::Simd_Scalar
 		};
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Dot2
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot2(const NuVec4& a, const NuVec4& b) noexcept
+	{
+		return a.x * b.x + a.y * b.y;
+	}
+
 	// \copydoc NuEngine::Math::VectorAPI::Dot3
-	[[nodiscard]] NU_FORCEINLINE float Dot3(const NuVec4& a, const NuVec4& b) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot3(const NuVec4& a, const NuVec4& b) noexcept
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Dot4
+	[[nodiscard]] NU_FORCEINLINE NuFloat Dot4(const NuVec4& a, const NuVec4& b) noexcept
+	{
+		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
+
+	// \copydoc NuEngine::Math::VectorAPI::Length2
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length2(const NuVec4& v) noexcept
+	{
+		return SqrtScalar(Dot2(v, v));
+	}
+
 	// \copydoc NuEngine::Math::VectorAPI::Length3
-	[[nodiscard]] NU_FORCEINLINE float Length3(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length3(const NuVec4& v) noexcept
 	{
 		return SqrtScalar(Dot3(v, v));
+	}
+
+	// \copydoc NuEngine::Math::VectorAPI::Length4
+	[[nodiscard]] NU_FORCEINLINE NuFloat Length4(const NuVec4& v) noexcept
+	{
+		return SqrtScalar(Dot4(v, v));
 	}
 
 	// =============================================

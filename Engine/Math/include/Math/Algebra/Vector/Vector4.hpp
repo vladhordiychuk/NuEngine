@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Math/Algebra/Vector/VectorAPI.hpp>
+#include <Core/Types/Types.hpp>
 
 #include <string>
 #include <sstream>
@@ -12,6 +13,10 @@
 
 namespace NuEngine::Math
 {
+    using NuFloat = NuEngine::Core::Types::NuFloat;
+    using NuInt32 = NuEngine::Core::Types::NuInt32;
+    using NuBool = NuEngine::Core::Types::NuBool;
+
     /*
     * @brief 4D Vector with SIMD support.
     * 
@@ -38,7 +43,7 @@ namespace NuEngine::Math
         * @param z Value on Z.
         * @param w Value on W.
         */
-        NU_FORCEINLINE Vector4(float x, float y, float z, float w) noexcept
+        NU_FORCEINLINE Vector4(NuFloat x, NuFloat y, NuFloat z, NuFloat w) noexcept
             : m_data(VectorAPI::Set(x, y, z, w))
         {
         }
@@ -47,9 +52,9 @@ namespace NuEngine::Math
         * @brief Initialization with initializer_list.
         * @param Initialization list of 4 elements.
         */
-        NU_FORCEINLINE Vector4(std::initializer_list<float> list) noexcept
+        NU_FORCEINLINE Vector4(std::initializer_list<NuFloat> list) noexcept
         {
-            assert(list.size() == 4);
+            NuEngine::Core::Types::NuAssert(list.size() == 4);
             auto it = list.begin();
             m_data = VectorAPI::Set(it[0], it[1], it[2], it[3]);
         }
@@ -148,7 +153,7 @@ namespace NuEngine::Math
         * @param scalar The scalar value to multiply by.
         * @return A new Vector4 that is the result of the multiplication.
         */
-        [[nodiscard]] NU_FORCEINLINE Vector4 operator*(float scalar) const noexcept
+        [[nodiscard]] NU_FORCEINLINE Vector4 operator*(NuFloat scalar) const noexcept
         {
             return Vector4(VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar)));
         }
@@ -161,9 +166,9 @@ namespace NuEngine::Math
         * @param scalar The scalar value to divide by.
         * @return A new Vector4 that is the result of the division.
         */
-        [[nodiscard]] NU_FORCEINLINE Vector4 operator/(float scalar) const noexcept
+        [[nodiscard]] NU_FORCEINLINE Vector4 operator/(NuFloat scalar) const noexcept
         {
-            assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
+            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
             return Vector4(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
         }
 
@@ -210,7 +215,12 @@ namespace NuEngine::Math
         }
 
         /*
-        * 
+        * @brief Divides this vector by another component-wise.
+        *
+        * Performs component-wise division of this vector by the other vector.
+        *
+        * @param other The vector to divide by.
+        * @return A new Vector4 that is the result of the division.
         */
         NU_FORCEINLINE Vector4& operator/=(Vector4 other) noexcept
         {
@@ -226,7 +236,7 @@ namespace NuEngine::Math
         * @param scalar The scalar value to multiply the vector by.
         * @return A reference to this vector after the multiplication.
         */
-        NU_FORCEINLINE Vector4& operator*=(float scalar) noexcept
+        NU_FORCEINLINE Vector4& operator*=(NuFloat scalar) noexcept
         {
             m_data = VectorAPI::Mul(m_data, VectorAPI::SetAll(scalar));
             return *this;
@@ -240,9 +250,9 @@ namespace NuEngine::Math
         * @param scalar The scalar value to divide the vector by.
         * @return A reference to this vector after the division.
         */
-        NU_FORCEINLINE Vector4& operator/=(float scalar) noexcept
+        NU_FORCEINLINE Vector4& operator/=(NuFloat scalar) noexcept
         {
-            assert(std::fabs(scalar) > std::numeric_limits<float>::epsilon() && "Division by zero or near zero!");
+            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
             m_data = VectorAPI::Div(m_data, VectorAPI::SetAll(scalar));
             return *this;
         }
@@ -250,7 +260,7 @@ namespace NuEngine::Math
         /*
         * @brief Returns the x-component
         */
-        [[nodiscard]] NU_FORCEINLINE float X() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat X() const noexcept
         {
             return VectorAPI::GetX(m_data);
         }
@@ -258,7 +268,7 @@ namespace NuEngine::Math
         /*
         * @brief Returns the y-component
         */
-        [[nodiscard]] NU_FORCEINLINE float Y() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat Y() const noexcept
         {
             return VectorAPI::GetY(m_data);
         }
@@ -266,7 +276,7 @@ namespace NuEngine::Math
         /*
         * @brief Returns the z-component
         */
-        [[nodiscard]] NU_FORCEINLINE float Z() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat Z() const noexcept
         {
             return VectorAPI::GetZ(m_data);
         }
@@ -274,9 +284,42 @@ namespace NuEngine::Math
         /*
         * @brief Returns the w-component
         */
-        [[nodiscard]] NU_FORCEINLINE float W() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat W() const noexcept
         {
             return VectorAPI::GetW(m_data);
+        }
+        /*
+        * @brief Returns a vector with the minimum components between this vector and another.
+        *
+        * @param other The other vector to compare with.
+        *
+        * @return Vector4 A vector containing the minimum values component-wise.
+        */
+        [[nodiscard]] NU_FORCEINLINE Vector4 Min(Vector4 other) const noexcept
+        {
+            return Vector4(VectorAPI::Min(m_data, other.m_data));
+        }
+
+        /*
+        * @brief Returns a vector with the maximum components between this vector and another.
+        *
+        * @param other The other vector to compare with.
+        *
+        * @return Vector4 A vector containing the maximum values component-wise.
+        */
+        [[nodiscard]] NU_FORCEINLINE Vector4 Max(Vector4 other) const noexcept
+        {
+            return Vector4(VectorAPI::Max(m_data, other.m_data));
+        }
+
+        /*
+        * @brief Returns a vector with the absolute values of each component.
+        *
+        * @return Vector4 A vector containing the absolute values of this vector's components.
+        */
+        [[nodiscard]] NU_FORCEINLINE Vector4 Abs() const noexcept
+        {
+            return Vector4(VectorAPI::Abs(m_data));
         }
 
         /*
@@ -285,9 +328,22 @@ namespace NuEngine::Math
         * @param other The vector to compare with.
         * @result true if all components are equal, false otherwise.
         */
-        [[nodiscard]] NU_FORCEINLINE bool operator==(Vector4 other) const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuBool operator==(Vector4 other) const noexcept
         {
             return VectorAPI::Equal(m_data, other.m_data);
+        }
+
+        /*
+        * @brief Checks if two Vector4 instances are nearly equal within a tolerance.
+        *
+        * @param other The vector to compare with.
+        * @param epsilon The maximum allowed difference for components.
+        *
+        * @return true if all components differ no more than epsilon, false otherwise.
+        */
+        [[nodiscard]] NU_FORCEINLINE NuBool NearEqual(Vector4 other, NuFloat epsilon) const noexcept
+        {
+            return VectorAPI::NearEqual(m_data, other.m_data, epsilon);
         }
 
         /*
@@ -296,7 +352,7 @@ namespace NuEngine::Math
         * @param other The vector to compare with.
         * @result true if any component differs, false otherwise.
         */
-        [[nodiscard]] NU_FORCEINLINE bool operator!=(Vector4 other) const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuBool operator!=(Vector4 other) const noexcept
         {
             return !(*this == other);
         }
@@ -320,9 +376,9 @@ namespace NuEngine::Math
         * @return The value of the component at the specified index.
         * @throws Assertion failure if index is out of bounds.
         */
-        [[nodiscard]] NU_FORCEINLINE float operator[](int index) const
+        [[nodiscard]] NU_FORCEINLINE NuFloat operator[](NuInt32 index) const
         {
-            assert(index >= 0 && index < 4);
+            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
             return m_components[index];
         }
 
@@ -333,9 +389,9 @@ namespace NuEngine::Math
         * @return Reference to the component at the specified index.
         * @throws Assertion failure if index is out of bounds.
         */
-        NU_FORCEINLINE float& operator[](int index)
+        NU_FORCEINLINE NuFloat& operator[](NuInt32 index)
         {
-            assert(index >= 0 && index < 4);
+            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
             return m_components[index];
         }
 
@@ -446,10 +502,9 @@ namespace NuEngine::Math
         * 
         * @return Length of the vector.
         */
-        [[nodiscard]] NU_FORCEINLINE float Length() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat Length() const noexcept
         {
-            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
-            return VectorAPI::SqrtScalar(VectorAPI::HorizontalAdd4(mul));
+            return VectorAPI::Length4(m_data);
         }
 
         /*
@@ -457,10 +512,9 @@ namespace NuEngine::Math
         *
         * @return Squared length.
         */
-        [[nodiscard]] NU_FORCEINLINE float LengthSquared() const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat LengthSquared() const noexcept
         {
-            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, m_data);
-            return VectorAPI::HorizontalAdd4(mul);
+            return VectorAPI::Dot4(m_data, m_data);
         }
 
         /*
@@ -469,10 +523,9 @@ namespace NuEngine::Math
         * @param other The vector to compute the dot product with.
         * @return Dot product result.
         */
-        [[nodiscard]] NU_FORCEINLINE float Dot(Vector4 other) const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat Dot(Vector4 other) const noexcept
         {
-            VectorAPI::NuVec4 mul = VectorAPI::Mul(m_data, other.m_data);
-            return VectorAPI::HorizontalAdd4(mul);
+            return VectorAPI::Dot4(m_data, other.m_data);
         }
 
         /*
@@ -481,7 +534,7 @@ namespace NuEngine::Math
         * @param other The vector to calculate the distance to.
         * @return Distance between the vectors.
         */
-        [[nodiscard]] NU_FORCEINLINE float Distance(Vector4 other) const noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat Distance(Vector4 other) const noexcept
         {
             return (*this - other).Length();
         }
@@ -491,7 +544,7 @@ namespace NuEngine::Math
         * 
         * @return Pointer to the float array.
         */
-        [[nodiscard]] NU_FORCEINLINE const float* Data() const noexcept
+        [[nodiscard]] NU_FORCEINLINE const NuFloat* Data() const noexcept
         {
             return m_components;
         }
@@ -501,7 +554,7 @@ namespace NuEngine::Math
         * 
         * @return Pointer to the float array.
         */
-        [[nodiscard]] NU_FORCEINLINE float* Data() noexcept
+        [[nodiscard]] NU_FORCEINLINE NuFloat* Data() noexcept
         {
             return m_components;
         }
@@ -511,7 +564,7 @@ namespace NuEngine::Math
         * 
         * @return Reference to the SIMD vector.
         */
-        [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4& SimdData() const noexcept
+        [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4 SimdData() const noexcept
         {
             return m_data;
         }
@@ -561,7 +614,7 @@ namespace NuEngine::Math
         union 
         {
             VectorAPI::NuVec4 m_data; // SIMD-vector
-            float m_components[4]; // float-array
+            NuFloat m_components[4]; // float-array
         };
     };
 }

@@ -216,6 +216,19 @@ namespace NuEngine::Math::VectorAPI
 	using Simd::Equal;
 
 	/*
+	* @brief Approximate floating-point vector equality comparison with epsilon.
+	*
+	* Performs component-wise comparison with given epsilon tolerance.
+	*
+	* @param a First vector.
+	* @param b Second vector.
+	* @param epsilon The tolerance value.
+	*
+	* @return true if all components differ by no more than epsilon.
+	*/
+	using Simd::NearEqual;
+
+	/*
 	* @brief Computes the square root of a scalar floating-point value.
 	*
 	* Calculates the square root.
@@ -314,6 +327,18 @@ namespace NuEngine::Math::VectorAPI
 	using Simd::Cross;
 
 	/*
+	* @brief Computes 2D dot product (ignores w components)
+	*
+	* Calculates the dot product of the first two components (x,y).
+	*
+	* @param a First vector.
+	* @param b Second vector.
+	*
+	* @return Dot product (a.x*b.x + a.y*b.y).
+	*/
+	using Simd::Dot2;
+
+	/*
 	* @brief Computes 3D dot product (ignores w components)
 	*
 	* Calculates the dot product of the first three components (x,y,z).
@@ -326,6 +351,28 @@ namespace NuEngine::Math::VectorAPI
 	using Simd::Dot3;
 
 	/*
+	* @brief Computes 4D dot product (ignores w components)
+	*
+	* Calculates the dot product of the four components (x,y,z,w).
+	*
+	* @param a First vector.
+	* @param b Second vector.
+	*
+	* @return Dot product (a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w).
+	*/
+	using Simd::Dot4;
+
+	/*
+	* @brief Computes 2D vector length (ignores z and w components).
+	*
+	* Calculates the Euclidean length of the first two components (x,y).
+	*
+	* @param v Input vector.
+	* @return Length of vector (sqrt(x² + y²)).
+	*/
+	using Simd::Length2;
+
+	/*
 	* @brief Computes 3D vector length (ignores w component).
 	*
 	* Calculates the Euclidean length of the first three components (x,y,z).
@@ -334,4 +381,14 @@ namespace NuEngine::Math::VectorAPI
 	* @return Length of vector (sqrt(x² + y² + z²)).
 	*/
 	using Simd::Length3;
+
+	/*
+	* @brief Computes 4D vector length.
+	*
+	* Calculates the Euclidean length of the four components (x,y,z,w).
+	*
+	* @param v Input vector.
+	* @return Length of vector (sqrt(x² + y² + z² + w²)).
+	*/
+	using Simd::Length4;
 }
