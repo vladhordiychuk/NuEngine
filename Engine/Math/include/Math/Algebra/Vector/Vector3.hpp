@@ -162,6 +162,18 @@ namespace NuEngine::Math
         }
 
         /*
+        * @brief Multiplies a scalar by a vector (commutative with vector * scalar).
+        *
+        * @param scalar The scalar value.
+        * @param vec The vector to multiply.
+        * @return A new Vector3 that is the result of the multiplication.
+        */
+        friend [[nodiscard]] NU_FORCEINLINE Vector3 operator*(NuFloat scalar, Vector3 vec) noexcept
+        {
+            return vec * scalar;
+        }
+
+        /*
         * @brief Divides the vector by a scalar.
         *
         * Scales each component of the vector by the reciprocal of the given scalar value.
@@ -579,7 +591,6 @@ namespace NuEngine::Math
             oss << "(" << X() << ", " << Y() << ", " << Z() << ")";
             return oss.str();
         }
-
 
         /*
         * @brief Writes the vector to the output stream.

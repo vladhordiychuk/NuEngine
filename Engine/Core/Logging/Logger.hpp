@@ -9,7 +9,7 @@
 #include <source_location>
 #include <format>
 
-namespace NuEngine::Core::Logging
+namespace NuEngine::Core
 {
     enum class LogLevel
     {
@@ -49,9 +49,9 @@ namespace NuEngine::Core::Logging
     };
 }
 
-#define LOG_TRACE(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Trace, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_DEBUG(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Debug, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_INFO(...)     NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Info, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_WARNING(...)  NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Warning, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_ERROR(...)    NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Error, std::format(__VA_ARGS__), std::source_location::current())
-#define LOG_CRITICAL(...) NuEngine::Core::Logging::Logger::Log(NuEngine::Core::Logging::LogLevel::Critical, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_TRACE(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Trace, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_DEBUG(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Debug, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_INFO(...)     NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Info, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_WARNING(...)  NuEngine::Core::Logger::Log(NuEngine::Core::LLogLevel::Warning, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_ERROR(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Error, std::format(__VA_ARGS__), std::source_location::current())
+#define LOG_CRITICAL(...) NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Critical, std::format(__VA_ARGS__), std::source_location::current())

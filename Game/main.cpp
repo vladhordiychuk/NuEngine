@@ -1,22 +1,25 @@
-#include <Core/Application/Application.hpp>
-#include <Math/Math.hpp>
+#include <Platform/Windows/WindowWin32.hpp>
+#include <thread>
 
-#include <iostream>
-
-int main() 
+int main()
 {
-    NuEngine::Core::Application::Application app;
-    app.Run();
+    using namespace NuEngine::Platform;
 
-    using namespace NuEngine::Math;
+    WindowWin32 window;
+    WindowConfig config(800, 600, "Test Window");
 
-    Vector3 a(1.0f, 2.0f, 3.0f);
-    Vector3 b(3.0f, 2.0f, 1.0f);
+    if (!window.Initialize(config).IsOk())
+        return -1;
 
-    std::cout << "A + B = " << (a + b).ToString() << '\n';
-    std::cout << "Dot = " << a.Dot(b) << '\n';
-    std::cout << "Cross = " << a.Cross(b).ToString() << '\n';
-    std::cout << "Normalized A = " << a.Normalize().ToString() << '\n';
+    window.Show();
+
+    while (window.IsOpen())
+    {
+        window.ProcessEvents();
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+    }
+
     return 0;
 }
+
 

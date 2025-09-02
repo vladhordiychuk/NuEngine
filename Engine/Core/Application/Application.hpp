@@ -4,14 +4,15 @@
 
 #pragma once 
 
-#include "../../Graphics/OpenGL/Mesh/Mesh.hpp"
-#include "../../Graphics/OpenGL/Shaders/Shader.hpp"
+#include <Core/Types/Types.hpp>
 
-#include "../Logging/Logger.hpp"
-#include "../../Platform/Window.hpp"
-
-namespace NuEngine::Core::Application 
+namespace NuEngine::Core
 {
+    using NuBool = NuEngine::Core::Types::NuBool;
+
+    /*
+    * 
+    */
     class Application 
     {
     public:
@@ -21,10 +22,10 @@ namespace NuEngine::Core::Application
         void Run();
 
     private:
-        bool Initialize();
-        void Shutdown();
-        void MainLoop() const;
+        NuBool Initialize();
+        NuBool Shutdown();
+        NuBool MainLoop() const;
 
-        bool m_isRunning = false;
+        NuBool m_isRunning = false;
     };
 }

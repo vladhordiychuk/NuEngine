@@ -159,6 +159,18 @@ namespace NuEngine::Math
         }
 
         /*
+        * @brief Multiplies a scalar by a vector (commutative with vector * scalar).
+        *
+        * @param scalar The scalar value.
+        * @param vec The vector to multiply.
+        * @return A new Vector4 that is the result of the multiplication.
+        */
+        friend [[nodiscard]] NU_FORCEINLINE Vector4 operator*(NuFloat scalar, Vector4 vec) noexcept
+        {
+            return vec * scalar;
+        }
+
+        /*
         * @brief Divides the vector by a scalar.
         * 
         * Scales each component of the vector by the reciprocal of the given scalar value.

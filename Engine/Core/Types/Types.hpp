@@ -86,8 +86,11 @@ namespace NuEngine::Core::Types
     // ==========================
     // Assert
     // ==========================
-    NU_FORCEINLINE void NuAssert(bool expr) {
-        if (!expr) {
+#if !defined NDEBUG
+    NU_FORCEINLINE void NuAssert(bool expr) 
+    {
+        if (!expr) 
+        {
 #if defined(_MSC_VER)
             __debugbreak();
 #elif defined(__GNUC__) || defined(__clang__)
@@ -97,4 +100,7 @@ namespace NuEngine::Core::Types
 #endif
         }
     }
+#else
+    NU_FORCEINLINE void NuAssert(bool) noexcept {}
+#endif
 }

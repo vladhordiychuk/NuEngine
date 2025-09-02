@@ -185,22 +185,12 @@ namespace NuEngine::Math::Simd_Scalar
 		return v.x + v.y;
 	}
 
-	// \copydoc NuEngine::Math::VectorAPI::FastInverseSqrt
-	NU_FORCEINLINE NuFloat FastInverseSqrt(NuFloat x) noexcept
-	{
-		const NuFloat xhalf = 0.5f * x;
-		NuInt32 i = std::bit_cast<NuInt32>(x);
-		i = 0x5f3759df - (i >> 1);
-		x = std::bit_cast<NuFloat>(i);
-		return x * (1.5f - xhalf * x * x);
-	}
-
 	// \copydoc NuEngine::Math::VectorAPI::Normalize2
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(const NuVec4& v) noexcept
 	{
 		NuFloat lenSq = v.x * v.x + v.y * v.y;
 		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		NuFloat invLen = FastInverseSqrt(lenSq);
+		NuFloat invLen = 1.0f / SqrtScalar(lenSq);
 		return { v.x * invLen, v.y * invLen, v.z, v.w };
 	}
 
@@ -209,7 +199,7 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		const NuFloat lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
 		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		const NuFloat invLen = FastInverseSqrt(lenSq);
+		const NuFloat invLen = 1.0f / SqrtScalar(lenSq);
 		return { v.x * invLen, v.y * invLen, v.z * invLen, v.w };
 	}
 
@@ -218,7 +208,7 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuFloat lenSq = v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 		NuEngine::Core::Types::NuAssert(lenSq > 1e-8f && "Cannot normalize vector with near-zero length!");
-		NuFloat invLength = FastInverseSqrt(lenSq);
+		NuFloat invLength = 1.0f / SqrtScalar(lenSq);
 		return { v.x * invLength, v.y * invLength, v.z * invLength, v.w * invLength };
 	}
 
