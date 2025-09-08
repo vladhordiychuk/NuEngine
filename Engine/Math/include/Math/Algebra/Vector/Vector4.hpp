@@ -52,7 +52,7 @@ namespace NuEngine::Math
         * @brief Initialization with initializer_list.
         * @param Initialization list of 4 elements.
         */
-        NU_FORCEINLINE Vector4(std::initializer_list<NuFloat> list) noexcept
+        explicit NU_FORCEINLINE Vector4(std::initializer_list<NuFloat> list) noexcept
         {
             NuEngine::Core::Types::NuAssert(list.size() == 4);
             auto it = list.begin();
@@ -79,10 +79,7 @@ namespace NuEngine::Math
         * 
         * @param other The vector to move from.
         */
-        NU_FORCEINLINE Vector4(Vector4&& other) noexcept
-            : m_data(std::move(other.m_data))
-        {
-        }
+        NU_FORCEINLINE Vector4(Vector4&& other) noexcept = default;
 
         /*
         * @brief Constructs a Vector4 from a SIMD vector.
@@ -623,10 +620,18 @@ namespace NuEngine::Math
         * The vector can be accessed either as a SIMD register (m_data) for optimized operations
         * or as an array of floats (m_components) for individual component access.
         */
+#if defined(_MSC_VER)
+    #pragma warning(push)
+    #pragma warning(disable: 4201)
+#endif
         union 
         {
-            VectorAPI::NuVec4 m_data; // SIMD-vector
-            NuFloat m_components[4]; // float-array
+            VectorAPI::NuVec4 m_data;    // 
+            NuFloat m_components[4];     // 
+            struct { NuFloat x, y, z, w; }; // 
         };
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
     };
 }

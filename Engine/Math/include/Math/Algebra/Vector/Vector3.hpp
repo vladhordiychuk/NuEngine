@@ -613,10 +613,18 @@ namespace NuEngine::Math
         * or as an array of floats (m_components) for individual component access.
         * The last 1 component is unused but maintained for SIMD alignment.
         */
-        union 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4201)
+#endif
+        union
         {
-            VectorAPI::NuVec4 m_data; // SIMD-vector
-            NuFloat m_components[4]; // float-array
+            VectorAPI::NuVec4 m_data;    // 
+            NuFloat m_components[4];     // 
+            struct { NuFloat x, y, z, w; }; // 
         };
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
     };
 }

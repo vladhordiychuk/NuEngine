@@ -4,14 +4,10 @@
 
 #pragma once
 
+#include <Core/Types/Types.hpp>
+
 #include <cmath>
 #include <cassert>
-
-#ifdef _MSC_VER
-	#define NU_FORCEINLINE __forceinline
-#else
-	#define NU_FORCEINLINE inline __attribute__((always_inline))
-#endif
 
 namespace NuEngine::Math::MatrixAPI
 {

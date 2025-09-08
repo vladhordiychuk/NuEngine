@@ -6,7 +6,7 @@ int main()
     using namespace NuEngine::Platform;
 
     WindowWin32 window;
-    WindowConfig config(800, 600, "Test Window");
+    WindowConfig config(1980, 720, "Test Window");
 
     if (!window.Initialize(config).IsOk())
         return -1;
