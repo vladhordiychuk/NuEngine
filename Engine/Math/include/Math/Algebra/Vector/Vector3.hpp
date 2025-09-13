@@ -20,8 +20,8 @@ namespace NuEngine::Math
 
     /*
     * @brief 3D Vector with SIMD support.
-    * 
-    * This class implements a 3-component vector with support for arithmetic operations, 
+    *
+    * This class implements a 3-component vector with support for arithmetic operations,
     * component access, normalization, length, and distance. It supports SSE optimizations.
     */
     class alignas(16) Vector3
@@ -96,7 +96,7 @@ namespace NuEngine::Math
         * @param simd The SIMD vector (NuVec4) used to initialize this Vector3.
         */
         explicit NU_FORCEINLINE Vector3(VectorAPI::NuVec4 vec) noexcept
-            : m_data(vec) 
+            : m_data(vec)
         {
         }
 
@@ -141,7 +141,7 @@ namespace NuEngine::Math
         }
 
         /*
-        * 
+        *
         */
         [[nodiscard]] NU_FORCEINLINE Vector3 operator/(Vector3 other) const noexcept
         {
@@ -229,7 +229,7 @@ namespace NuEngine::Math
         }
 
         /*
-        * 
+        *
         */
         NU_FORCEINLINE Vector3& operator/=(const Vector3& other) noexcept
         {
@@ -499,7 +499,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Calculates the squared length of the vector.
-        * 
+        *
         * @return Squared length.
         */
         [[nodiscard]] NU_FORCEINLINE NuFloat LengthSquared() const noexcept
@@ -509,7 +509,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Computes the dot product with another vector.
-        * 
+        *
         * @param other The vector to compute the dot product with.
         * @return Dot product result.
         */
@@ -520,7 +520,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Calculates the distance to another vector.
-        * 
+        *
         * @param other The vector to calculate the distance to.
         * @return Distance between the vectors.
         */
@@ -531,7 +531,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Provides read-only access to the raw float array of the vector.
-        * 
+        *
         * @return Pointer to the float array.
         */
         [[nodiscard]] NU_FORCEINLINE const NuFloat* Data() const noexcept
@@ -541,7 +541,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Provides write access to the raw float array of the vector.
-        * 
+        *
         * @return Pointer to the float array.
         */
         NU_FORCEINLINE NuFloat* Data() noexcept
@@ -551,7 +551,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns the underlying SIMD representation.
-        * 
+        *
         * @return Reference to the SIMD vector.
         */
         [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4 SimdData() const noexcept
@@ -561,7 +561,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Normalizes the vector.
-        * 
+        *
         * @return Normalized vector.
         */
         [[nodiscard]] NU_FORCEINLINE Vector3 Normalize() const noexcept
@@ -571,7 +571,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Computes the cross product of this vector with another.
-        * 
+        *
         * @param other The other vector to compute the cross product with.
         * @return The resulting vector that is perpendicular to both.
         */
@@ -581,8 +581,24 @@ namespace NuEngine::Math
         }
 
         /*
+        * @brief Performs linear interpolation between two 3D vectors.
+        *
+        * Interpolates between vectors a and b using parameter t (where t=0 returns a, t=1 returns b).
+        *
+        * @param a First vector.
+        * @param b Second vector.
+        * @param t Interpolation parameter (typically in [0, 1]).
+        *
+        * @return Interpolated vector.
+        */
+        [[nodiscard]] NU_FORCEINLINE Vector3 Lerp(Vector3 other, NuFloat t) noexcept
+        {
+            return Vector3(VectorAPI::Lerp(m_data, other.m_data, t));
+        }
+
+        /*
         * @brief Converts the vector to a human-readable string.
-        * 
+        *
         * @return String representation of the vector.
         */
         [[nodiscard]] std::string ToString() const
@@ -594,7 +610,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Writes the vector to the output stream.
-        * 
+        *
         * @param os Output stream.
         * @param other Vector3 to write.
         * @return Reference to the output stream.
@@ -621,7 +637,6 @@ namespace NuEngine::Math
         {
             VectorAPI::NuVec4 m_data;    // 
             NuFloat m_components[4];     // 
-            struct { NuFloat x, y, z, w; }; // 
         };
 #if defined(_MSC_VER)
 #pragma warning(pop)

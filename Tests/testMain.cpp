@@ -39,13 +39,13 @@ int main(int argc, char** argv)
 
     ::benchmark::Initialize(&argc, argv);
 
-    Benchmark::RegisterVector2Benchmarks();
-    Benchmark::RegisterVector3Benchmarks();
-    Benchmark::RegisterVector4Benchmarks();
+    NuEngine::Benchmarks::RegisterVector2Benchmarks();
+    NuEngine::Benchmarks::RegisterVector3Benchmarks();
+    NuEngine::Benchmarks::RegisterVector4Benchmarks();
 
-    Benchmark::RegisterVector2Benchmarks_GLM();
-    Benchmark::RegisterVector3Benchmarks_GLM();
-    Benchmark::RegisterVector4Benchmarks_GLM();
+    NuEngine::Benchmarks::RegisterVector2Benchmarks_GLM();
+    NuEngine::Benchmarks::RegisterVector3Benchmarks_GLM();
+    NuEngine::Benchmarks::RegisterVector4Benchmarks_GLM();
 
     int fake_argc = 3;
     const char* fake_argv[] =

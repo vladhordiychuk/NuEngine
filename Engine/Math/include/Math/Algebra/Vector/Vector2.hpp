@@ -37,7 +37,7 @@ namespace NuEngine::Math
 
 		/*
 		* @brief Creates a vector with specified components.
-		* 
+		*
 		* @param x Value on X.
 		* @param y Value on Y.
 		*/
@@ -48,7 +48,7 @@ namespace NuEngine::Math
 
 		/*
 		* @brief Initialization with initializer_list.
-		* 
+		*
 		* @param list An initializer list containing exactly 2 elements (x, y).
 		*/
 		NU_FORCEINLINE Vector2(std::initializer_list<NuFloat> list) noexcept
@@ -95,7 +95,7 @@ namespace NuEngine::Math
 		* @param simd The SIMD vector (NuVec4) used to initialize this Vector2.
 		*/
 		explicit NU_FORCEINLINE Vector2(VectorAPI::NuVec4 vec) noexcept
-			: m_data(vec) 
+			: m_data(vec)
 		{
 		}
 
@@ -190,7 +190,7 @@ namespace NuEngine::Math
 			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
 			return Vector2(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
 		}
-		
+
 		/*
 		* @brief Adds another vector to this one.
 		*
@@ -296,7 +296,7 @@ namespace NuEngine::Math
 		* @brief Returns a vector with the minimum components between this vector and another.
 		*
 		* @param other The other vector to compare with.
-		* 
+		*
 		* @return Vector2 A vector containing the minimum values component-wise.
 		*/
 		[[nodiscard]] NU_FORCEINLINE Vector2 Min(Vector2 other) const noexcept
@@ -308,7 +308,7 @@ namespace NuEngine::Math
 		* @brief Returns a vector with the maximum components between this vector and another.
 		*
 		* @param other The other vector to compare with.
-		* 
+		*
 		* @return Vector2 A vector containing the maximum values component-wise.
 		*/
 		[[nodiscard]] NU_FORCEINLINE Vector2 Max(Vector2 other) const noexcept
@@ -330,7 +330,7 @@ namespace NuEngine::Math
 		* @brief Compares two Vector2 instances for equality.
 		*
 		* @param other The vector to compare with.
-		* 
+		*
 		* @return true if all components are equal, false otherwise.
 		*/
 		[[nodiscard]] NU_FORCEINLINE NuBool operator==(Vector2 other) const noexcept
@@ -343,7 +343,7 @@ namespace NuEngine::Math
 		*
 		* @param other The vector to compare with.
 		* @param epsilon The maximum allowed difference for components.
-		* 
+		*
 		* @return true if all components differ no more than epsilon, false otherwise.
 		*/
 		[[nodiscard]] NU_FORCEINLINE NuBool NearEqual(Vector2 other, NuFloat epsilon) const noexcept
@@ -363,12 +363,12 @@ namespace NuEngine::Math
 		}
 
 		/*
-        * @brief Returns a negated copy of the vector.
-        *
-        * Each component of the resulting vector is the negation of the corresponding component in this vector.
-        *
-        * @return A negated vector.
-        */
+		* @brief Returns a negated copy of the vector.
+		*
+		* Each component of the resulting vector is the negation of the corresponding component in this vector.
+		*
+		* @return A negated vector.
+		*/
 		[[nodiscard]] NU_FORCEINLINE Vector2 operator-() const noexcept
 		{
 			return Vector2(VectorAPI::Neg(m_data));
@@ -573,6 +573,22 @@ namespace NuEngine::Math
 		}
 
 		/*
+		* @brief Performs linear interpolation between two 2D vectors.
+		*
+		* Interpolates between vectors a and b using parameter t (where t=0 returns a, t=1 returns b).
+		*
+		* @param a First vector.
+		* @param b Second vector.
+		* @param t Interpolation parameter (typically in [0, 1]).
+		*
+		* @return Interpolated vector.
+		*/
+		[[nodiscard]] NU_FORCEINLINE Vector2 Lerp(Vector2 other, NuFloat t) noexcept
+		{
+			return Vector2(VectorAPI::Lerp(m_data, other.m_data, t));
+		}
+
+		/*
 		* @brief Writes the vector to the output stream.
 		*
 		* @param os Output stream.
@@ -594,17 +610,16 @@ namespace NuEngine::Math
 		* The last 2 components are unused but maintained for SIMD alignment.
 		*/
 #if defined(_MSC_VER)
-	#pragma warning(push)
-	#pragma warning(disable: 4201)
+#pragma warning(push)
+#pragma warning(disable: 4201)
 #endif
 		union
 		{
 			VectorAPI::NuVec4 m_data;    // 
 			NuFloat m_components[4];     // 
-			struct { NuFloat x, y, z, w; }; // 
 		};
 #if defined(_MSC_VER)
-	#pragma warning(pop)
+#pragma warning(pop)
 #endif
 	};
 }

@@ -33,13 +33,35 @@ namespace NuEngine::Math::Simd_Scalar
 
 	/*
 	* @brief 4x4 matrix type with 16-byte alignment.
-	* 
-	* Represents a column-major 4x4 matrix stored in a 2D array.
+	*
+	* Represents a row-major 4x4 matrix stored in a 2D array.
 	* The structure is aligned to 16 bytes for optimal SIMD operations.
 	*/
-	struct alignas(16) SimdMat4
+	struct alignas(16) NuMat4
 	{
 		NuFloat mat[4][4];
+	};
+	
+	/*
+	* @brief 3x3 matrix type with 16-byte alignment.
+	*
+	* Represents a row-major 3x3 matrix stored in a 2D array.
+	* The structure is aligned to 16 bytes for optimal SIMD operations.
+	*/
+	struct alignas(16) NuMat3
+	{
+		NuFloat mat[3][3];
+	};
+
+	/*
+	* @brief 2x2 matrix type with 16-byte alignment.
+	*
+	* Represents a row-major 2x2 matrix stored in a 2D array.
+	* The structure is aligned to 16 bytes for optimal SIMD operations.
+	*/
+	struct alignas(16) NuMat2
+	{
+		NuFloat mat[2][2];
 	};
 
 	// =============================================
@@ -268,80 +290,132 @@ namespace NuEngine::Math::Simd_Scalar
 		return SqrtScalar(Dot4(v, v));
 	}
 
+	// \copydoc NuEngine::Math::VectorAPI::Lerp
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Lerp(const NuVec4& a, const NuVec4& b, NuFloat t) noexcept
+	{
+		return {
+			a.x + t * (b.x - a.x),
+			a.y + t * (b.y - a.y),
+			a.z + t * (b.z - a.z),
+			a.w + t * (b.w - a.w)
+		};
+	}
+
 	// =============================================
-	// Matricies
+	// Matrix4x4
 	// =============================================
 
-	NU_FORCEINLINE SimdMat4 SetIdentityMatrix() noexcept
+	[[nodiscard]] NU_FORCEINLINE NuMat4 SetIdentityMatrix4x4() noexcept
 	{
-		SimdMat4 result{};
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				result.mat[i][j] = (i == j) ? 1.0f : 0.0f;
-			}
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f; result.mat[0][2] = 0.0f; result.mat[0][3] = 0.0f;
+		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f; result.mat[1][2] = 0.0f; result.mat[1][3] = 0.0f;
+		result.mat[2][0] = 0.0f; result.mat[2][1] = 0.0f; result.mat[2][2] = 1.0f; result.mat[2][3] = 0.0f;
+		result.mat[3][0] = 0.0f; result.mat[3][1] = 0.0f; result.mat[3][2] = 0.0f; result.mat[3][3] = 1.0f;
+
 		return result;
 	}
 
-	NU_FORCEINLINE SimdMat4 Transpose(const SimdMat4& m) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Traspose
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Transpose(const NuMat4& m) noexcept
 	{
-		SimdMat4 result{};
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				result.mat[i][j] = m.mat[j][i];
-			}
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = m.mat[0][0]; result.mat[1][0] = m.mat[0][1]; result.mat[2][0] = m.mat[0][2]; result.mat[3][0] = m.mat[0][3];
+		result.mat[0][1] = m.mat[1][0]; result.mat[1][1] = m.mat[1][1]; result.mat[2][1] = m.mat[1][2]; result.mat[3][1] = m.mat[1][3];
+		result.mat[0][2] = m.mat[2][0]; result.mat[1][2] = m.mat[2][1]; result.mat[2][2] = m.mat[2][2]; result.mat[3][2] = m.mat[2][3];
+		result.mat[0][3] = m.mat[3][0]; result.mat[1][3] = m.mat[3][1]; result.mat[2][3] = m.mat[3][2]; result.mat[3][3] = m.mat[3][3];
+
 		return result;
 	}
 
-	NU_FORCEINLINE SimdMat4 Add(const SimdMat4& a, const SimdMat4& b) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Add
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Add(const NuMat4& a, const NuMat4& b) noexcept
 	{
-		SimdMat4 result{};
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				result.mat[i][j] = a.mat[i][j] + b.mat[i][j];
-			}
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
+		result.mat[0][2] = a.mat[0][2] + b.mat[0][2];
+		result.mat[0][3] = a.mat[0][3] + b.mat[0][3];
+
+		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
+		result.mat[1][2] = a.mat[1][2] + b.mat[1][2];
+		result.mat[1][3] = a.mat[1][3] + b.mat[1][3];
+
+		result.mat[2][0] = a.mat[2][0] + b.mat[2][0];
+		result.mat[2][1] = a.mat[2][1] + b.mat[2][1];
+		result.mat[2][2] = a.mat[2][2] + b.mat[2][2];
+		result.mat[2][3] = a.mat[2][3] + b.mat[2][3];
+
+		result.mat[3][0] = a.mat[3][0] + b.mat[3][0];
+		result.mat[3][1] = a.mat[3][1] + b.mat[3][1];
+		result.mat[3][2] = a.mat[3][2] + b.mat[3][2];
+		result.mat[3][3] = a.mat[3][3] + b.mat[3][3];
+
 		return result;
 	}
 
-	NU_FORCEINLINE SimdMat4 Sub(const SimdMat4& a, const SimdMat4& b) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Sub
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Sub(const NuMat4& a, const NuMat4& b) noexcept
 	{
-		SimdMat4 result{};
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				result.mat[i][j] = a.mat[i][j] - b.mat[i][j];
-			}
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
+		result.mat[0][2] = a.mat[0][2] - b.mat[0][2];
+		result.mat[0][3] = a.mat[0][3] - b.mat[0][3];
+
+		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
+		result.mat[1][2] = a.mat[1][2] - b.mat[1][2];
+		result.mat[1][3] = a.mat[1][3] - b.mat[1][3];
+
+		result.mat[2][0] = a.mat[2][0] - b.mat[2][0];
+		result.mat[2][1] = a.mat[2][1] - b.mat[2][1];
+		result.mat[2][2] = a.mat[2][2] - b.mat[2][2];
+		result.mat[2][3] = a.mat[2][3] - b.mat[2][3];
+
+		result.mat[3][0] = a.mat[3][0] - b.mat[3][0];
+		result.mat[3][1] = a.mat[3][1] - b.mat[3][1];
+		result.mat[3][2] = a.mat[3][2] - b.mat[3][2];
+		result.mat[3][3] = a.mat[3][3] - b.mat[3][3];
+
 		return result;
 	}
 
-	NU_FORCEINLINE SimdMat4 Multiply(const SimdMat4& a, const SimdMat4& b) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Mul(const NuMat4& a, const NuMat4& b) noexcept
 	{
-		SimdMat4 result{};
-		for (int row = 0; row < 4; ++row)
-		{
-			for (int col = 0; col < 4; ++col)
-			{
-				result.mat[row][col] =
-					a.mat[row][0] * b.mat[0][col] +
-					a.mat[row][1] * b.mat[1][col] +
-					a.mat[row][2] * b.mat[2][col] +
-					a.mat[row][3] * b.mat[3][col];
-			}
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0] + a.mat[0][2] * b.mat[2][0] + a.mat[0][3] * b.mat[3][0];
+		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1] + a.mat[0][2] * b.mat[2][1] + a.mat[0][3] * b.mat[3][1];
+		result.mat[0][2] = a.mat[0][0] * b.mat[0][2] + a.mat[0][1] * b.mat[1][2] + a.mat[0][2] * b.mat[2][2] + a.mat[0][3] * b.mat[3][2];
+		result.mat[0][3] = a.mat[0][0] * b.mat[0][3] + a.mat[0][1] * b.mat[1][3] + a.mat[0][2] * b.mat[2][3] + a.mat[0][3] * b.mat[3][3];
+
+		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0] + a.mat[1][2] * b.mat[2][0] + a.mat[1][3] * b.mat[3][0];
+		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1] + a.mat[1][2] * b.mat[2][1] + a.mat[1][3] * b.mat[3][1];
+		result.mat[1][2] = a.mat[1][0] * b.mat[0][2] + a.mat[1][1] * b.mat[1][2] + a.mat[1][2] * b.mat[2][2] + a.mat[1][3] * b.mat[3][2];
+		result.mat[1][3] = a.mat[1][0] * b.mat[0][3] + a.mat[1][1] * b.mat[1][3] + a.mat[1][2] * b.mat[2][3] + a.mat[1][3] * b.mat[3][3];
+
+		result.mat[2][0] = a.mat[2][0] * b.mat[0][0] + a.mat[2][1] * b.mat[1][0] + a.mat[2][2] * b.mat[2][0] + a.mat[2][3] * b.mat[3][0];
+		result.mat[2][1] = a.mat[2][0] * b.mat[0][1] + a.mat[2][1] * b.mat[1][1] + a.mat[2][2] * b.mat[2][1] + a.mat[2][3] * b.mat[3][1];
+		result.mat[2][2] = a.mat[2][0] * b.mat[0][2] + a.mat[2][1] * b.mat[1][2] + a.mat[2][2] * b.mat[2][2] + a.mat[2][3] * b.mat[3][2];
+		result.mat[2][3] = a.mat[2][0] * b.mat[0][3] + a.mat[2][1] * b.mat[1][3] + a.mat[2][2] * b.mat[2][3] + a.mat[2][3] * b.mat[3][3];
+
+		result.mat[3][0] = a.mat[3][0] * b.mat[0][0] + a.mat[3][1] * b.mat[1][0] + a.mat[3][2] * b.mat[2][0] + a.mat[3][3] * b.mat[3][0];
+		result.mat[3][1] = a.mat[3][0] * b.mat[0][1] + a.mat[3][1] * b.mat[1][1] + a.mat[3][2] * b.mat[2][1] + a.mat[3][3] * b.mat[3][1];
+		result.mat[3][2] = a.mat[3][0] * b.mat[0][2] + a.mat[3][1] * b.mat[1][2] + a.mat[3][2] * b.mat[2][2] + a.mat[3][3] * b.mat[3][2];
+		result.mat[3][3] = a.mat[3][0] * b.mat[0][3] + a.mat[3][1] * b.mat[1][3] + a.mat[3][2] * b.mat[2][3] + a.mat[3][3] * b.mat[3][3];
+
 		return result;
 	}
 
-	NU_FORCEINLINE NuVec4 Multiply(const SimdMat4& m, const NuVec4& v) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat4& m, const NuVec4& v) noexcept
 	{
 		return {
 			m.mat[0][0] * v.x + m.mat[0][1] * v.y + m.mat[0][2] * v.z + m.mat[0][3] * v.w,
@@ -351,82 +425,300 @@ namespace NuEngine::Math::Simd_Scalar
 		};
 	}
 
-	NU_FORCEINLINE SimdMat4 FromRows(const float* row0, const float* row1, const float* row2, const float* row3)
+	// \copydoc NuEngine::Math::MatrixAPI::FromRows
+	[[nodiscard]] NU_FORCEINLINE NuMat4 FromRows(
+		const NuVec4& r0, const NuVec4& r1, const NuVec4& r2, const NuVec4& r3) noexcept
 	{
-		SimdMat4 result{};
-		for (int col = 0; col < 4; ++col)
-		{
-			result.mat[col][0] = row0[col];
-			result.mat[col][1] = row1[col];
-			result.mat[col][2] = row2[col];
-			result.mat[col][3] = row3[col];
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z; result.mat[0][3] = r0.w;
+		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z; result.mat[1][3] = r1.w;
+		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z; result.mat[2][3] = r2.w;
+		result.mat[3][0] = r3.x; result.mat[3][1] = r3.y; result.mat[3][2] = r3.z; result.mat[3][3] = r3.w;
+
 		return result;
 	}
 
-	NU_FORCEINLINE SimdMat4 FromColumns(const float* col0, const float* col1, const float* col2, const float* col3)
+	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
+	[[nodiscard]] NU_FORCEINLINE NuMat4 FromColumns(
+		const NuVec4& c0, const NuVec4& c1, const NuVec4& c2, const NuVec4& c3) noexcept
 	{
-		SimdMat4 result{};
-		for (int row = 0; row < 4; ++row)
-		{
-			result.mat[0][row] = col0[row];
-			result.mat[1][row] = col1[row];
-			result.mat[2][row] = col2[row];
-			result.mat[3][row] = col3[row];
-		}
+		NuMat4 result{};
+
+		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y; result.mat[2][0] = c0.z; result.mat[3][0] = c0.w;
+		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y; result.mat[2][1] = c1.z; result.mat[3][1] = c1.w;
+		result.mat[0][2] = c2.x; result.mat[1][2] = c2.y; result.mat[2][2] = c2.z; result.mat[3][2] = c2.w;
+		result.mat[0][3] = c3.x; result.mat[1][3] = c3.y; result.mat[2][3] = c3.z; result.mat[3][3] = c3.w;
+
 		return result;
 	}
 
-	NU_FORCEINLINE float Determinant(const SimdMat4& m)
+	// \copydoc NuEngine::Math::MatrixAPI::Determinant
+	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat4& m) noexcept
 	{
-		float det;
+		NuFloat det;
 
-		float subFactor00 = m.mat[2][2] * m.mat[3][3] - m.mat[3][2] * m.mat[2][3];
-		float subFactor01 = m.mat[2][1] * m.mat[3][3] - m.mat[3][1] * m.mat[2][3];
-		float subFactor02 = m.mat[2][1] * m.mat[3][2] - m.mat[3][1] * m.mat[2][2];
-		float subFactor03 = m.mat[2][0] * m.mat[3][3] - m.mat[3][0] * m.mat[2][3];
-		float subFactor04 = m.mat[2][0] * m.mat[3][2] - m.mat[3][0] * m.mat[2][2];
-		float subFactor05 = m.mat[2][0] * m.mat[3][1] - m.mat[3][0] * m.mat[2][1];
+		NuFloat subFactor00 = m.mat[2][2] * m.mat[3][3] - m.mat[3][2] * m.mat[2][3];
+		NuFloat subFactor01 = m.mat[2][1] * m.mat[3][3] - m.mat[3][1] * m.mat[2][3];
+		NuFloat subFactor02 = m.mat[2][1] * m.mat[3][2] - m.mat[3][1] * m.mat[2][2];
+		NuFloat subFactor03 = m.mat[2][0] * m.mat[3][3] - m.mat[3][0] * m.mat[2][3];
+		NuFloat subFactor04 = m.mat[2][0] * m.mat[3][2] - m.mat[3][0] * m.mat[2][2];
+		NuFloat subFactor05 = m.mat[2][0] * m.mat[3][1] - m.mat[3][0] * m.mat[2][1];
 
-		float cof00 = +(m.mat[1][1] * subFactor00 - m.mat[1][2] * subFactor01 + m.mat[1][3] * subFactor02);
-		float cof01 = -(m.mat[1][0] * subFactor00 - m.mat[1][2] * subFactor03 + m.mat[1][3] * subFactor04);
-		float cof02 = +(m.mat[1][0] * subFactor01 - m.mat[1][1] * subFactor03 + m.mat[1][3] * subFactor05);
-		float cof03 = -(m.mat[1][0] * subFactor02 - m.mat[1][1] * subFactor04 + m.mat[1][2] * subFactor05);
+		NuFloat cof00 = +(m.mat[1][1] * subFactor00 - m.mat[1][2] * subFactor01 + m.mat[1][3] * subFactor02);
+		NuFloat cof01 = -(m.mat[1][0] * subFactor00 - m.mat[1][2] * subFactor03 + m.mat[1][3] * subFactor04);
+		NuFloat cof02 = +(m.mat[1][0] * subFactor01 - m.mat[1][1] * subFactor03 + m.mat[1][3] * subFactor05);
+		NuFloat cof03 = -(m.mat[1][0] * subFactor02 - m.mat[1][1] * subFactor04 + m.mat[1][2] * subFactor05);
 
 		det = m.mat[0][0] * cof00 + m.mat[0][1] * cof01 + m.mat[0][2] * cof02 + m.mat[0][3] * cof03;
 
 		return det;
 	}
 
-	NU_FORCEINLINE SimdMat4 CreateTranslation(const NuVec4& v)
+	//copydoc NuEngine::Math::MatrixAPI::CreateTranslation
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateTranslation(const NuVec4& v) noexcept
 	{
-		SimdMat4 result(SetIdentityMatrix());
+		NuMat4 result = SetIdentityMatrix4x4();
 		result.mat[0][3] = v.x;
 		result.mat[1][3] = v.y;
 		result.mat[2][3] = v.z;
 		return result;
 	}
 
-	NU_FORCEINLINE NuVec4 GetColumn(const SimdMat4& m, int index)
+	//copydoc NuEngine::Math::MatrixAPI::GetColumn
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat4& m, NuInt32 index) noexcept
 	{
-		assert(index >= 0 && index < 4);
-		return { m.mat[0][index], m.mat[1][index], m.mat[2][index], m.mat[3][index] };
+		NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
+		return {
+			m.mat[0][index], m.mat[1][index], m.mat[2][index], m.mat[3][index]
+		};
 	}
 
-	NU_FORCEINLINE NuVec4 GerRow(const SimdMat4& m, int index)
+	// \copydoc NuEngine::Math::MatrixAPI::GetRow
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat4& m, NuInt32 index) noexcept
 	{
-		assert(index >= 0 && index < 4);
+		NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
 		return { m.mat[index][0], m.mat[index][1], m.mat[index][2], m.mat[index][3] };
 	}
 
-	NU_FORCEINLINE float Access(const SimdMat4& m, int row, int col)
+	// \copydoc NuEngine::Math::MatrixAPI::Access
+	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat4& m, NuInt32 row, NuInt32 col) noexcept
 	{
-		assert(row >= 0 && row < 4 && col >= 0 && col < 4);
+		NuEngine::Core::Types::NuAssert(row >= 0 && row < 4 && col >= 0 && col < 4);
 		return m.mat[row][col];
 	}
 
-	NU_FORCEINLINE const float* Data(const SimdMat4& m)
+	// \copydoc NuEngine::Math::MatrixAPI::Data
+	NU_FORCEINLINE const NuFloat* Data(const NuMat4& m) noexcept
 	{
 		return &m.mat[0][0];
+	}
+
+	// =============================================
+	// Matrix3x3
+	// =============================================
+
+	// \copydoc NuEngine::Math::MatrixAPI::SetIdentityMatrix3x3
+	[[nodiscard]] NU_FORCEINLINE NuMat3 SetIdentityMatrix3x3() noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f; result.mat[0][2] = 0.0f;
+		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f; result.mat[1][2] = 0.0f;
+		result.mat[2][0] = 0.0f; result.mat[2][1] = 0.0f; result.mat[2][2] = 1.0f;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Add
+	[[nodiscard]] NU_FORCEINLINE NuMat3 Add(const NuMat3& a, const NuMat3& b) noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
+		result.mat[0][2] = a.mat[0][2] + b.mat[0][2];
+
+		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
+		result.mat[1][2] = a.mat[1][2] + b.mat[1][2];
+
+		result.mat[2][0] = a.mat[2][0] + b.mat[2][0];
+		result.mat[2][1] = a.mat[2][1] + b.mat[2][1];
+		result.mat[2][2] = a.mat[2][2] + b.mat[2][2];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Sub
+	[[nodiscard]] NU_FORCEINLINE NuMat3 Sub(const NuMat3& a, const NuMat3& b) noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
+		result.mat[0][2] = a.mat[0][2] - b.mat[0][2];
+
+		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
+		result.mat[1][2] = a.mat[1][2] - b.mat[1][2];
+
+		result.mat[2][0] = a.mat[2][0] - b.mat[2][0];
+		result.mat[2][1] = a.mat[2][1] - b.mat[2][1];
+		result.mat[2][2] = a.mat[2][2] - b.mat[2][2];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat3 Mul(const NuMat3& a, const NuMat3& b) noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0] + a.mat[0][2] * b.mat[2][0];
+		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1] + a.mat[0][2] * b.mat[2][1];
+		result.mat[0][2] = a.mat[0][0] * b.mat[0][2] + a.mat[0][1] * b.mat[1][2] + a.mat[0][2] * b.mat[2][2];
+
+		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0] + a.mat[1][2] * b.mat[2][0];
+		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1] + a.mat[1][2] * b.mat[2][1];
+		result.mat[1][2] = a.mat[1][0] * b.mat[0][2] + a.mat[1][1] * b.mat[1][2] + a.mat[1][2] * b.mat[2][2];
+
+		result.mat[2][0] = a.mat[2][0] * b.mat[0][0] + a.mat[2][1] * b.mat[1][0] + a.mat[2][2] * b.mat[2][0];
+		result.mat[2][1] = a.mat[2][0] * b.mat[0][1] + a.mat[2][1] * b.mat[1][1] + a.mat[2][2] * b.mat[2][1];
+		result.mat[2][2] = a.mat[2][0] * b.mat[0][2] + a.mat[2][1] * b.mat[1][2] + a.mat[2][2] * b.mat[2][2];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat3& m, const NuVec4& v) noexcept
+	{
+		return {
+			m.mat[0][0] * v.x + m.mat[0][1] * v.y + m.mat[0][2] * v.z,
+			m.mat[1][0] * v.x + m.mat[1][1] * v.y + m.mat[1][2] * v.z,
+			m.mat[2][0] * v.x + m.mat[2][1] * v.y + m.mat[2][2] * v.z,
+			0.0f,
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::FromRows
+	[[nodiscard]] NU_FORCEINLINE NuMat3 FromRows(const NuVec4& r0, const NuVec4& r1, const NuVec4& r2) noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z;
+		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z;
+		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
+	[[nodiscard]] NU_FORCEINLINE NuMat3 FromColumns(const NuVec4& c0, const NuVec4& c1, const NuVec4& c2) noexcept
+	{
+		NuMat3 result{};
+
+		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y; result.mat[2][0] = c0.z;
+		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y; result.mat[2][1] = c1.z;
+		result.mat[0][2] = c2.x; result.mat[1][2] = c2.y; result.mat[2][2] = c2.z;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat3& m, NuInt32 index) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(index >= 0 && index < 3);
+		return {
+			m.mat[0][index], m.mat[1][index], m.mat[2][index], 0.0f
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetRow
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat3& m, NuInt32 index) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(index >= 0 && index < 3);
+		return {
+			m.mat[index][0], m.mat[index][1], m.mat[index][2], 0.0f
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Access
+	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat3& m, NuInt32 row, NuInt32 col) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(row >= 0 && row < 3 && col >= 0 && col < 3);
+		return m.mat[row][col];
+	}
+
+	// =============================================
+	// Matrix2x2
+	// =============================================
+
+	// \copydoc NuEngine::Math::MatrixAPI::SetIdentityMatrix2x2
+	[[nodiscard]] NU_FORCEINLINE NuMat2 SetIdentityMatrix2x2() noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f;
+		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Add
+	[[nodiscard]] NU_FORCEINLINE NuMat2 Add(const NuMat2& a, const NuMat2& b) noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
+
+		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Sub
+	[[nodiscard]] NU_FORCEINLINE NuMat2 Sub(const NuMat2& a, const NuMat2& b) noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
+		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
+
+		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
+		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat2 Mul(const NuMat2& a, const NuMat2& b) noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0];
+		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1];
+		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0];
+		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1];
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat2& m, const NuVec4& v) noexcept
+	{
+		return {
+			m.mat[0][0] * v.x + m.mat[0][1] * v.y,
+			m.mat[1][0] * v.x + m.mat[1][1] * v.y,
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Access
+	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat2& m, NuInt32 row, NuInt32 col) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(row >= 0 && row < 2 && col >= 0 && col < 2);
+		return m.mat[row][col];
 	}
 }

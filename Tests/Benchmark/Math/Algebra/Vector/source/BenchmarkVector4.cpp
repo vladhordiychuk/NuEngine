@@ -1,6 +1,6 @@
 #include <Tests/Benchmark/Math/Algebra/Vector/include/BenchmarkVector4.hpp>
 
-namespace Benchmark
+namespace NuEngine::Benchmarks
 {
 	void RegisterVector4Benchmarks()
 	{

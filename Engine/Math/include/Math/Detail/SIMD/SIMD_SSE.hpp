@@ -38,7 +38,7 @@ namespace NuEngine::Math::Simd_SSE
 	{
 		NuVec4 cols[4];
 	};
-	
+
 	// =============================================
 	// Vectors
 	// =============================================
@@ -87,26 +87,31 @@ namespace NuEngine::Math::Simd_SSE
 
 	// \copydoc NuEngine::Math::VectorAPI::Add
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept
-	{ 
-		return _mm_add_ps(a, b); 
+	{
+		return _mm_add_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Sub
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept
-	{ 
+	{
 		return _mm_sub_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept
-	{ 
-		return _mm_mul_ps(a, b); 
+	{
+		return _mm_mul_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Div
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept
-	{ 
-		return _mm_div_ps(a, b); 
+	{
+		NuEngine::Core::Types::NuAssert(
+			(std::fabs(GetX(b)) > NuFloat_EPSILON) &&
+			(std::fabs(GetY(b)) > NuFloat_EPSILON) &&
+			(std::fabs(GetZ(b)) > NuFloat_EPSILON) &&
+			(std::fabs(GetW(b)) > NuFloat_EPSILON));
+		return _mm_div_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Neg
@@ -118,14 +123,14 @@ namespace NuEngine::Math::Simd_SSE
 
 	// \copydoc NuEngine::Math::VectorAPI::Min
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Min(NuVec4 a, NuVec4 b) noexcept
-	{ 
-		return _mm_min_ps(a, b); 
+	{
+		return _mm_min_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Max
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Max(NuVec4 a, NuVec4 b) noexcept
-	{ 
-		return _mm_max_ps(a, b); 
+	{
+		return _mm_max_ps(a, b);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Abs
@@ -162,17 +167,17 @@ namespace NuEngine::Math::Simd_SSE
 	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd4(NuVec4 v) noexcept
 	{
 		NuVec4 shuf = _mm_movehdup_ps(v);
-		NuVec4 sums = _mm_add_ps(v, shuf);       
-		shuf = _mm_movehl_ps(shuf, sums); 
-		sums = _mm_add_ss(sums, shuf);   
+		NuVec4 sums = _mm_add_ps(v, shuf);
+		shuf = _mm_movehl_ps(shuf, sums);
+		sums = _mm_add_ss(sums, shuf);
 		return _mm_cvtss_f32(sums);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::HorizontalAdd3
 	[[nodiscard]] NU_FORCEINLINE NuFloat HorizontalAdd3(NuVec4 v) noexcept
 	{
-		NuVec4 shuf = _mm_movehdup_ps(v);      
-		NuVec4 sums = _mm_add_ps(v, shuf);      
+		NuVec4 shuf = _mm_movehdup_ps(v);
+		NuVec4 sums = _mm_add_ps(v, shuf);
 		return _mm_cvtss_f32(_mm_add_ss(sums, _mm_shuffle_ps(sums, sums, _MM_SHUFFLE(2, 2, 2, 2))));
 	}
 
@@ -305,6 +310,7 @@ namespace NuEngine::Math::Simd_SSE
 	// Matricies
 	// =============================================
 
+	// \copydoc NuEngine::Math::MatrixAPI::SetIdentityMatrix
 	NU_FORCEINLINE NuMat4 SetIdentityMatrix() {
 		NuMat4 result{};
 		result.cols[0] = _mm_setr_ps(1.0f, 0.0f, 0.0f, 0.0f);
@@ -314,6 +320,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	//\copydoc NuEngine::Math::MatrixAPI::Add
 	NU_FORCEINLINE NuMat4 Add(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
@@ -324,6 +331,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::Sub
 	NU_FORCEINLINE NuMat4 Sub(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
@@ -334,7 +342,8 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	NU_FORCEINLINE NuMat4 Multiply(const NuMat4& a, const NuMat4& b)
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	NU_FORCEINLINE NuMat4 Mul(const NuMat4& a, const NuMat4& b)
 	{
 		NuMat4 result{};
 
@@ -359,7 +368,8 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	NU_FORCEINLINE NuVec4 Multiply(const NuMat4& mat, const NuVec4& v)
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	NU_FORCEINLINE NuVec4 Mul(const NuMat4& mat, const NuVec4& v)
 	{
 		NuVec4 x = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
 		NuVec4 y = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1));
@@ -375,6 +385,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::Traspose
 	NU_FORCEINLINE NuMat4 Transpose(const NuMat4& mat)
 	{
 		NuMat4 result = mat;
@@ -382,6 +393,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI:FromRows
 	NU_FORCEINLINE NuMat4 FromRows(const float* row0, const float* row1, const float* row2, const float* row3)
 	{
 		NuMat4 result{};
@@ -401,7 +413,8 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	NU_FORCEINLINE NuMat4 FromColumns(const float* col0, const float* col1, const float* col2, const float* col3)
+	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
+	NU_FORCEINLINE NuMat4 FromColumns(const NuFloat* col0, const NuFloat* col1, const NuFloat* col2, const NuFloat* col3)
 	{
 		NuMat4 result{};
 		result.cols[0] = _mm_loadu_ps(col0);
@@ -411,7 +424,8 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	NU_FORCEINLINE float Determinant(const NuMat4& m)
+	// \copydoc NuEngine::Math::MatrixAPI::Determinant
+	NU_FORCEINLINE NuFloat Determinant(const NuMat4& m)
 	{
 		NuVec4 Vec0 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(1, 0, 3, 2));
 		NuVec4 Vec1 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(2, 1, 0, 3));
@@ -433,12 +447,13 @@ namespace NuEngine::Math::Simd_SSE
 		NuVec4 Temp = _mm_hadd_ps(Row0, Row0);
 		Temp = _mm_hadd_ps(Temp, Temp);
 
-		float determinant;
+		NuFloat determinant;
 		_mm_store_ss(&determinant, Temp);
 
 		return determinant;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::Inverse
 	NU_FORCEINLINE NuMat4 Inverse(const NuMat4& m)
 	{
 		NuVec4 Fac0, Fac1, Fac2, Fac3;
@@ -523,22 +538,23 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::CreateRotation
 	NU_FORCEINLINE NuMat4 CreateRotation(const NuVec4& quat)
 	{
-		float x = GetX(quat);
-		float y = GetY(quat);
-		float z = GetZ(quat);
-		float w = GetW(quat);
+		NuFloat x = GetX(quat);
+		NuFloat y = GetY(quat);
+		NuFloat z = GetZ(quat);
+		NuFloat w = GetW(quat);
 
-		float xx = x * x;
-		float yy = y * y;
-		float zz = z * z;
-		float xy = x * y;
-		float xz = x * z;
-		float yz = y * z;
-		float wx = w * x;
-		float wy = w * y;
-		float wz = w * z;
+		NuFloat xx = x * x;
+		NuFloat yy = y * y;
+		NuFloat zz = z * z;
+		NuFloat xy = x * y;
+		NuFloat xz = x * z;
+		NuFloat yz = y * z;
+		NuFloat wx = w * x;
+		NuFloat wy = w * y;
+		NuFloat wz = w * z;
 
 		NuMat4 result{};
 
@@ -550,6 +566,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::CreateScale
 	NU_FORCEINLINE NuMat4 CreateScale(const NuVec4& scale)
 	{
 		NuMat4 result = SetIdentityMatrix();
@@ -561,6 +578,7 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::CreateLookAt
 	NU_FORCEINLINE NuMat4 CreateLookAt(const NuVec4& eye, const NuVec4& target, const NuVec4& up)
 	{
 		// forward = normalize(target - eye)
@@ -586,10 +604,11 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
-	NU_FORCEINLINE NuMat4 CreatePerspective(float fovY, float aspect, float nearZ, float farZ)
+	// \copydoc NuEngine::Math::MatrixAPI::CreatePerspective
+	NU_FORCEINLINE NuMat4 CreatePerspective(NuFloat fovY, NuFloat aspect, NuFloat nearZ, NuFloat farZ)
 	{
-		float f = 1.0f / std::tan(fovY * 0.5f);
-		float nf = 1.0f / (nearZ - farZ);
+		NuFloat f = 1.0f / std::tan(fovY * 0.5f);
+		NuFloat nf = 1.0f / (nearZ - farZ);
 
 		NuMat4 result = {};
 
@@ -601,17 +620,19 @@ namespace NuEngine::Math::Simd_SSE
 		return result;
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
 	NU_FORCEINLINE NuVec4 GetColumn(const NuMat4& m, int index)
 	{
 		assert(index >= 0 && index < 4);
 		return m.cols[index];
 	}
 
+	// \copydoc NuEngine::Math::MatrixAPI::GetRow
 	NU_FORCEINLINE NuVec4 GetRow(const NuMat4& m, int index)
 	{
 		assert(index >= 0 && index < 4);
 
-		alignas(16) float tmp[4][4]{};
+		alignas(16) NuFloat tmp[4][4]{};
 		_mm_store_ps(&tmp[0][0], m.cols[0]);
 		_mm_store_ps(&tmp[1][0], m.cols[1]);
 		_mm_store_ps(&tmp[2][0], m.cols[2]);
@@ -620,20 +641,23 @@ namespace NuEngine::Math::Simd_SSE
 		return Set(tmp[0][index], tmp[1][index], tmp[2][index], tmp[3][index]);
 	}
 
-	NU_FORCEINLINE float Access(const NuMat4& m, int row, int col)
+	// \copydoc NuEngine::Math::MatrixAPI::Access
+	NU_FORCEINLINE NuFloat Access(const NuMat4& m, int row, int col)
 	{
 		assert(row >= 0 && row < 4 && col >= 0 && col < 4);
-		alignas(16) float tmp[4]{};
+		alignas(16) NuFloat tmp[4]{};
 		_mm_store_ps(tmp, m.cols[col]);
 		return tmp[row];
 	}
 
-	NU_FORCEINLINE const float* Data(const NuMat4& m)
+	// \copydoc NuEngine::Math::MatrixAPI::Data
+	NU_FORCEINLINE const NuFloat* Data(const NuMat4& m)
 	{
-		return reinterpret_cast<const float*>(&m.cols[0]);
+		return reinterpret_cast<const NuFloat*>(&m.cols[0]);
 	}
 
-	NU_FORCEINLINE bool IsIdentity(const NuMat4& m, float epsilon = 0.0f)
+	//copydoc NuEngine::Math::MatrixAPI::IsIdentity
+	NU_FORCEINLINE bool IsIdentity(const NuMat4& m, NuFloat epsilon = 0.0f)
 	{
 		NuMat4 identity = SetIdentityMatrix();
 		for (int i = 0; i < 4; ++i)
@@ -642,7 +666,7 @@ namespace NuEngine::Math::Simd_SSE
 
 			NuVec4 absDiff = Abs(diff);
 
-			alignas(16) float vals[4];
+			alignas(16) NuFloat vals[4];
 			_mm_store_ps(vals, absDiff);
 			for (int j = 0; j < 4; ++j)
 			{

@@ -7,7 +7,7 @@
 #include <benchmark/benchmark.h>
 #include "GLMBenchmarkVectorCommon.hpp"
 
-namespace Benchmark
+namespace NuEngine::Benchmarks
 {
     void RegisterVector2Benchmarks_GLM();
 }

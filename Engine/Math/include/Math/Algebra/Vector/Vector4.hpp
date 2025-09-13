@@ -19,8 +19,8 @@ namespace NuEngine::Math
 
     /*
     * @brief 4D Vector with SIMD support.
-    * 
-    * This class implements a 4-component vector with support for arithmetic operations, 
+    *
+    * This class implements a 4-component vector with support for arithmetic operations,
     * component access, normalization, length, and distance. It supports SSE optimizations.
     */
     class alignas(16) Vector4
@@ -61,9 +61,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Constructs a copy of another Vector4.
-        * 
+        *
         * Initializes this vector by copying all components from the given vector.
-        * 
+        *
         * @param other The vector to copy.
         */
         NU_FORCEINLINE Vector4(const Vector4& other) noexcept
@@ -73,13 +73,16 @@ namespace NuEngine::Math
 
         /*
         * @brief Constructs a Vector4 by moving another one.
-        * 
+        *
         * Transfers the internal data from the given vector to this one.
         * The source vector is left in a valid but unspecified state.
-        * 
+        *
         * @param other The vector to move from.
         */
-        NU_FORCEINLINE Vector4(Vector4&& other) noexcept = default;
+        NU_FORCEINLINE Vector4(Vector4&& other) noexcept
+            : m_data(std::move(other.m_data))
+        {
+        }
 
         /*
         * @brief Constructs a Vector4 from a SIMD vector.
@@ -90,15 +93,15 @@ namespace NuEngine::Math
         * @param simd The SIMD vector (NuVec4) used to initialize this Vector4.
         */
         explicit NU_FORCEINLINE Vector4(VectorAPI::NuVec4 vec) noexcept
-            : m_data(vec) 
+            : m_data(vec)
         {
         }
 
         /*
         * @brief Adding another vector to this one.
-        * 
+        *
         * Performs component-wise addition: each component of another vector is added to the corresponding component of this vector.
-        * 
+        *
         * @param other The vector to add.
         * @return A new Vector4 that is the result of the addition.
         */
@@ -109,9 +112,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Subtracting another vector from this one.
-        * 
+        *
         * Performs component-wise subtraction: each component of another vector is subtracted to the corresponding component of this vector.
-        * 
+        *
         * @param other The vector to subtract.
         * @return A new Vector4 that is the result of the subtraction.
         */
@@ -133,9 +136,9 @@ namespace NuEngine::Math
         {
             return Vector4(VectorAPI::Mul(m_data, other.m_data));
         }
-        
+
         /*
-        * 
+        *
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator/(Vector4 other) const noexcept
         {
@@ -144,9 +147,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Multiplies the vector by a scalar.
-        * 
+        *
         * Scales each component of the vector by the given scalar value.
-        * 
+        *
         * @param scalar The scalar value to multiply by.
         * @return A new Vector4 that is the result of the multiplication.
         */
@@ -169,9 +172,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Divides the vector by a scalar.
-        * 
+        *
         * Scales each component of the vector by the reciprocal of the given scalar value.
-        * 
+        *
         * @param scalar The scalar value to divide by.
         * @return A new Vector4 that is the result of the division.
         */
@@ -183,9 +186,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Adds another vector to this one.
-        * 
+        *
         * Performs component-wise addition and updates the current vector.
-        * 
+        *
         * @param other The vector to add.
         * @return A reference to this vector after the addition.
         */
@@ -197,9 +200,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Subtracts another vector to this one.
-        * 
+        *
         * Performs component-wise subtraction and updates the current vector.
-        * 
+        *
         * @param other The vector to subtract.
         * @return A reference to this vector after the subtraction.
         */
@@ -211,9 +214,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Multiplies another vector to this one.
-        * 
+        *
         * Performs component-wise multiplication and updates the current vector.
-        * 
+        *
         * @param other The vector to multiply.
         * @return A reference to this vector after the multiplication.
         */
@@ -239,9 +242,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Multiplies this vector by a scalar value.
-        * 
+        *
         * Each component (x, y, z, w) will be multiplied by the given scalar.
-        * 
+        *
         * @param scalar The scalar value to multiply the vector by.
         * @return A reference to this vector after the multiplication.
         */
@@ -253,9 +256,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Divides this vector by a scalar value.
-        * 
+        *
         * Each component (x, y, z, w) will be divided by the given scalar.
-        * 
+        *
         * @param scalar The scalar value to divide the vector by.
         * @return A reference to this vector after the division.
         */
@@ -333,7 +336,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Compares two Vector4 instances for equality.
-        * 
+        *
         * @param other The vector to compare with.
         * @result true if all components are equal, false otherwise.
         */
@@ -357,7 +360,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Compares two Vector4 instances for inequality.
-        * 
+        *
         * @param other The vector to compare with.
         * @result true if any component differs, false otherwise.
         */
@@ -368,9 +371,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a negated copy of the vector.
-        * 
+        *
         * Each component of the resulting vector is the negation of the corresponding component in this vector.
-        * 
+        *
         * @return A negated vector.
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator-() const noexcept
@@ -436,9 +439,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a zero vector.
-        * 
+        *
         * The resulting vector has components (0, 0, 0, 0).
-        * 
+        *
         * @return A vector with all components set to 0.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 Zero() noexcept
@@ -448,9 +451,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a vector with all components set to 1.
-        * 
+        *
         * The resulting vector has components (1, 1, 1, 1).
-        * 
+        *
         * @return A vector with all components set to 1.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 One() noexcept
@@ -460,9 +463,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a unit vector pointing in the X direction.
-        * 
+        *
         * The resulting vector has components (1, 0, 0, 0).
-        * 
+        *
         * @return A unit vector with only the X component set to 1.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitX() noexcept
@@ -472,9 +475,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a unit vector pointing in the Y direction.
-        * 
+        *
         * The resulting vector has components (0, 1, 0, 0).
-        * 
+        *
         * @return A unit vector with only the Y component set to 1.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitY() noexcept
@@ -484,9 +487,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a unit vector pointing in the Z direction.
-        * 
+        *
         * The resulting vector has components (0, 0, 1, 0).
-        * 
+        *
         * @return A unit vector with only the Z component set to 1.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitZ() noexcept
@@ -496,9 +499,9 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns a unit vector pointing in the W direction.
-        * 
+        *
         * The resulting vector has components (0, 0, 0, 1).
-        * 
+        *
         * @return A unit vector with only the W component set to 1.
         */
         [[nodiscard]] NU_FORCEINLINE static Vector4 UnitW() noexcept
@@ -508,7 +511,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Calculates the length (magnitude) of the vector.
-        * 
+        *
         * @return Length of the vector.
         */
         [[nodiscard]] NU_FORCEINLINE NuFloat Length() const noexcept
@@ -528,7 +531,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Computes the dot product with another vector.
-        * 
+        *
         * @param other The vector to compute the dot product with.
         * @return Dot product result.
         */
@@ -539,7 +542,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Calculates the distance to another vector.
-        * 
+        *
         * @param other The vector to calculate the distance to.
         * @return Distance between the vectors.
         */
@@ -550,7 +553,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Provides read-only access to the raw float array of the vector.
-        * 
+        *
         * @return Pointer to the float array.
         */
         [[nodiscard]] NU_FORCEINLINE const NuFloat* Data() const noexcept
@@ -560,7 +563,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Provides write access to the raw float array of the vector.
-        * 
+        *
         * @return Pointer to the float array.
         */
         [[nodiscard]] NU_FORCEINLINE NuFloat* Data() noexcept
@@ -570,7 +573,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Returns the underlying SIMD representation.
-        * 
+        *
         * @return Reference to the SIMD vector.
         */
         [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4 SimdData() const noexcept
@@ -580,7 +583,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Normalizes the vector.
-        * 
+        *
         * @return Normalized vector.
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 Normalize() const noexcept
@@ -589,8 +592,24 @@ namespace NuEngine::Math
         }
 
         /*
+         * @brief Performs linear interpolation between two 4D vectors.
+         *
+         * Interpolates between vectors a and b using parameter t (where t=0 returns a, t=1 returns b).
+         *
+         * @param a First vector.
+         * @param b Second vector.
+         * @param t Interpolation parameter (typically in [0, 1]).
+         *
+         * @return Interpolated vector.
+         */
+        [[nodiscard]] NU_FORCEINLINE Vector4 Lerp(Vector4 other, NuFloat t) noexcept
+        {
+            return Vector4(VectorAPI::Lerp(m_data, other.m_data, t));
+        }
+
+        /*
         * @brief Converts the vector to a human-readable string.
-        * 
+        *
         * @return String representation of the vector.
         */
         [[nodiscard]] NU_FORCEINLINE std::string ToString() const
@@ -602,7 +621,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Writes the vector to the output stream.
-        * 
+        *
         * @param os Output stream.
         * @param vec Vector4 to write.
         * @return Reference to the output stream.
@@ -621,17 +640,16 @@ namespace NuEngine::Math
         * or as an array of floats (m_components) for individual component access.
         */
 #if defined(_MSC_VER)
-    #pragma warning(push)
-    #pragma warning(disable: 4201)
+#pragma warning(push)
+#pragma warning(disable: 4201)
 #endif
-        union 
+        union
         {
             VectorAPI::NuVec4 m_data;    // 
             NuFloat m_components[4];     // 
-            struct { NuFloat x, y, z, w; }; // 
         };
 #if defined(_MSC_VER)
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif
     };
 }

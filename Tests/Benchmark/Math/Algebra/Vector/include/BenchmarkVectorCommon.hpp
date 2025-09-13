@@ -6,7 +6,7 @@
 
 #include <benchmark/benchmark.h>
 
-namespace Benchmark
+namespace NuEngine::Benchmarks
 {
 	template <typename VecType>
 	constexpr VecType MakeTestVector()

@@ -8,7 +8,7 @@
 #include "BenchmarkVectorCommon.hpp"
 #include <Math/Math.hpp>
 
-namespace Benchmark
+namespace NuEngine::Benchmarks
 {
 	void RegisterVector2Benchmarks();
 }

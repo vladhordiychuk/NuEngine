@@ -10,7 +10,7 @@
 #include <glm/gtx/norm.hpp>
 #include "BenchmarkVectorCommon.hpp"
 
-namespace Benchmark
+namespace NuEngine::Benchmarks
 {
     template<>
     inline glm::vec3 MakeTestVector<glm::vec3>()

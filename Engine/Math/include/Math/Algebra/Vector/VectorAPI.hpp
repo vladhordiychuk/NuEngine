@@ -391,4 +391,9 @@ namespace NuEngine::Math::VectorAPI
 	* @return Length of vector (sqrt(x² + y² + z² + w²)).
 	*/
 	using Simd::Length4;
+
+	/*
+	* 
+	*/
+	using Simd::Lerp;
 }
