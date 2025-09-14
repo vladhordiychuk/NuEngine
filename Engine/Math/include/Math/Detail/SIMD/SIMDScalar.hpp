@@ -207,13 +207,14 @@ namespace NuEngine::Math::Simd_Scalar
 		return v.x + v.y;
 	}
 
-	[[nodiscard]] NU_FORCEINLINE float InvSqrtFast(float x) noexcept {
-		float xhalf = 0.5f * x;
-		int i = *(int*)&x;
+	[[nodiscard]] NU_FORCEINLINE NuFloat InvSqrtFast(NuFloat x) noexcept 
+	{
+		const NuFloat xhalf = 0.5f * x;
+		int i = std::bit_cast<NuInt32>(x);
 		i = 0x5f3759df - (i >> 1);
-		x = *(float*)&i;
-		x = x * (1.5f - xhalf * x * x); 
-		return x;
+		NuFloat result = std::bit_cast<NuFloat>(i);
+		result = result * (1.5f - xhalf * result * result);
+		return result;
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::Normalize2
@@ -601,16 +602,10 @@ namespace NuEngine::Math::Simd_Scalar
 		};
 	}
 
-	// \copydoc NuEngine::Math::MatrixAPI::FromRows
-	[[nodiscard]] NU_FORCEINLINE NuMat3 FromRows(const NuVec4& r0, const NuVec4& r1, const NuVec4& r2) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::Determinant
+	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat3& m) noexcept
 	{
-		NuMat3 result{};
 
-		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z;
-		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z;
-		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z;
-
-		return result;
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
@@ -625,21 +620,33 @@ namespace NuEngine::Math::Simd_Scalar
 		return result;
 	}
 
-	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
-	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat3& m, NuInt32 index) noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::FromRows
+	[[nodiscard]] NU_FORCEINLINE NuMat3 FromRows(const NuVec4& r0, const NuVec4& r1, const NuVec4& r2) noexcept
 	{
-		NuEngine::Core::Types::NuAssert(index >= 0 && index < 3);
+		NuMat3 result{};
+
+		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z;
+		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z;
+		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat3& m, NuInt32 col) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(col >= 0 && col < 3);
 		return {
-			m.mat[0][index], m.mat[1][index], m.mat[2][index], 0.0f
+			m.mat[0][col], m.mat[1][col], m.mat[2][col], 0.0f
 		};
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::GetRow
-	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat3& m, NuInt32 index) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat3& m, NuInt32 row) noexcept
 	{
-		NuEngine::Core::Types::NuAssert(index >= 0 && index < 3);
+		NuEngine::Core::Types::NuAssert(row >= 0 && row < 3);
 		return {
-			m.mat[index][0], m.mat[index][1], m.mat[index][2], 0.0f
+			m.mat[row][0], m.mat[row][1], m.mat[row][2], 0.0f
 		};
 	}
 
@@ -712,6 +719,52 @@ namespace NuEngine::Math::Simd_Scalar
 		return {
 			m.mat[0][0] * v.x + m.mat[0][1] * v.y,
 			m.mat[1][0] * v.x + m.mat[1][1] * v.y,
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
+	[[nodiscard]] NU_FORCEINLINE NuMat2 FromColumns(const NuVec4& c0, const NuVec4& c1) noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y;
+		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Determinant
+	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat2& m) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetRow
+	[[nodiscard]] NU_FORCEINLINE NuMat2 FromRows(const NuVec4& r0, const NuVec4& r1) noexcept
+	{
+		NuMat2 result{};
+
+		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y;
+		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat2& m, NuInt32 col) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(col >= 0 && col < 2);
+		return {
+			m.mat[0][col], m.mat[1][col], 0.0f, 0.0f
+		};
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI
+	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat2& m, NuInt32 row) noexcept
+	{
+		NuEngine::Core::Types::NuAssert(row >= 0 && row < 2);
+		return {
+			m.mat[row][0], m.mat[row][1], 0.0f, 0.0f
 		};
 	}
 

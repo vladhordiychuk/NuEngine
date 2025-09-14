@@ -208,7 +208,7 @@ namespace NuEngine::Math
 		/*
 		*
 		*/
-		NU_FORCEINLINE void Decompose(Vector3& traslation, Quaternion& rotation, Vector3& scale) const noexcept
+		NU_FORCEINLINE void Decompose(Vector3& translation, Quaternion& rotation, Vector3& scale) const noexcept
 		{
 
 		}

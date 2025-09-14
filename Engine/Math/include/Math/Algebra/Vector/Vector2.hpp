@@ -53,7 +53,7 @@ namespace NuEngine::Math
 		*/
 		NU_FORCEINLINE Vector2(std::initializer_list<NuFloat> list) noexcept
 		{
-			NuEngine::Core::Types::NuAssert(list.size() == 2);
+			NuEngine::Core::Types::NuAssert(list.size() == 2, "Vector2 initializer_list must contain exactly 2 elements!");
 			auto it = list.begin();
 			NuFloat x = *it++;
 			NuFloat y = *it++;
@@ -98,6 +98,11 @@ namespace NuEngine::Math
 			: m_data(vec)
 		{
 		}
+
+		/*
+		*
+		*/
+		NU_FORCEINLINE ~Vector2() = default;
 
 		/*
 		* @brief Adding another vector to this one.
@@ -187,7 +192,7 @@ namespace NuEngine::Math
 		*/
 		[[nodiscard]] NU_FORCEINLINE Vector2 operator/(NuFloat scalar) const noexcept
 		{
-			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
+			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon(), "Vector2 division by zero or near zero!");
 			return Vector2(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
 		}
 
@@ -238,8 +243,8 @@ namespace NuEngine::Math
 		* Performs component-wise division of this vector by the other vector.
 		*
 		* @param other The vector to divide by.
-		* @return A reference to this vector after the division.
-*		*/
+		* @return A new Vector2 that is the result of the division.
+		*/
 		NU_FORCEINLINE Vector2& operator/=(Vector2 other) noexcept
 		{
 			m_data = VectorAPI::Div(m_data, other.m_data);
@@ -270,7 +275,7 @@ namespace NuEngine::Math
 		*/
 		NU_FORCEINLINE Vector2& operator/=(NuFloat scalar) noexcept
 		{
-			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
+			NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon(), "Vector2 division by zero or near zero!");
 			m_data = VectorAPI::Div(m_data, VectorAPI::SetAll(scalar));
 			return *this;
 		}
@@ -431,7 +436,7 @@ namespace NuEngine::Math
 		*/
 		[[nodiscard]] NU_FORCEINLINE const NuFloat& operator[](NuInt32 index) const
 		{
-			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2);
+			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2, "Vector2 index out of bounds! Valid range: 0..1");
 			return m_components[index];
 		}
 
@@ -444,7 +449,7 @@ namespace NuEngine::Math
 		*/
 		NU_FORCEINLINE NuFloat& operator[](NuInt32 index)
 		{
-			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2);
+			NuEngine::Core::Types::NuAssert(index >= 0 && index < 2, "Vector2 index out of bounds! Valid range: 0..1");
 			return m_components[index];
 		}
 
@@ -506,7 +511,7 @@ namespace NuEngine::Math
 		*/
 		[[nodiscard]] NU_FORCEINLINE NuFloat Dot(Vector2 other) const noexcept
 		{
-			return VectorAPI::HorizontalAdd2(VectorAPI::Mul(m_data, other.m_data));
+			return VectorAPI::Dot2(m_data, other.m_data);
 		}
 
 		/*
@@ -545,7 +550,7 @@ namespace NuEngine::Math
 		*
 		* @return Reference to the SIMD vector.
 		*/
-		[[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4& SimdData() const noexcept
+		[[nodiscard]] NU_FORCEINLINE VectorAPI::NuVec4 SimdData() const noexcept
 		{
 			return m_data;
 		}
@@ -561,18 +566,6 @@ namespace NuEngine::Math
 		}
 
 		/*
-		* @brief Converts the vector to a human-readable string.
-		*
-		* @return String representation of the vector.
-		*/
-		[[nodiscard]] std::string ToString() const
-		{
-			std::ostringstream oss;
-			oss << "(" << X() << ", " << Y() << ")";
-			return oss.str();
-		}
-
-		/*
 		* @brief Performs linear interpolation between two 2D vectors.
 		*
 		* Interpolates between vectors a and b using parameter t (where t=0 returns a, t=1 returns b).
@@ -583,9 +576,21 @@ namespace NuEngine::Math
 		*
 		* @return Interpolated vector.
 		*/
-		[[nodiscard]] NU_FORCEINLINE Vector2 Lerp(Vector2 other, NuFloat t) noexcept
+		[[nodiscard]] NU_FORCEINLINE Vector2 Lerp(Vector2 other, NuFloat t) const noexcept
 		{
 			return Vector2(VectorAPI::Lerp(m_data, other.m_data, t));
+		}
+
+		/*
+		* @brief Converts the vector to a human-readable string.
+		*
+		* @return String representation of the vector.
+		*/
+		[[nodiscard]] NU_FORCEINLINE std::string ToString() const
+		{
+			std::ostringstream oss;
+			oss << "(" << X() << ", " << Y() << ")";
+			return oss.str();
 		}
 
 		/*
@@ -615,8 +620,8 @@ namespace NuEngine::Math
 #endif
 		union
 		{
-			VectorAPI::NuVec4 m_data;    // 
-			NuFloat m_components[4];     // 
+			VectorAPI::NuVec4 m_data;        // SIMD register for optimized operations
+			NuFloat m_components[4];         // Component array for direct access
 		};
 #if defined(_MSC_VER)
 #pragma warning(pop)

@@ -5,6 +5,35 @@ namespace NuEngine::Math::Tests
 {
     using namespace NuEngine::Math;
 
+    TEST(Vector3Test, DefaultConstructor)
+    {
+        Vector3 a;
+
+        EXPECT_FLOAT_EQ(a.X(), 0.0f);
+        EXPECT_FLOAT_EQ(a.Y(), 0.0f);
+        EXPECT_FLOAT_EQ(a.Z(), 0.0f);
+    }
+
+    TEST(Vector3Test, CopyConstructor)
+    {
+        Vector3 a(1.0f, 2.0f, 3.0f);
+        Vector3 b(a);
+
+        EXPECT_FLOAT_EQ(b.X(), 1.0f);
+        EXPECT_FLOAT_EQ(b.Y(), 2.0f);
+        EXPECT_FLOAT_EQ(b.Z(), 3.0f);
+    }
+
+    TEST(Vector3Test, AssignmentOperator)
+    {
+        Vector3 a(1.0f, 2.0f, 3.0f);
+        Vector3 b = a;
+
+        EXPECT_FLOAT_EQ(b.X(), 1.0f);
+        EXPECT_FLOAT_EQ(b.Y(), 2.0f);
+        EXPECT_FLOAT_EQ(b.Z(), 3.0f);
+    }
+
     TEST(Vector3Test, Addition)
     {
         Vector3 a(1.0f, 2.0f, 3.0f);
@@ -25,6 +54,23 @@ namespace NuEngine::Math::Tests
         EXPECT_FLOAT_EQ(a.X(), 5.0f);
         EXPECT_FLOAT_EQ(a.Y(), 7.0f);
         EXPECT_FLOAT_EQ(a.Z(), 9.0f);
+    }
+
+    TEST(Vector3Test, AdditionCommutativity)
+    {
+        Vector3 a(1.0f, 2.0f, 3.0f);
+        Vector3 b(4.0f, 5.0f, 6.0f);
+
+        EXPECT_TRUE(a + b == b + a);
+    }
+
+    TEST(Vector3Test, AdditionAssociativity)
+    {
+        Vector3 a(1.0f, 0.0f, 0.0f);
+        Vector3 b(0.0f, 1.0f, 0.0f);
+        Vector3 c(0.0f, 0.0f, 1.0f);
+
+        EXPECT_TRUE((a + b) + c == a + (b + c));
     }
 
     TEST(Vector3Test, Subtraction)
@@ -136,6 +182,38 @@ namespace NuEngine::Math::Tests
         EXPECT_FLOAT_EQ(a.Y(), 2.5f);
         EXPECT_FLOAT_EQ(a.Z(), 3.0f);
     }
+    
+    TEST(Vector3Test, Min)
+    {
+        Vector3 a(1.0f, 4.0f, 3.0f);
+        Vector3 b(2.0f, 1.0f, 3.0f);
+        Vector3 result = a.Min(b);
+
+        EXPECT_FLOAT_EQ(result.X(), 1.0f);
+        EXPECT_FLOAT_EQ(result.Y(), 1.0f);
+        EXPECT_FLOAT_EQ(result.Z(), 3.0f);
+    }
+
+    TEST(Vector3Test, Max)
+    {
+        Vector3 a(1.0f, 4.0f, 3.0f);
+        Vector3 b(2.0f, 1.0f, 3.0f);
+        Vector3 result = a.Max(b);
+
+        EXPECT_FLOAT_EQ(result.X(), 2.0f);
+        EXPECT_FLOAT_EQ(result.Y(), 4.0f);
+        EXPECT_FLOAT_EQ(result.Z(), 3.0f);
+    }
+
+    TEST(Vector3Test, Abs)
+    {
+        Vector3 a(-1.0f, 2.0f, -3.0f);
+        Vector3 result = a.Abs();
+
+        EXPECT_FLOAT_EQ(result.X(), 1.0f);
+        EXPECT_FLOAT_EQ(result.Y(), 2.0f);
+        EXPECT_FLOAT_EQ(result.Z(), 3.0f);
+    }
 
     TEST(Vector3Test, Equal)
     {
@@ -234,4 +312,29 @@ namespace NuEngine::Math::Tests
         EXPECT_NEAR(result.Z(), 0.0f, 2e-3f);
     }
 
+
+
+#ifndef NDEBUG 
+    TEST(Vector3Test, OutOfRangeIndex)
+    {
+        Vector3 a(1.0f, 2.0f, 3.0f);
+
+        EXPECT_DEATH(a[3], "Vector3 index out of bounds! Valid range: 0..2");
+        EXPECT_DEATH(a[-1], "Vector3 index out of bounds! Valid range: 0..2");
+    }
+
+    TEST(Vector3Test, NormalizeZeroVector)
+    {
+        Vector3 a(0.0f, 0.0f, 0.0f);
+
+        EXPECT_DEATH({ a.Normalize(); }, "Vector3 division by zero or near zero!");
+    }
+
+    TEST(Vector3Test, DivisionByZeroScalar)
+    {
+        Vector3 a(1.0f, 2.0f, 3.0f);
+
+        EXPECT_DEATH({ a /= 0.0f; }, "Vector3 division by zero or near zero!");
+    }
+#endif
 }

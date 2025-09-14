@@ -86,11 +86,15 @@ namespace NuEngine::Core::Types
     // ==========================
     // Assert
     // ==========================
-#if !defined NDEBUG
-    NU_FORCEINLINE void NuAssert(bool expr) 
+
+#if !defined(NDEBUG)
+    NU_FORCEINLINE void NuAssert(bool expr, const char* msg = nullptr)
     {
-        if (!expr) 
+        if (!expr)
         {
+            if (msg)
+                std::cerr << "Assertion failed: " << msg << "\n";
+
 #if defined(_MSC_VER)
             __debugbreak();
 #elif defined(__GNUC__) || defined(__clang__)
@@ -101,6 +105,6 @@ namespace NuEngine::Core::Types
         }
     }
 #else
-    NU_FORCEINLINE void NuAssert(bool) noexcept {}
+    NU_FORCEINLINE void NuAssert(bool, const char* = nullptr) noexcept {}
 #endif
 }

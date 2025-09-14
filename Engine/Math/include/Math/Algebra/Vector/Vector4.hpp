@@ -38,6 +38,7 @@ namespace NuEngine::Math
 
         /*
         * @brief Creates a vector with specified components.
+        * 
         * @param x Value on X.
         * @param y Value on Y.
         * @param z Value on Z.
@@ -50,11 +51,12 @@ namespace NuEngine::Math
 
         /*
         * @brief Initialization with initializer_list.
+        * 
         * @param Initialization list of 4 elements.
         */
-        explicit NU_FORCEINLINE Vector4(std::initializer_list<NuFloat> list) noexcept
+        NU_FORCEINLINE Vector4(std::initializer_list<NuFloat> list) noexcept
         {
-            NuEngine::Core::Types::NuAssert(list.size() == 4);
+            NuEngine::Core::Types::NuAssert(list.size() == 4, "Vector4 initializer_list must contain exactly 4 elements!");
             auto it = list.begin();
             m_data = VectorAPI::Set(it[0], it[1], it[2], it[3]);
         }
@@ -96,6 +98,12 @@ namespace NuEngine::Math
             : m_data(vec)
         {
         }
+
+        /*
+        * Destructor.
+        * Defaulted since Vector4 does not manage resources.
+        */
+        NU_FORCEINLINE ~Vector4() = default;
 
         /*
         * @brief Adding another vector to this one.
@@ -180,7 +188,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE Vector4 operator/(NuFloat scalar) const noexcept
         {
-            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
+            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon(), "Vector4 division by zero or near zero!");
             return Vector4(VectorAPI::Div(m_data, VectorAPI::SetAll(scalar)));
         }
 
@@ -264,7 +272,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE Vector4& operator/=(NuFloat scalar) noexcept
         {
-            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon() && "Division by zero or near zero!");
+            NuEngine::Core::Types::NuAssert(std::fabs(scalar) > std::numeric_limits<NuFloat>::epsilon(), "Vector4 division by zero or near zero!");
             m_data = VectorAPI::Div(m_data, VectorAPI::SetAll(scalar));
             return *this;
         }
@@ -390,7 +398,7 @@ namespace NuEngine::Math
         */
         [[nodiscard]] NU_FORCEINLINE NuFloat operator[](NuInt32 index) const
         {
-            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
+            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4, "Vector4 index out of bounds! Valid range: 0..3");
             return m_components[index];
         }
 
@@ -403,7 +411,7 @@ namespace NuEngine::Math
         */
         NU_FORCEINLINE NuFloat& operator[](NuInt32 index)
         {
-            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
+            NuEngine::Core::Types::NuAssert(index >= 0 && index < 4, "Vector4 index out of bounds! Valid range: 0..3");
             return m_components[index];
         }
 
@@ -576,7 +584,7 @@ namespace NuEngine::Math
         *
         * @return Reference to the SIMD vector.
         */
-        [[nodiscard]] NU_FORCEINLINE const VectorAPI::NuVec4 SimdData() const noexcept
+        [[nodiscard]] NU_FORCEINLINE VectorAPI::NuVec4 SimdData() const noexcept
         {
             return m_data;
         }
@@ -602,7 +610,7 @@ namespace NuEngine::Math
          *
          * @return Interpolated vector.
          */
-        [[nodiscard]] NU_FORCEINLINE Vector4 Lerp(Vector4 other, NuFloat t) noexcept
+        [[nodiscard]] NU_FORCEINLINE Vector4 Lerp(Vector4 other, NuFloat t) const noexcept
         {
             return Vector4(VectorAPI::Lerp(m_data, other.m_data, t));
         }
@@ -645,8 +653,8 @@ namespace NuEngine::Math
 #endif
         union
         {
-            VectorAPI::NuVec4 m_data;    // 
-            NuFloat m_components[4];     // 
+            VectorAPI::NuVec4 m_data;        // SIMD register for optimized operations
+            NuFloat m_components[4];         // Component array for direct access
         };
 #if defined(_MSC_VER)
 #pragma warning(pop)

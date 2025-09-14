@@ -5,6 +5,32 @@ namespace NuEngine::Math::Tests
 {
 	using namespace NuEngine::Math;
 
+	TEST(Vector2Test, DefaultConstructor)
+	{
+		Vector2 a;
+
+		EXPECT_FLOAT_EQ(a.X(), 0.0f);
+		EXPECT_FLOAT_EQ(a.Y(), 0.0f);
+	}
+
+	TEST(Vector2Test, CopyConstructor)
+	{
+		Vector2 a(1.0f, 2.0f);
+		Vector2 b(a);
+
+		EXPECT_FLOAT_EQ(b.X(), 1.0f);
+		EXPECT_FLOAT_EQ(b.Y(), 2.0f);
+	}
+
+	TEST(Vector2Test, AssignmentOperator)
+	{
+		Vector2 a(1.0f, 2.0f);
+		Vector2 b = a;
+
+		EXPECT_FLOAT_EQ(b.X(), 1.0f);
+		EXPECT_FLOAT_EQ(b.Y(), 2.0f);
+	}
+
 	TEST(Vector2Test, Addition)
 	{
 		Vector2 a(1.0f, 2.0f);
@@ -23,6 +49,23 @@ namespace NuEngine::Math::Tests
 
 		EXPECT_FLOAT_EQ(a.X(), 4.0f);
 		EXPECT_FLOAT_EQ(a.Y(), 6.0f);
+	}
+
+	TEST(Vector2Test, AdditionCommutativity)
+	{
+		Vector2 a(1.0f, 2.0f);
+		Vector2 b(3.0f, 4.0f);
+
+		EXPECT_TRUE(a + b == b + a);
+	}
+
+	TEST(Vector2Test, AdditionAssociativity)
+	{
+		Vector2 a(1.0f, 0.0f);
+		Vector2 b(0.0f, 1.0f);
+		Vector2 c(0.0f, 0.0f);
+
+		EXPECT_TRUE((a + b) + c == a + (b + c));
 	}
 
 	TEST(Vector2Test, Subtraction)
@@ -75,7 +118,7 @@ namespace NuEngine::Math::Tests
 		EXPECT_FLOAT_EQ(result.Y(), 2.0f);
 	}
 
-	TEST(Vecto2Test, EqualDivision)
+	TEST(Vector2Test, EqualDivision)
 	{
 		Vector2 a(3.0f, 4.0f);
 		Vector2 b(1.0f, 2.0f);
@@ -123,6 +166,35 @@ namespace NuEngine::Math::Tests
 
 		EXPECT_FLOAT_EQ(a.X(), 1.0f);
 		EXPECT_FLOAT_EQ(a.Y(), 2.0f);
+	}
+
+	TEST(Vector2Test, Min)
+	{
+		Vector2 a(1.0f, 4.0f);
+		Vector2 b(2.0f, 1.0f);
+		Vector2 result = a.Min(b);
+
+		EXPECT_FLOAT_EQ(result.X(), 1.0f);
+		EXPECT_FLOAT_EQ(result.Y(), 1.0f);
+	}
+
+	TEST(Vector2Test, Max)
+	{
+		Vector2 a(1.0f, 4.0f);
+		Vector2 b(2.0f, 1.0f);
+		Vector2 result = a.Max(b);
+
+		EXPECT_FLOAT_EQ(result.X(), 2.0f);
+		EXPECT_FLOAT_EQ(result.Y(), 4.0f);
+	}
+
+	TEST(Vector2Test, Abs)
+	{
+		Vector2 a(-1.0f, 2.0f);
+		Vector2 result = a.Abs();
+
+		EXPECT_FLOAT_EQ(result.X(), 1.0f);
+		EXPECT_FLOAT_EQ(result.Y(), 2.0f);
 	}
 
 	TEST(Vector2Test, Equal)
@@ -198,4 +270,28 @@ namespace NuEngine::Math::Tests
 		EXPECT_NEAR(result.X(), 0.6f, 2e-3f);
 		EXPECT_NEAR(result.Y(), 0.8f, 2e-3f);
 	}
+
+#ifndef NDEBUG 
+	TEST(Vector2Test, OutOfRangeIndex)
+	{
+		Vector2 a(1.0f, 2.0f);
+
+		EXPECT_DEATH(a[2], "Vector2 index out of bounds! Valid range: 0..1");
+		EXPECT_DEATH(a[-1], "Vector2 index out of bounds! Valid range: 0..1");
+	}
+
+	TEST(Vector2Test, NormalizeZeroVector)
+	{
+		Vector2 a(0.0f, 0.0f);
+
+		EXPECT_DEATH({ a.Normalize(); }, "Vector2 division by zero or near zero!");
+	}
+
+	TEST(Vector2Test, DivisionByZeroScalar)
+	{
+		Vector2 a(1.0f, 2.0f);
+
+		EXPECT_DEATH({ a /= 0.0f; }, "Vector2 division by zero or near zero!");
+	}
+#endif
 }
