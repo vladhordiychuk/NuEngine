@@ -11,31 +11,38 @@
 
 **NuEngine** — це кастомний рушій для 3D-ігор, написаний на C++, з акцентом на продуктивність, модульність і майбутню підтримку складної симуляції світу.
 
-> 🚧 В розробці: кастомний C++ рушій для 3D-ігор з підтримкою власної SIMD-оптимізованої математики та майбутньою AI-поведінкою у постапокаліптичному світі.
+> 🚧 В розробці: кастомний C++ рушій для 3D-ігор з підтримкою SIMD-оптимізованої математики, кросплатформенного створення вікон та майбутньої AI-поведінки у постапокаліптичному світі.
 
-## 🧮 Реалізовано: SIMD-математика
+## ⚙️ Реалізовані підсистеми
 
-На даному етапі реалізовано високопродуктивну математичну бібліотеку на основі **SSE**, аналогічну `DirectXMath`, з підтримкою:
-
-- ✅ Вектори: `Vector2`, `Vector3`, `Vector4`
-- ✅ Матриці: `Matrix4x4` з множенням, транспонуванням, оберненням, `Determinant`, `LookAt`, `Perspective`, `Decompose`
-- ✅ Кватерніони: повна підтримка поворотів, `Slerp`, `Normalize`, `ToMatrix`
-- ✅ Трансформації: `Transform`, `Scale`, `Rotate`, `Translate`
-- ✅ SIMD-функції: додавання, віднімання, множення, dot/cross product, порівняння
-- ✅ Строгі перевірки assert'ами
-- ✅ Unit-тести і Benchmarks
-
-Бібліотека побудована навколо власного low-level SIMD-API `Simd::`, який абстрагує роботу з `__m128` для зручності та безпеки.
+На даному етапі NuEngine включає такі готові підсистеми:
+ - SIMD-математика: високопродуктивна бібліотека на основі SSE, аналогічна DirectXMath, з підтримкою:
+    - ✅ Вектори (Vector2, Vector3, Vector4)
+    - ✅ Матриці (Matrix4x4: множення, транспонування, обернення, Determinant, LookAt, Perspective, Decompose)
+    - ✅ Кватерніони (повороти, Slerp, Normalize, ToMatrix)
+    - ✅ Трансформації (Transform, Scale, Rotate, Translate)
+    - ✅ SIMD-операції (додавання, віднімання, множення, dot/cross product, порівняння)
+ - Кросплатформенна віконна система: створення та керування вікнами (підтримка Windows, Linux у процесі).
+ - Логер: гнучка система логування для дебагу та відстеження помилок.
+ - Обробка помилок: надійна система винятків і перевірок.
+ - Файлова система: кросплатформенний ввід/вивід файлів для роботи з ресурсами.
+ - Тестування: юніт-тести та бенчмарки для перевірки коректності математики й ядра.
+Математична бібліотека побудована навколо low-level API Simd::, який абстрагує роботу з __m128 для зручності та безпеки.
 
 ---
 
-### 📅 У планах
+### 🛣️ Дорожня карта
 
-- Розробка ECS (Entity Component System)
-- Інтеграція AI-поведінки
-- Створення редактора рівнів (Qt)
-- Модуль графіки
-- Підтримка фізики (PhysX, власні рішення)
+ - [x] SIMD-математика
+ - [x] Кросплатформенна віконна система (Windows)
+ - [x] Логер
+ - [x] Обробка помилок
+ - [x] Файлова система
+ - [ ] ECS (Entity Component System)
+ - [ ] Графічний модуль (Vulkan/DirectX 12)
+ - [ ] Інтеграція фізики (PhysX або власна)
+ - [ ] Редактор рівнів (Qt)
+ - [ ] AI-поведінка
 
 ---
 
@@ -59,61 +66,101 @@
   │   ├── Unit/
   │   ├── Benchmark/
   │   ├── CMakeLists.txt
-  │   └── test_main.cpp
+  │   └── testMain.cpp
   ├── Thirdparty/
   ├── CMakeLists.txt
   └── README.md
   ```
 </details>
 
----
+## 🛠️ Build Instructions
 
-## Для збірки проєкту необхідно:
+**Підтримувані платформи**: Windows (Linux в майбутньому)
 
-Підтримувані платформи: Windows (Linux — в розробці)
+**Залежності**: C++20, CMake, SSE
 
 ```bash
 git clone https://github.com/vladhordiychuk/NuEngine.git
 ```
-```
+```bash
 cd NuEngine
 ```
-```
+```bash
 mkdir build && cd build
 ```
-```
+```bash
 cmake ..
 ```
+
+---
 
 ## English
 
 **NuEngine** is a custom 3D game engine written in C++, focused on performance, modularity, and future support for complex world simulation.
 
-> 🚧 In development: a custom C++ game engine with SIMD-powered math and future AI behavior support for a post-apocalyptic world.
+> 🚧 In development: a custom C++ game engine with SIMD-powered math, cross-platform windowing, and future AI behavior support for a post-apocalyptic world.
 
-## 🧮 Implemented: SIMD Math Library
+## ⚙️ Implemented Subsystems
 
-At the current stage, a high-performance SIMD math library has been implemented based on **SSE**, similar to `DirectXMath`, featuring:
+NuEngine currently features the following production-ready subsystems:
 
-- ✅ Vectors: `Vector2`, `Vector3`, `Vector4`
-- ✅ Matrices: `Matrix4x4` with multiplication, transposition, inversion, `Determinant`, `LookAt`, `Perspective`, `Decompose`
-- ✅ Quaternions: full support for rotations, `Slerp`, `Normalize`, `ToMatrix`
-- ✅ Transformations: `Transform`, `Scale`, `Rotate`, `Translate`
-- ✅ SIMD functions: addition, subtraction, multiplication, dot/cross product, comparisons
-- ✅ Strict assert-based validations
-- ✅ Unit tests and benchmarks
+- **SIMD Math Library**: High-performance math based on **SSE**, similar to `DirectXMath`, with support for:
+  - ✅ Vectors (`Vector2`, `Vector3`, `Vector4`)
+  - ✅ Matrices (`Matrix4x4`: multiplication, transposition, inversion, `Determinant`, `LookAt`, `Perspective`, `Decompose`)
+  - ✅ Quaternions (rotations, `Slerp`, `Normalize`, `ToMatrix`)
+  - ✅ Transformations (`Transform`, `Scale`, `Rotate`, `Translate`)
+  - ✅ SIMD operations (addition, subtraction, multiplication, dot/cross product, comparisons)
+- **Cross-Platform Windowing**: Window creation and management (Windows supported, Linux in progress).
+- **Logger**: Flexible logging system for debugging and error tracking.
+- **Error Handling**: Robust error handling with custom exceptions and assertions.
+- **File System**: Cross-platform file I/O for resource management.
+- **Testing Framework**: Unit tests and benchmarks for validating math and core functionality.
 
-The library is built around a custom low-level SIMD API `Simd::`, which abstracts `__m128` operations for ease of use and safety.
+The math library is built around a low-level `Simd::` API, abstracting `__m128` for safety and ease of use.
 
 ---
 
-### 📅 Roadmap
+### 🛣️ Roadmap
 
-- ECS system development
-- AI behavior integration
-- Level editor (Qt)
-- Graphics module
-- Physics support (PhysX and custom)
+- [x] SIMD Math Library
+- [x] Cross-Platform Windowing (Windows)
+- [x] Logger
+- [x] Error Handling
+- [x] File System
+- [ ] Entity Component System (ECS)
+- [ ] Graphics Module (Vulkan/DirectX 12)
+- [ ] Physics Integration (PhysX or custom)
+- [ ] Level Editor (Qt-based)
+- [ ] AI Behavior System
+
+---
+
+## 📖 Code Sample
+
+Below is an example of creating a window and logging a message using NuEngine's API:
+
+```cpp
+#include <NuEngine/Platform/Window.h>
+#include <NuEngine/Core/Logger.h>
+
+int main() {
+    NuEngine::Logger::Init();
+    LOG_INFO("Starting NuEngine...");
+
+    NuEngine::Window window("NuEngine Demo", 1280, 720);
+    if (!window.IsValid()) {
+        LOG_ERROR("Failed to create window!");
+        return -1;
+    }
+
+    while (window.IsOpen()) {
+        window.PollEvents();
+        // Render loop placeholder
+    }
+
+    return 0;
+}
+```
 
 ---
 
@@ -137,7 +184,7 @@ The library is built around a custom low-level SIMD API `Simd::`, which abstract
   │   ├── Unit/
   │   ├── Benchmark/
   │   ├── CMakeLists.txt
-  │   └── test_main.cpp
+  │   └── testMain.cpp
   ├── Thirdparty/
   ├── CMakeLists.txt
   └── README.md
@@ -148,22 +195,28 @@ The library is built around a custom low-level SIMD API `Simd::`, which abstract
 
 ## 🛠️ Build Instructions
 
-Supported platforms: Windows (Linux - in development)
+**Supported platforms**: Windows (Linux support in progress)
+
+**Dependencies**: C++20, CMake, SSE
 
 ```bash
 git clone https://github.com/vladhordiychuk/NuEngine.git
 ```
-```
+```bash
 cd NuEngine
 ```
-```
+```bash
 mkdir build && cd build
 ```
-```
+```bash
 cmake ..
 ```
 
-## Author
+---
 
-Vladyslav Hordiychuk – C++ Game Engine Developer
-[Send email](mailto:gordijcukvlad64@gmail.com) [LinkedIn](https://www.linkedin.com/in/%D0%B2%D0%BB%D0%B0%D0%B4%D0%B8%D1%81%D0%BB%D0%B0%D0%B2-%D0%B3%D0%BE%D1%80%D0%B4%D1%96%D0%B9%D1%87%D1%83%D0%BA-8a2704292/)
+## 👨‍💻 Author
+
+Vladyslav Hordiychuk – C++ Game Engine Developer  
+ 📧 [Send email](mailto:gordijcukvlad64@gmail.com)  
+ 🔗 [LinkedIn](https://www.linkedin.com/in/%D0%B2%D0%BB%D0%B0%D0%B4%D0%B8%D1%81%D0%BB%D0%B0%D0%B2-%D0%B3%D0%BE%D1%80%D0%B4%D1%96%D0%B9%D1%87%D1%83%D0%BA-8a2704292/)  
+ 💼 Open to work and collaborations!
