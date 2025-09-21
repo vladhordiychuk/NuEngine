@@ -46,6 +46,36 @@
 
 ---
 
+## 📖 Приклад коду
+
+Нижче наведено приклад створення вікна та запису повідомлення з використанням API NuEngine:
+
+```cpp
+#include <Core/Application/Application.hpp>
+#include <Core/Logging/Logger.hpp>
+
+int main()
+{
+    NuEngine::Core::Logger::Init("logs/app.log");
+    LOG_INFO("Starting NuEgine...");
+
+    NuEngine::Core::Application app;
+    auto result = app.Run();
+    if (result.IsError()
+    {
+        LOG_ERROR("Application run failed: {}", NuEngine::Core::ToString(result.UnwrapError()));
+        NuEngine::Core::Logger::Shutdown();
+        return -1;
+    }
+
+    NuEngine::Core::Logger::Shutdown();
+    return 0;
+}
+
+```
+
+---
+
 ## 📂 Структура проекту
 
 <details>
@@ -140,24 +170,24 @@ The math library is built around a low-level `Simd::` API, abstracting `__m128` 
 Below is an example of creating a window and logging a message using NuEngine's API:
 
 ```cpp
-#include <NuEngine/Platform/Window.h>
-#include <NuEngine/Core/Logger.h>
+#include <Core/Application/Application.hpp>
+#include <Core/Logging/Logger.hpp>
 
-int main() {
-    NuEngine::Logger::Init();
-    LOG_INFO("Starting NuEngine...");
+int main()
+{
+    NuEngine::Core::Logger::Init("logs/app.log");
+    LOG_INFO("Starting NuEgine...");
 
-    NuEngine::Window window("NuEngine Demo", 1280, 720);
-    if (!window.IsValid()) {
-        LOG_ERROR("Failed to create window!");
+    NuEngine::Core::Application app;
+    auto result = app.Run();
+    if (result.IsError()
+    {
+        LOG_ERROR("Application run failed: {}", NuEngine::Core::ToString(result.UnwrapError()));
+        NuEngine::Core::Logger::Shutdown();
         return -1;
     }
 
-    while (window.IsOpen()) {
-        window.PollEvents();
-        // Render loop placeholder
-    }
-
+    NuEngine::Core::Logger::Shutdown();
     return 0;
 }
 ```
