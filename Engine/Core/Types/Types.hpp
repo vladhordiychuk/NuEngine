@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <limits>
 #include <cstdlib>
+#include <iostream>
 
 namespace NuEngine::Core::Types
 {
@@ -56,9 +57,13 @@ namespace NuEngine::Core::Types
     // ==========================
     // Other useful types
     // ==========================
-    using byte = NuUInt8;
-    using usize = std::size_t;
-    using NullPtr = std::nullptr_t;
+    using NuByte = NuUInt8;
+    using NuSize = std::size_t;
+    using NuChar = char;
+    using NuWChar = wchar_t;
+    using NuChar8 = char;      // UTF-8
+    using NuChar16 = char16_t; // UTF-16
+    using NuChar32 = char32_t; // UTF-32
 
     // ==========================
     // Constants

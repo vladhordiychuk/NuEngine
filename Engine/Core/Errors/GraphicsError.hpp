@@ -6,5 +6,11 @@
 
 namespace NuEngine::Core
 {
-
+	/*
+	* @brief Error codes for graphics.
+	*/
+	enum class GraphicsError
+	{
+		Success,
+	};
 }

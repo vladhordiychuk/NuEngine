@@ -3,10 +3,14 @@
 // Unauthorized copying or use of this file is strictly prohibited.
 
 #pragma once
+
 #include <chrono>
 
 namespace Engine::Core
 {
+	/*
+	* 
+	*/
 	class Timer
 	{
 	public:
