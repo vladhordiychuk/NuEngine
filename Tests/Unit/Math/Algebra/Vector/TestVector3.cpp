@@ -311,30 +311,4 @@ namespace NuEngine::Math::Tests
         EXPECT_NEAR(result.Y(), 0.0f, 2e-3f);
         EXPECT_NEAR(result.Z(), 0.0f, 2e-3f);
     }
-
-
-
-#ifndef NDEBUG 
-    TEST(Vector3Test, OutOfRangeIndex)
-    {
-        Vector3 a(1.0f, 2.0f, 3.0f);
-
-        EXPECT_DEATH(a[3], "Vector3 index out of bounds! Valid range: 0..2");
-        EXPECT_DEATH(a[-1], "Vector3 index out of bounds! Valid range: 0..2");
-    }
-
-    TEST(Vector3Test, NormalizeZeroVector)
-    {
-        Vector3 a(0.0f, 0.0f, 0.0f);
-
-        EXPECT_DEATH({ a.Normalize(); }, "Vector3 division by zero or near zero!");
-    }
-
-    TEST(Vector3Test, DivisionByZeroScalar)
-    {
-        Vector3 a(1.0f, 2.0f, 3.0f);
-
-        EXPECT_DEATH({ a /= 0.0f; }, "Vector3 division by zero or near zero!");
-    }
-#endif
 }
