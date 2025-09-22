@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Math/Detail/SIMD/SIMDBackend.hpp>
+#include <Math/Algebra/Matrix/MatrixAPI.hpp>
 #include <Math/Algebra/Vector/Vector3.hpp>
 
 namespace NuEngine::Math

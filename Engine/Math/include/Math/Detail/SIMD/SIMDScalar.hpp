@@ -477,12 +477,26 @@ namespace NuEngine::Math::Simd_Scalar
 	}
 
 	//copydoc NuEngine::Math::MatrixAPI::CreateTranslation
-	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateTranslation(const NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateTranslation(const NuVec4& translation) noexcept
 	{
 		NuMat4 result = SetIdentityMatrix4x4();
-		result.mat[0][3] = v.x;
-		result.mat[1][3] = v.y;
-		result.mat[2][3] = v.z;
+
+		result.mat[0][3] = translation.x;
+		result.mat[1][3] = translation.y;
+		result.mat[2][3] = translation.z;
+
+		return result;
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::CreateScale
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateScale(const NuVec4& scale) noexcept
+	{
+		NuMat4 result = SetIdentityMatrix4x4();
+
+		result.mat[3][0] = scale.x;
+		result.mat[3][1] = scale.y;
+		result.mat[3][2] = scale.z;
+
 		return result;
 	}
 
@@ -600,12 +614,6 @@ namespace NuEngine::Math::Simd_Scalar
 			m.mat[2][0] * v.x + m.mat[2][1] * v.y + m.mat[2][2] * v.z,
 			0.0f,
 		};
-	}
-
-	// \copydoc NuEngine::Math::MatrixAPI::Determinant
-	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat3& m) noexcept
-	{
-
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
@@ -731,12 +739,6 @@ namespace NuEngine::Math::Simd_Scalar
 		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y;
 
 		return result;
-	}
-
-	// \copydoc NuEngine::Math::MatrixAPI::Determinant
-	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat2& m) noexcept
-	{
-
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::GetRow

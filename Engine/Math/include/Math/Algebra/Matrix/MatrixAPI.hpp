@@ -64,9 +64,19 @@ namespace NuEngine::Math::MatrixAPI
 	using Simd::Determinant;
 
 	/*
+	* 
+	*/
+	using Simd::Inverse;
+
+	/*
 	*
 	*/
 	using Simd::CreateTranslation;
+
+	/*
+	* 
+	*/
+	using Simd::CreateScale;
 
 	/*
 	*

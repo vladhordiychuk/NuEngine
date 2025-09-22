@@ -154,7 +154,7 @@ namespace NuEngine::Math
 		*/
 		[[nodiscard]] NU_FORCEINLINE Matrix4x4 Inverse() const noexcept
 		{
-
+			return Matrix4x4(MatrixAPI::Inverse(m_data));
 		}
 
 		/*
@@ -162,7 +162,7 @@ namespace NuEngine::Math
 		*/
 		[[nodiscard]] static Matrix4x4 CreateTranslation(const Vector3& translation) noexcept
 		{
-
+			return Matrix4x4(MatrixAPI::CreateTranslation(translation));
 		}
 
 		/*

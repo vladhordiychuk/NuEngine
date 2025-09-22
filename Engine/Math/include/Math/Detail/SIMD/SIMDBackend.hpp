@@ -57,4 +57,4 @@
     #endif
 #endif
 
-#endif // SIMD_DISPATCH_HPP
+#endif
