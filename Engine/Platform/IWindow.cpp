@@ -10,17 +10,17 @@
 
 namespace NuEngine::Platform
 {
-    std::unique_ptr<IWindow> CreatePlatformWindow()
+    NuEngine::Core::Result<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>
+        CreatePlatformWindow() noexcept
     {
 #if defined(_WIN32)
-        return std::make_unique<WindowWin32>();
+        return NuEngine::Core::Ok<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>(std::make_unique<WindowWin32>());
 #elif defined(__linux__)
-        return std::make_unique<WindowX11>();
+        return NuEngine::Core::Ok<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>(std::make_unique<WindowX11>());
 #elif defined(__APPLE__)
-        return std::make_unique<WindowCocoa>();
+        return NuEngine::Core::Ok<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>(std::make_unique<WindowCocoa>());
 #else
-        #error "Unsupported platform!"
+        return NuEngine::Core::Err<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>(Core::WindowError::PlatformFailure);
 #endif
     }
 }
-
