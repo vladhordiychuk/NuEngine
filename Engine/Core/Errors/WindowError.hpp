@@ -24,7 +24,7 @@ namespace NuEngine::Core
         VulkanSurfaceFailed     // Vulkan surface creation failed.
     };
 
-    NU_FORCEINLINE std::string ToString(WindowError error) {
+    [[nodiscard]] NU_FORCEINLINE std::string ToString(WindowError error) {
         switch (error)
         {
             case WindowError::Success: return "Success";

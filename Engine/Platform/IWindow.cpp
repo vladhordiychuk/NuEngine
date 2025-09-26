@@ -10,8 +10,7 @@
 
 namespace NuEngine::Platform
 {
-    NuEngine::Core::Result<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>
-        CreatePlatformWindow() noexcept
+    NuEngine::Core::Result<std::unique_ptr<IWindow>, NuEngine::Core::WindowError> CreatePlatformWindow() noexcept
     {
 #if defined(_WIN32)
         return NuEngine::Core::Ok<std::unique_ptr<IWindow>, NuEngine::Core::WindowError>(std::make_unique<WindowWin32>());

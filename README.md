@@ -31,18 +31,18 @@
 
 ---
 
-### 🛣️ Дорожня карта
+## 🛣️ Дорожня карта
 
-## 🛣️ Дорожня карта / Roadmap
 
-| Модуль | Пріоритет | Очікуване завершення | Коментар |
-|--------|-----------|-------------------|----------|
-| ECS (Entity Component System) | Середній | Q1 2026 | Основна структура для ігор, дозволить керувати об’єктами |
-| Графічний модуль (Vulkan/DirectX 12) | Високий | Q2 2026 | Перші сцени з рендерингом куба та моделей |
-| Фізика (PhysX або власна) | Середній | Q3 2026 | Колізії, рух об’єктів, інтеграція з ECS |
-| Редактор рівнів (Qt) | Низький | Q4 2026 | Інструмент для швидкого створення сцен і рівнів |
-| AI-поведінка | Середній | Q2 2027 | Патрулі, взаємодія NPC, реакція на події |
-
+| Модуль | Пріоритет | Очікуване завершення | Статус | Коментар |
+|--------|-----------|-------------------|--------|----------|
+| SIMD Math Library | Високий | Завершено | ✅ | Повна підтримка Vector, Matrix, Quaternion, Transform |
+| Кросплатформене вікно | Високий | Завершено | ✅ | Windows готово, Linux в процесі |
+| ECS (Entity Component System) | Середній | Q1 2026 | 🚧 | Основна структура для об’єктів і компонентів |
+| Графічний модуль (Vulkan/DirectX 12) | Високий | Q2 2026 | ⬜ | Перші сцени з рендерингом куба та моделей |
+| Фізика (PhysX або власна) | Середній | Q3 2026 | ⬜ | Колізії, рух об’єктів, інтеграція з ECS |
+| Редактор рівнів (Qt) | Низький | Q4 2026 | ⬜ | Інструмент для швидкого створення сцен і рівнів |
+| AI-поведінка | Середній | Q2 2027 | ⬜ | Патрулі, взаємодія NPC, реакція на події |
 
 ---
 
@@ -156,18 +156,18 @@ The math library is built around a low-level `Simd::` API, abstracting `__m128` 
 
 ---
 
-### 🛣️ Roadmap
+## 🛣️ Roadmap
 
-- [x] SIMD Math Library
-- [x] Cross-Platform Windowing (Windows)
-- [x] Logger
-- [x] Error Handling
-- [x] File System
-- [ ] Entity Component System (ECS)
-- [ ] Graphics Module (Vulkan/DirectX 12)
-- [ ] Physics Integration (PhysX or custom)
-- [ ] Level Editor (Qt-based)
-- [ ] AI Behavior System
+| Module | Priority | Expected Completion | Status | Comments |
+|--------|---------|-------------------|--------|----------|
+| SIMD Math Library | High | Completed | ✅ | Full support for Vector, Matrix, Quaternion, Transform |
+| Cross-Platform Window | High | Completed | ✅ | Windows ready, Linux in progress |
+| ECS (Entity Component System) | Medium | Q1 2026 | 🚧 | Core structure for objects and components |
+| Graphics Module (Vulkan/DirectX 12) | High | Q2 2026 | ⬜ | First scenes with cube and model rendering |
+| Physics (PhysX or custom) | Medium | Q3 2026 | ⬜ | Collisions, object movement, integration with ECS |
+| Level Editor (Qt) | Low | Q4 2026 | ⬜ | Tool for quickly creating scenes and levels |
+| AI Behavior | Medium | Q2 2027 | ⬜ | Patrols, NPC interaction, reaction to events |
+
 
 ---
 

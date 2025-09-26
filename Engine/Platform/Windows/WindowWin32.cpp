@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <chrono>
+#include <iostream>
 
 namespace NuEngine::Platform
 {
@@ -26,11 +27,17 @@ namespace NuEngine::Platform
     NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Initialize(const WindowConfig& config)
     {
         if (m_IsInitialized) {
+            std::cerr << "Window already initialized" << std::endl;
             return Err(NuEngine::Core::WindowError::AlreadyInitialized);
         }
 
         m_Config = config;
         m_HInstance = GetModuleHandle(nullptr);
+        std::cerr << "WindowConfig: title=" << m_Config.GetTitle()
+            << ", width=" << m_Config.GetWidth()
+            << ", height=" << m_Config.GetHeight()
+            << ", resizable=" << m_Config.IsResizable()
+            << ", decorated=" << m_Config.IsDecorated() << std::endl;
 
         WNDCLASSEX wc{};
         wc.cbSize = sizeof(WNDCLASSEX);
@@ -41,11 +48,15 @@ namespace NuEngine::Platform
         wc.lpszClassName = L"NuEngineWindowClass";
 
         if (!RegisterClassEx(&wc)) {
+            std::cerr << "RegisterClassEx failed: " << GetLastError() << std::endl;
             return Err(NuEngine::Core::WindowError::PlatformFailure);
         }
 
-        // Конвертація заголовка в UTF-16
         int len = MultiByteToWideChar(CP_UTF8, 0, m_Config.GetTitle().c_str(), -1, nullptr, 0);
+        if (len == 0) {
+            std::cerr << "MultiByteToWideChar failed: " << GetLastError() << std::endl;
+            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        }
         std::wstring wideTitle(len, 0);
         MultiByteToWideChar(CP_UTF8, 0, m_Config.GetTitle().c_str(), -1, &wideTitle[0], len);
 
@@ -53,11 +64,11 @@ namespace NuEngine::Platform
         if (!m_Config.IsResizable()) style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
         if (!m_Config.IsDecorated()) style = WS_POPUP;
 
-        // Налаштування розміру для клієнтської області
         RECT rect{ 0, 0, static_cast<LONG>(m_Config.GetWidth()), static_cast<LONG>(m_Config.GetHeight()) };
         AdjustWindowRect(&rect, style, FALSE);
         int totalWidth = rect.right - rect.left;
         int totalHeight = rect.bottom - rect.top;
+        std::cerr << "Creating window with width=" << totalWidth << ", height=" << totalHeight << std::endl;
 
         m_HWND = CreateWindowEx(
             0,
@@ -70,6 +81,7 @@ namespace NuEngine::Platform
         );
 
         if (!m_HWND) {
+            std::cerr << "CreateWindowEx failed: " << GetLastError() << std::endl;
             return Err(NuEngine::Core::WindowError::PlatformFailure);
         }
 
@@ -77,6 +89,7 @@ namespace NuEngine::Platform
 
         m_HDC = GetDC(m_HWND);
         if (!m_HDC) {
+            std::cerr << "GetDC failed: " << GetLastError() << std::endl;
             DestroyWindow(m_HWND);
             m_HWND = nullptr;
             return Err(NuEngine::Core::WindowError::PlatformFailure);
@@ -84,6 +97,7 @@ namespace NuEngine::Platform
 
         m_IsOpen = true;
         m_IsInitialized = true;
+        std::cerr << "Window initialized successfully" << std::endl;
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
     }
 
@@ -118,14 +132,17 @@ namespace NuEngine::Platform
     NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Show()
     {
         if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
-        }
-    
-        ShowWindow(m_HWND, SW_SHOW);
-        if (!UpdateWindow(m_HWND)) {
+            std::cerr << "ShowWindow failed: HWND is null" << std::endl;
             return Err(NuEngine::Core::WindowError::PlatformFailure);
         }
 
+        ShowWindow(m_HWND, SW_SHOW);
+        if (!UpdateWindow(m_HWND)) {
+            std::cerr << "UpdateWindow failed: " << GetLastError() << std::endl;
+            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        }
+
+        std::cerr << "Window shown successfully" << std::endl;
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
     }
 
@@ -176,9 +193,17 @@ namespace NuEngine::Platform
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
     }
 
-    void* WindowWin32::GetNativeHandle() const
+    void* WindowWin32::GetNativeHandle(NativeHandleType type) const
     {
-        return m_HWND;
+        switch (type)
+        {
+        case NativeHandleType::Window:
+            return m_HWND; 
+        case NativeHandleType::Display:
+            return m_HDC;
+        default:
+            return nullptr;
+        }
     }
 
     WindowConfig WindowWin32::GetConfig() const
@@ -199,13 +224,13 @@ namespace NuEngine::Platform
     NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetTitle(const std::string& title)
     {
         if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
         }
         int len = MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, nullptr, 0);
         std::wstring wideTitle(len, 0);
         MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, &wideTitle[0], len);
         if (!SetWindowText(m_HWND, wideTitle.c_str())) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
         }
         m_Config.SetTitle(title);
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
@@ -214,13 +239,13 @@ namespace NuEngine::Platform
     NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetSize(NuInt32 width, NuInt32 height)
     {
         if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
         }
         RECT rect{ 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
         DWORD style = GetWindowLong(m_HWND, GWL_STYLE);
         AdjustWindowRect(&rect, style, FALSE);
         if (!SetWindowPos(m_HWND, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER)) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
         }
         m_Config.SetSize(width, height);
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
@@ -236,7 +261,7 @@ namespace NuEngine::Platform
         DWORD style = GetWindowLong(m_HWND, GWL_STYLE);
         AdjustWindowRect(&rect, style, FALSE);
         if (!SetWindowPos(m_HWND, nullptr, x - rect.left, y - rect.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER)) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
         }
         m_Config.SetPosition(x, y);
         return NuEngine::Core::Ok<NuEngine::Core::WindowError>();

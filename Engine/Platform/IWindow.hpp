@@ -16,6 +16,12 @@ namespace NuEngine::Platform
     using NuInt32 = NuEngine::Core::Types::NuInt32;
     using NuBool = NuEngine::Core::Types::NuBool;
 
+    enum class NativeHandleType
+    {
+        Window,   // HWND / X11Window / NSWindow
+        Display,  // HDC / X11Display / NSView
+    };
+
     /*
     * @brief Abstract interface for platform-specific window management.
     *
@@ -87,7 +93,7 @@ namespace NuEngine::Platform
         *
         * @return void* Pointer to the native window handle (e.g., HWND on Windows, Window on X11).
         */
-        virtual void* GetNativeHandle() const = 0;
+        virtual void* GetNativeHandle(NativeHandleType type) const = 0;
 
         /*
         * @brief Gets the current window configuration.

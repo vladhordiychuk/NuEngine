@@ -2,13 +2,12 @@
 // All rights reserved.
 // Unauthorized copying or use of this file is strictly prohibited.
 
-namespace NuEngine::Core
-{
-	class ResourceManager
-	{
-	public:
+#pragma once
 
-	private:
+namespace NuEngine::Graphics
+{
+	class GraphicsDevice
+	{
 
 	};
 }

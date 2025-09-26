@@ -79,7 +79,7 @@ namespace NuEngine::Platform
         *
         * @return void* The HWND pointer.
         */
-        void* GetNativeHandle() const override;
+        void* GetNativeHandle(NativeHandleType type) const override;
 
         /*
         * @brief Gets the current window configuration.

@@ -27,7 +27,7 @@ namespace NuEngine::Core
         PlatformFailure,            // Platform-specific API error.
     };
 
-    inline std::string ToString(FileSystemError error) {
+    [[nodiscard]] NU_FORCEINLINE std::string ToString(FileSystemError error) {
         switch (error)
         {
             case FileSystemError::Success: return "Success";

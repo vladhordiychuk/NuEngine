@@ -8,6 +8,7 @@
 #include <Core/IO/FileSystem.hpp>
 #include <Core/Types/Result.hpp>
 #include <Core/Errors/WindowError.hpp>
+#include <Graphics/OpenGL/OpenGLContext.hpp>
 
 #include <Platform/IWindow.hpp>
 
@@ -16,6 +17,8 @@
 namespace NuEngine::Core
 {
     using NuBool = NuEngine::Core::Types::NuBool;
+    using NuFloat = NuEngine::Core::Types::NuFloat;
+    using NuInt32 = NuEngine::Core::Types::NuInt32;
 
     /*
     * @brief The main class of the program that manages the lifecycle of the game engine.
@@ -62,10 +65,11 @@ namespace NuEngine::Core
         *
         * @return true if the loop should continue, otherwise false.
         */
-        [[nodiscard]] NuBool MainLoop() const noexcept;
+        [[nodiscard]] NuBool MainLoop() noexcept;
 
-        NuBool m_isRunning = false;     // Program work status.
-        std::unique_ptr<Platform::IWindow> m_window;   // Pointer to platform-dependent window.
-        FileSystem m_fileSystem;        // File system for working with resources.
+        NuBool m_isRunning = false;                                         // Program work status.
+        std::unique_ptr<Platform::IWindow> m_window;                        // Pointer to platform-dependent window.
+        std::unique_ptr<Graphics::OpenGL::OpenGLContext> m_glContext;       // Pointer to OpenGL context
+        FileSystem m_fileSystem;                                            // File system for working with resources.
     };
 }
