@@ -42,37 +42,37 @@ namespace NuEngine::Platform
         * @param config The configuration parameters (e.g., title, size, VSync).
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError> Initialize(const WindowConfig& config) override;
+        Core::Result<void, Core::WindowError> Initialize(const WindowConfig& config) override;
 
         /*
         * @brief Shuts down the window and releases Win32 resources (e.g., DC, HWND).
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  Shutdown() override;
+        Core::Result<void, Core::WindowError>  Shutdown() override;
 
         /*
         * @brief Makes the window visible using ShowWindow API.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  Show() override;
+        Core::Result<void, Core::WindowError>  Show() override;
 
         /*
         * @brief Hides the window using ShowWindow API.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  Hide() override;
+        Core::Result<void, Core::WindowError>  Hide() override;
 
         /*
         * @brief Sets focus to the window using SetFocus and SetForegroundWindow APIs.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  Focus() override;
+        Core::Result<void, Core::WindowError>  Focus() override;
 
         /*
         * @brief Processes pending Win32 messages using PeekMessage and DispatchMessage.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  ProcessEvents() override;
+        Core::Result<void, Core::WindowError>  ProcessEvents() override;
 
         /*
         * @brief Swaps buffers for rendering (placeholder for OpenGL SwapBuffers).
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  SwapBuffers() override;
+        Core::Result<void, Core::WindowError>  SwapBuffers() override;
 
         /*
         * @brief Retrieves the native HWND handle.
@@ -100,14 +100,14 @@ namespace NuEngine::Platform
         *
         * @return NuBool True if the window has focus.
         */
-        NuEngine::Core::NuBool IsFocused() const override;
+        Core::NuBool IsFocused() const override;
 
         /*
         * @brief Sets the window title using SetWindowText API.
         *
         * @param title The new title string.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  SetTitle(const std::string& title) override;
+        Core::Result<void, Core::WindowError>  SetTitle(const std::string& title) override;
 
         /*
         * @brief Sets the window size using SetWindowPos API.
@@ -115,7 +115,7 @@ namespace NuEngine::Platform
         * @param width The new width in pixels.
         * @param height The new height in pixels.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  SetSize(NuInt32 width, NuInt32 height) override;
+        Core::Result<void, Core::WindowError>  SetSize(NuInt32 width, NuInt32 height) override;
 
         /*
         * @brief Sets the window position using SetWindowPos API.
@@ -123,14 +123,14 @@ namespace NuEngine::Platform
         * @param x The x-coordinate.
         * @param y The y-coordinate.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  SetPosition(NuInt32 x, NuInt32 y) override;
+       Core::Result<void, Core::WindowError>  SetPosition(NuInt32 x, NuInt32 y) override;
 
         /*
         * @brief Sets VSync state (stored in config; actual implementation depends on graphics API).
         *
         * @param vsync True to enable VSync.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  SetVSync(NuBool vsync) override;
+        Core::Result<void, Core::WindowError>  SetVSync(NuBool vsync) override;
 
         /*
         * @brief Retrieves the event system for handling window events.
@@ -171,7 +171,7 @@ namespace NuEngine::Platform
         *
         * @param event The unique pointer to the event.
         */
-        NuEngine::Core::Result<void, NuEngine::Core::WindowError>  PushWindowEvent(std::unique_ptr<WindowEvent> event);
+        Core::Result<void, Core::WindowError>  PushWindowEvent(std::unique_ptr<WindowEvent> event);
 
         HWND m_HWND = nullptr;              //!< Native Win32 window handle.
         HDC m_HDC = nullptr;                //!< Device context for rendering.

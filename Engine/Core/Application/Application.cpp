@@ -1,22 +1,19 @@
 #include <Core/Application/Application.hpp>
 #include <Core/Logging/Logger.hpp>
-#include <Core/Timer/Time.hpp>
 #include <Platform/IWindow.hpp>
-#include <Graphics/OpenGL/OpenGLContext.hpp>
-
-#include <glad/glad.h>
+#include <Graphics/Abstractions/GraphicsFactory.hpp>
 
 namespace NuEngine::Core
 {
-    Application::Application()
+    Application::Application() noexcept
         : m_fileSystem("res/")
         , m_window(nullptr)
-        , m_glContext(nullptr)
+        , m_pipeline(nullptr)
         , m_isRunning(false)
     {
     }
 
-    Application::~Application()
+    Application::~Application() noexcept
     {
         if (m_isRunning)
         {
@@ -38,43 +35,34 @@ namespace NuEngine::Core
         }
         m_window = std::move(windowResult.Unwrap());
 
-        std::cerr << "Initializing window..." << std::endl;
         NuEngine::Platform::WindowConfig config;
-        config.SetTitle("NuEngine Window");
+        config.SetTitle("NuEngine");
         config.SetSize(1280, 720);
         config.SetResizable(true);
         config.SetDecorated(true);
+
         auto initResult = m_window->Initialize(config);
-        if (initResult.IsError()) 
-        {
+        if (initResult.IsError())
             return Err(initResult.UnwrapError());
-        }
 
         auto showResult = m_window->Show();
         if (showResult.IsError())
-        {
-            LOG_ERROR("Failed to show window: {}", ToString(showResult.UnwrapError()));
             return Err(showResult.UnwrapError());
-        }
 
-        auto glContextResult = Graphics::OpenGL::CreatePlatformOpenGLContext(m_window.get());
-        if (glContextResult.IsError())
+        auto deviceResult = Graphics::GraphicsFactory::CreateDevice(Graphics::GraphicsAPI::OpenGL, m_window.get());
+        if (deviceResult.IsError())
         {
-            LOG_ERROR("Failed to create OpenGL context: {}", ToString(glContextResult.UnwrapError()));
+            LOG_ERROR("Failed to create render device: {}", ToString(deviceResult.UnwrapError()));
             return Err(WindowError::PlatformFailure);
         }
-        m_glContext = std::move(glContextResult.Unwrap());
 
-        auto glInitResult = m_glContext->Initialize();
-        if (glInitResult.IsError())
-        {
-            LOG_ERROR("Failed to initialize OpenGL context: {}", ToString(glInitResult.UnwrapError()));
-            return Err(WindowError::PlatformFailure);
-        }
+        m_renderDevice = std::move(deviceResult.Unwrap());
+
+        m_pipeline = std::make_unique<Renderer::ForwardPipeline>(m_renderDevice.get());
 
         m_isRunning = true;
         LOG_INFO("Application initialized successfully");
-        return NuEngine::Core::Ok<WindowError>();
+        return Ok<WindowError>();
     }
 
     Result<void, WindowError> Application::Run() noexcept
@@ -98,11 +86,11 @@ namespace NuEngine::Core
     {
         m_isRunning = false;
 
-        m_glContext.reset();
+        m_pipeline.reset();
         m_window.reset();
 
         LOG_INFO("Application shutdown successfully");
-        return NuEngine::Core::Ok<WindowError>();
+        return Ok<WindowError>();
     }
 
     NuBool Application::MainLoop() noexcept
@@ -117,24 +105,16 @@ namespace NuEngine::Core
             }
         }
 
-        auto makeCurrentResult = m_glContext->MakeCurrent();
-        if (makeCurrentResult.IsError())
+        if (m_pipeline)
         {
-            LOG_ERROR("Failed to make OpenGL context current: {}", ToString(makeCurrentResult.UnwrapError()));
-            return false;
-        }
-
-        glClearColor(0.1f, 0.3f, 0.7f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        auto swapResult = m_glContext->SwapBuffers();
-        if (swapResult.IsError())
-        {
-            LOG_ERROR("Failed to swap buffers: {}", ToString(swapResult.UnwrapError()));
-            return false;
+            auto renderResult = m_pipeline->Render();
+            if (renderResult.IsError())
+            {
+                LOG_ERROR("Rendering failed: {}", ToString(renderResult.UnwrapError()));
+                return false;
+            }
         }
 
         return true;
     }
-
 }

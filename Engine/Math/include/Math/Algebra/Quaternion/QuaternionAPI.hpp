@@ -2,7 +2,11 @@
 // All rights reserved.
 // Unauthorized copying or use of this file is strictly prohibited.
 
-namespace NuEngine::Math
+#pragma once
+
+#include <Math/Detail/SIMD/SIMDBackend.hpp>
+
+namespace NuEngine::Math::QuaternionAPI
 {
 
 }

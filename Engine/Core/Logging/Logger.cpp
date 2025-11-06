@@ -21,7 +21,7 @@
 
 namespace NuEngine::Core
 {
-    NuEngine::Core::Result<void, NuEngine::Core::FileSystemError> Logger::Init(const std::string& logFilePath) noexcept
+    Result<void, FileSystemError> Logger::Init(const std::string& logFilePath) noexcept
     {
         FileSystem fs("logs/");
         if (!fs.FileExists(logFilePath))
@@ -36,9 +36,9 @@ namespace NuEngine::Core
         s_logFile.open(logFilePath, std::ios::out | std::ios::app);
         if (!s_logFile.is_open())
         {
-            return Err(NuEngine::Core::FileSystemError::WriteFailed);
+            return Err(FileSystemError::WriteFailed);
         }
-        return NuEngine::Core::Ok<FileSystemError>();
+        return Ok<FileSystemError>();
     }
 
     void Logger::Shutdown() noexcept

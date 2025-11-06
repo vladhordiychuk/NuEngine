@@ -1,5 +1,10 @@
 # NuEngine
 
+![C++](https://img.shields.io/badge/C++-17/20-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
+![Status](https://img.shields.io/badge/Status-In%20Development-orange.svg)
+![License](https://img.shields.io/badge/License-Proprietary-red.svg)
+
 ## 🌐 Мови | Languages
 
 - 🇺🇦 [Українська](#українська)
@@ -13,26 +18,24 @@
 
 > 🚧 В розробці: кастомний C++ рушій для 3D-ігор з підтримкою SIMD-оптимізованої математики, кросплатформенного створення вікон та майбутньої AI-поведінки у постапокаліптичному світі.
 
+---
+
 ## ⚙️ Реалізовані підсистеми
 
-На даному етапі NuEngine включає такі готові підсистеми:
- - SIMD-математика: високопродуктивна бібліотека на основі SSE, аналогічна DirectXMath, з підтримкою:
-    - ✅ Вектори (Vector2, Vector3, Vector4)
-    - ✅ Матриці (Matrix4x4: множення, транспонування, обернення, Determinant, LookAt, Perspective, Decompose)
-    - ✅ Кватерніони (повороти, Slerp, Normalize, ToMatrix)
-    - ✅ Трансформації (Transform, Scale, Rotate, Translate)
-    - ✅ SIMD-операції (додавання, віднімання, множення, dot/cross product, порівняння)
- - Кросплатформенна віконна система: створення та керування вікнами (підтримка Windows, Linux у процесі).
- - Логер: гнучка система логування для дебагу та відстеження помилок.
- - Обробка помилок: надійна система винятків і перевірок.
- - Файлова система: кросплатформенний ввід/вивід файлів для роботи з ресурсами.
- - Тестування: юніт-тести та бенчмарки для перевірки коректності математики й ядра.
-Математична бібліотека побудована навколо low-level API Simd::, який абстрагує роботу з __m128 для зручності та безпеки.
+NuEngine побудований на модульній архітектурі. Кожен ключовий компонент розробляється як незалежна підсистема з власним API та документацією.
+
+| Модуль | Директорія | Опис | Документація |
+|---|---|---|---|
+| **Math** | `Engine/Math/` | Високопродуктивна SIMD (SSE) математична бібліотека. | [**README.md**](Engine/Math/README.md) |
+| **Core** | `Engine/Core/` | Фундаментальні сервіси: логер, ФС, обробка помилок, Application. | [README.md](Engine/Core/README.md) |
+| **Platform** | `Engine/Platform/` | Абстракція над ОС: створення вікон та обробка вводу (Win32, Linux). | [README.md](Engine/Platform/README.md) |
+| **Graphics** | `Engine/Graphics/` | (В розробці) Абстракції рендерингу (Vulkan, DX12). | [README.md](Engine/Graphics/README.md) |
+| **ECS** | `Engine/ECS/` | (В розробці) Система компонентів-сутностей. | [README.md](Engine/ECS/README.md) |
+| **Tests** | `Tests/` | Unit-тести та бенчмарки для всіх підсистем. | [README.md](Tests/README.md) |
 
 ---
 
 ## 🛣️ Дорожня карта
-
 
 | Модуль | Пріоритет | Очікуване завершення | Статус | Коментар |
 |--------|-----------|-------------------|--------|----------|
@@ -136,23 +139,20 @@ cmake ..
 
 > 🚧 In development: a custom C++ game engine with SIMD-powered math, cross-platform windowing, and future AI behavior support for a post-apocalyptic world.
 
+---
+
 ## ⚙️ Implemented Subsystems
 
-NuEngine currently features the following production-ready subsystems:
+NuEngine is built on a modular architecture. Each key component is developed as an independent subsystem with its own API and documentation.
 
-- **SIMD Math Library**: High-performance math based on **SSE**, similar to `DirectXMath`, with support for:
-  - ✅ Vectors (`Vector2`, `Vector3`, `Vector4`)
-  - ✅ Matrices (`Matrix4x4`: multiplication, transposition, inversion, `Determinant`, `LookAt`, `Perspective`, `Decompose`)
-  - ✅ Quaternions (rotations, `Slerp`, `Normalize`, `ToMatrix`)
-  - ✅ Transformations (`Transform`, `Scale`, `Rotate`, `Translate`)
-  - ✅ SIMD operations (addition, subtraction, multiplication, dot/cross product, comparisons)
-- **Cross-Platform Windowing**: Window creation and management (Windows supported, Linux in progress).
-- **Logger**: Flexible logging system for debugging and error tracking.
-- **Error Handling**: Robust error handling with custom exceptions and assertions.
-- **File System**: Cross-platform file I/O for resource management.
-- **Testing Framework**: Unit tests and benchmarks for validating math and core functionality.
-
-The math library is built around a low-level `Simd::` API, abstracting `__m128` for safety and ease of use.
+| Module | Directory | Description | Documentation |
+|---|---|---|---|
+| **Math** | `Engine/Math/` | High-performance SIMD (SSE) math library. | [**README.md**](Engine/Math/README.md) |
+| **Core** | `Engine/Core/` | Fundamental services: Logger, FS, Error Handling, Application. | [README.md](Engine/Core/README.md) |
+| **Platform** | `Engine/Platform/` | OS abstraction: Windowing and Input (Win32, Linux). | [README.md](Engine/Platform/README.md) |
+| **Graphics** | `Engine/Graphics/` | (In development) Rendering abstractions (Vulkan, DX12). | [README.md](Engine/Graphics/README.md) |
+| **ECS** | `Engine/ECS/` | (In development) Entity Component System. | [README.md](Engine/ECS/README.md) |
+| **Tests** | `Tests/` | Unit tests and benchmarks for all subsystems. | [README.md](Tests/README.md) |
 
 ---
 
@@ -167,7 +167,6 @@ The math library is built around a low-level `Simd::` API, abstracting `__m128` 
 | Physics (PhysX or custom) | Medium | Q3 2026 | ⬜ | Collisions, object movement, integration with ECS |
 | Level Editor (Qt) | Low | Q4 2026 | ⬜ | Tool for quickly creating scenes and levels |
 | AI Behavior | Medium | Q2 2027 | ⬜ | Patrols, NPC interaction, reaction to events |
-
 
 ---
 

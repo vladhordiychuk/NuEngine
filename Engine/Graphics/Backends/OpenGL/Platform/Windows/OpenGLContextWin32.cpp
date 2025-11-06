@@ -1,9 +1,10 @@
-#include <Platform/Windows/OpenGLContextWin32.hpp>
-#include <Graphics/OpenGL/OpenGLLoader.hpp>
+#include <Graphics/Backends/OpenGL/Platform/Windows/OpenGLContextWin32.hpp>
+#include <Graphics/Backends/OpenGL/Loader/OpenGLLoader.hpp>
+#include <Platform/IWindow.hpp> 
 
-namespace NuEngine::Platform
+namespace NuEngine::Graphics::OpenGL
 {
-	OpenGLContextWin32::OpenGLContextWin32(IWindow* window)
+	OpenGLContextWin32::OpenGLContextWin32(Platform::IWindow* window)
 		: m_Window(window)
 		, m_HDC(nullptr)
 		, m_Context(nullptr)
@@ -19,17 +20,17 @@ namespace NuEngine::Platform
 		}
 	}
 
-	NuEngine::Core::Result<void, NuEngine::Core::GraphicsError> OpenGLContextWin32::Initialize()
+	Core::Result<void, Core::GraphicsError> OpenGLContextWin32::Initialize() noexcept
 	{
 		if (!m_Window)
 		{
-			return NuEngine::Core::Err(NuEngine::Core::GraphicsError::InvalidWindow);
+			return Core::Err(Core::GraphicsError::InvalidWindow);
 		}
 
-		m_HDC = static_cast<HDC>(m_Window->GetNativeHandle(NativeHandleType::Display));
+		m_HDC = static_cast<HDC>(m_Window->GetNativeHandle(Platform::NativeHandleType::Display));
 		if (!m_HDC)
 		{
-			return NuEngine::Core::Err(NuEngine::Core::GraphicsError::InvalidWindow);
+			return Core::Err(Core::GraphicsError::InvalidWindow);
 		}
 
 		PIXELFORMATDESCRIPTOR pfd = {};
@@ -44,30 +45,30 @@ namespace NuEngine::Platform
 
 		int pixelFormat = ChoosePixelFormat(m_HDC, &pfd);
 		if (pixelFormat == 0)
-			return Err(NuEngine::Core::GraphicsError::ContextCreationFailed);
+			return Err(Core::GraphicsError::ContextCreationFailed);
 
 		if (!SetPixelFormat(m_HDC, pixelFormat, &pfd))
-			return Err(NuEngine::Core::GraphicsError::ContextCreationFailed);
+			return Err(Core::GraphicsError::ContextCreationFailed);
 
 		m_Context = wglCreateContext(m_HDC);
 		if (!m_Context)
 		{
-			return NuEngine::Core::Err(NuEngine::Core::GraphicsError::ContextCreationFailed);
+			return Core::Err(Core::GraphicsError::ContextCreationFailed);
 		}
 
 		if (!wglMakeCurrent(m_HDC, m_Context))
 		{
-			return NuEngine::Core::Err(NuEngine::Core::GraphicsError::ContextCreationFailed);
+			return Core::Err(Core::GraphicsError::ContextCreationFailed);
 		}
 
 		return Graphics::OpenGL::OpenGLLoader::LoadFunctions();
 	}
 
-	NuEngine::Core::Result<void, NuEngine::Core::GraphicsError> OpenGLContextWin32::SwapBuffers()
+	Core::Result<void, Core::GraphicsError> OpenGLContextWin32::SwapBuffers() noexcept
 	{
 		if (!m_Window)
 		{
-			return NuEngine::Core::Err(NuEngine::Core::GraphicsError::InvalidWindow);
+			return Core::Err(Core::GraphicsError::InvalidWindow);
 		}
 
 		auto result = m_Window->SwapBuffers();
@@ -79,7 +80,7 @@ namespace NuEngine::Platform
 		return NuEngine::Core::Ok<NuEngine::Core::GraphicsError>();
 	}
 
-	NuEngine::Core::Result<void, NuEngine::Core::GraphicsError> OpenGLContextWin32::MakeCurrent()
+	NuEngine::Core::Result<void, NuEngine::Core::GraphicsError> OpenGLContextWin32::MakeCurrent() noexcept
 	{
 		if (!m_Context)
 		{

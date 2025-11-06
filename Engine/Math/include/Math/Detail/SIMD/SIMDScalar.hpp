@@ -10,7 +10,7 @@
 
 #include <Core/Types/Types.hpp>
 
-namespace NuEngine::Math::Simd_Scalar
+namespace NuEngine::Math::Scalar
 {
 	using NuInt32 = NuEngine::Core::Types::NuInt32;
 	using NuFloat = NuEngine::Core::Types::NuFloat;
@@ -34,34 +34,34 @@ namespace NuEngine::Math::Simd_Scalar
 	/*
 	* @brief 4x4 matrix type with 16-byte alignment.
 	*
-	* Represents a row-major 4x4 matrix stored in a 2D array.
+	* Represents a column-major 4x4 matrix stored as an array of 4 column vectors.
 	* The structure is aligned to 16 bytes for optimal SIMD operations.
 	*/
 	struct alignas(16) NuMat4
 	{
-		NuFloat mat[4][4];
+		NuVec4 cols[4];
 	};
-	
+
 	/*
 	* @brief 3x3 matrix type with 16-byte alignment.
 	*
-	* Represents a row-major 3x3 matrix stored in a 2D array.
+	* Represents a column-major 3x3 matrix stored as an array of 3 column vectors.
 	* The structure is aligned to 16 bytes for optimal SIMD operations.
 	*/
 	struct alignas(16) NuMat3
 	{
-		NuFloat mat[3][3];
+		NuVec4 cols[3];
 	};
 
 	/*
 	* @brief 2x2 matrix type with 16-byte alignment.
 	*
-	* Represents a row-major 2x2 matrix stored in a 2D array.
+	* Represents a column-major 2x2 matrix stored as an array of 2 column vectors.
 	* The structure is aligned to 16 bytes for optimal SIMD operations.
 	*/
 	struct alignas(16) NuMat2
 	{
-		NuFloat mat[2][2];
+		NuVec4 cols[2];
 	};
 
 	// =============================================
@@ -69,7 +69,7 @@ namespace NuEngine::Math::Simd_Scalar
 	// =============================================
 
 	// \copydoc NuEngine::Math::VectorAPI::Set
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(NuFloat x, NuFloat y, NuFloat z, NuFloat w = 0.0f) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Set(NuFloat x, NuFloat y, NuFloat z = 0.0f, NuFloat w = 0.0f) noexcept
 	{
 		return { x, y, z, w };
 	}
@@ -99,7 +99,7 @@ namespace NuEngine::Math::Simd_Scalar
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::GetZ
-	[[nodiscard]] NU_FORCEINLINE NuFloat GetZ(const  NuVec4& v) noexcept
+	[[nodiscard]] NU_FORCEINLINE NuFloat GetZ(const  NuVec4& v) noexcept
 	{
 		return v.z;
 	}
@@ -124,7 +124,7 @@ namespace NuEngine::Math::Simd_Scalar
 
 	// \copydoc NuEngine::Math::VectorAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuVec4& a, const NuVec4& b) noexcept
-	{ 
+	{
 		return { a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w };
 	}
 
@@ -178,14 +178,14 @@ namespace NuEngine::Math::Simd_Scalar
 	[[nodiscard]] NU_FORCEINLINE NuBool NearEqual(const NuVec4& a, const NuVec4& b, NuFloat epsilon) noexcept
 	{
 		return (std::fabs(a.x - b.x) <= epsilon) &&
-			   (std::fabs(a.y - b.y) <= epsilon) &&
-			   (std::fabs(a.z - b.z) <= epsilon) &&
-			   (std::fabs(a.w - b.w) <= epsilon);
+			(std::fabs(a.y - b.y) <= epsilon) &&
+			(std::fabs(a.z - b.z) <= epsilon) &&
+			(std::fabs(a.w - b.w) <= epsilon);
 	}
 
 	// \copydoc NuEngine::Math::VectorAPI::SqrtScalar
 	[[nodiscard]] NU_FORCEINLINE NuFloat SqrtScalar(NuFloat scalar) noexcept
-	{ 
+	{
 		return std::sqrt(scalar);
 	}
 
@@ -207,7 +207,7 @@ namespace NuEngine::Math::Simd_Scalar
 		return v.x + v.y;
 	}
 
-	[[nodiscard]] NU_FORCEINLINE NuFloat InvSqrtFast(NuFloat x) noexcept 
+	[[nodiscard]] NU_FORCEINLINE NuFloat InvSqrtFast(NuFloat x) noexcept 
 	{
 		const NuFloat xhalf = 0.5f * x;
 		int i = std::bit_cast<NuInt32>(x);
@@ -306,14 +306,15 @@ namespace NuEngine::Math::Simd_Scalar
 	// Matrix4x4
 	// =============================================
 
-	[[nodiscard]] NU_FORCEINLINE NuMat4 SetIdentityMatrix4x4() noexcept
+	// \copydoc NuEngine::Math::MatrixAPI::SetIdentityMatrix
+	[[nodiscard]] NU_FORCEINLINE NuMat4 SetIdentityMatrix() noexcept
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f; result.mat[0][2] = 0.0f; result.mat[0][3] = 0.0f;
-		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f; result.mat[1][2] = 0.0f; result.mat[1][3] = 0.0f;
-		result.mat[2][0] = 0.0f; result.mat[2][1] = 0.0f; result.mat[2][2] = 1.0f; result.mat[2][3] = 0.0f;
-		result.mat[3][0] = 0.0f; result.mat[3][1] = 0.0f; result.mat[3][2] = 0.0f; result.mat[3][3] = 1.0f;
+		result.cols[0] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		result.cols[1] = { 0.0f, 1.0f, 0.0f, 0.0f };
+		result.cols[2] = { 0.0f, 0.0f, 1.0f, 0.0f };
+		result.cols[3] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		return result;
 	}
@@ -323,10 +324,10 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = m.mat[0][0]; result.mat[1][0] = m.mat[0][1]; result.mat[2][0] = m.mat[0][2]; result.mat[3][0] = m.mat[0][3];
-		result.mat[0][1] = m.mat[1][0]; result.mat[1][1] = m.mat[1][1]; result.mat[2][1] = m.mat[1][2]; result.mat[3][1] = m.mat[1][3];
-		result.mat[0][2] = m.mat[2][0]; result.mat[1][2] = m.mat[2][1]; result.mat[2][2] = m.mat[2][2]; result.mat[3][2] = m.mat[2][3];
-		result.mat[0][3] = m.mat[3][0]; result.mat[1][3] = m.mat[3][1]; result.mat[2][3] = m.mat[3][2]; result.mat[3][3] = m.mat[3][3];
+		result.cols[0] = { m.cols[0].x, m.cols[1].x, m.cols[2].x, m.cols[3].x };
+		result.cols[1] = { m.cols[0].y, m.cols[1].y, m.cols[2].y, m.cols[3].y };
+		result.cols[2] = { m.cols[0].z, m.cols[1].z, m.cols[2].z, m.cols[3].z };
+		result.cols[3] = { m.cols[0].w, m.cols[1].w, m.cols[2].w, m.cols[3].w };
 
 		return result;
 	}
@@ -336,25 +337,10 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
-		result.mat[0][2] = a.mat[0][2] + b.mat[0][2];
-		result.mat[0][3] = a.mat[0][3] + b.mat[0][3];
-
-		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
-		result.mat[1][2] = a.mat[1][2] + b.mat[1][2];
-		result.mat[1][3] = a.mat[1][3] + b.mat[1][3];
-
-		result.mat[2][0] = a.mat[2][0] + b.mat[2][0];
-		result.mat[2][1] = a.mat[2][1] + b.mat[2][1];
-		result.mat[2][2] = a.mat[2][2] + b.mat[2][2];
-		result.mat[2][3] = a.mat[2][3] + b.mat[2][3];
-
-		result.mat[3][0] = a.mat[3][0] + b.mat[3][0];
-		result.mat[3][1] = a.mat[3][1] + b.mat[3][1];
-		result.mat[3][2] = a.mat[3][2] + b.mat[3][2];
-		result.mat[3][3] = a.mat[3][3] + b.mat[3][3];
+		result.cols[0] = Add(a.cols[0], b.cols[0]);
+		result.cols[1] = Add(a.cols[1], b.cols[1]);
+		result.cols[2] = Add(a.cols[2], b.cols[2]);
+		result.cols[3] = Add(a.cols[3], b.cols[3]);
 
 		return result;
 	}
@@ -364,53 +350,10 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
-		result.mat[0][2] = a.mat[0][2] - b.mat[0][2];
-		result.mat[0][3] = a.mat[0][3] - b.mat[0][3];
-
-		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
-		result.mat[1][2] = a.mat[1][2] - b.mat[1][2];
-		result.mat[1][3] = a.mat[1][3] - b.mat[1][3];
-
-		result.mat[2][0] = a.mat[2][0] - b.mat[2][0];
-		result.mat[2][1] = a.mat[2][1] - b.mat[2][1];
-		result.mat[2][2] = a.mat[2][2] - b.mat[2][2];
-		result.mat[2][3] = a.mat[2][3] - b.mat[2][3];
-
-		result.mat[3][0] = a.mat[3][0] - b.mat[3][0];
-		result.mat[3][1] = a.mat[3][1] - b.mat[3][1];
-		result.mat[3][2] = a.mat[3][2] - b.mat[3][2];
-		result.mat[3][3] = a.mat[3][3] - b.mat[3][3];
-
-		return result;
-	}
-
-	// \copydoc NuEngine::Math::MatrixAPI::Mul
-	[[nodiscard]] NU_FORCEINLINE NuMat4 Mul(const NuMat4& a, const NuMat4& b) noexcept
-	{
-		NuMat4 result{};
-
-		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0] + a.mat[0][2] * b.mat[2][0] + a.mat[0][3] * b.mat[3][0];
-		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1] + a.mat[0][2] * b.mat[2][1] + a.mat[0][3] * b.mat[3][1];
-		result.mat[0][2] = a.mat[0][0] * b.mat[0][2] + a.mat[0][1] * b.mat[1][2] + a.mat[0][2] * b.mat[2][2] + a.mat[0][3] * b.mat[3][2];
-		result.mat[0][3] = a.mat[0][0] * b.mat[0][3] + a.mat[0][1] * b.mat[1][3] + a.mat[0][2] * b.mat[2][3] + a.mat[0][3] * b.mat[3][3];
-
-		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0] + a.mat[1][2] * b.mat[2][0] + a.mat[1][3] * b.mat[3][0];
-		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1] + a.mat[1][2] * b.mat[2][1] + a.mat[1][3] * b.mat[3][1];
-		result.mat[1][2] = a.mat[1][0] * b.mat[0][2] + a.mat[1][1] * b.mat[1][2] + a.mat[1][2] * b.mat[2][2] + a.mat[1][3] * b.mat[3][2];
-		result.mat[1][3] = a.mat[1][0] * b.mat[0][3] + a.mat[1][1] * b.mat[1][3] + a.mat[1][2] * b.mat[2][3] + a.mat[1][3] * b.mat[3][3];
-
-		result.mat[2][0] = a.mat[2][0] * b.mat[0][0] + a.mat[2][1] * b.mat[1][0] + a.mat[2][2] * b.mat[2][0] + a.mat[2][3] * b.mat[3][0];
-		result.mat[2][1] = a.mat[2][0] * b.mat[0][1] + a.mat[2][1] * b.mat[1][1] + a.mat[2][2] * b.mat[2][1] + a.mat[2][3] * b.mat[3][1];
-		result.mat[2][2] = a.mat[2][0] * b.mat[0][2] + a.mat[2][1] * b.mat[1][2] + a.mat[2][2] * b.mat[2][2] + a.mat[2][3] * b.mat[3][2];
-		result.mat[2][3] = a.mat[2][0] * b.mat[0][3] + a.mat[2][1] * b.mat[1][3] + a.mat[2][2] * b.mat[2][3] + a.mat[2][3] * b.mat[3][3];
-
-		result.mat[3][0] = a.mat[3][0] * b.mat[0][0] + a.mat[3][1] * b.mat[1][0] + a.mat[3][2] * b.mat[2][0] + a.mat[3][3] * b.mat[3][0];
-		result.mat[3][1] = a.mat[3][0] * b.mat[0][1] + a.mat[3][1] * b.mat[1][1] + a.mat[3][2] * b.mat[2][1] + a.mat[3][3] * b.mat[3][1];
-		result.mat[3][2] = a.mat[3][0] * b.mat[0][2] + a.mat[3][1] * b.mat[1][2] + a.mat[3][2] * b.mat[2][2] + a.mat[3][3] * b.mat[3][2];
-		result.mat[3][3] = a.mat[3][0] * b.mat[0][3] + a.mat[3][1] * b.mat[1][3] + a.mat[3][2] * b.mat[2][3] + a.mat[3][3] * b.mat[3][3];
+		result.cols[0] = Sub(a.cols[0], b.cols[0]);
+		result.cols[1] = Sub(a.cols[1], b.cols[1]);
+		result.cols[2] = Sub(a.cols[2], b.cols[2]);
+		result.cols[3] = Sub(a.cols[3], b.cols[3]);
 
 		return result;
 	}
@@ -418,12 +361,25 @@ namespace NuEngine::Math::Simd_Scalar
 	// \copydoc NuEngine::Math::MatrixAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat4& m, const NuVec4& v) noexcept
 	{
-		return {
-			m.mat[0][0] * v.x + m.mat[0][1] * v.y + m.mat[0][2] * v.z + m.mat[0][3] * v.w,
-			m.mat[1][0] * v.x + m.mat[1][1] * v.y + m.mat[1][2] * v.z + m.mat[1][3] * v.w,
-			m.mat[2][0] * v.x + m.mat[2][1] * v.y + m.mat[2][2] * v.z + m.mat[2][3] * v.w,
-			m.mat[3][0] * v.x + m.mat[3][1] * v.y + m.mat[3][2] * v.z + m.mat[3][3] * v.w,
-		};
+		NuVec4 r0 = Mul(m.cols[0], SetAll(v.x));
+		NuVec4 r1 = Mul(m.cols[1], SetAll(v.y));
+		NuVec4 r2 = Mul(m.cols[2], SetAll(v.z));
+		NuVec4 r3 = Mul(m.cols[3], SetAll(v.w));
+
+		return Add(Add(r0, r1), Add(r2, r3));
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Mul(const NuMat4& a, const NuMat4& b) noexcept
+	{
+		NuMat4 result{};
+
+		result.cols[0] = Mul(a, b.cols[0]);
+		result.cols[1] = Mul(a, b.cols[1]);
+		result.cols[2] = Mul(a, b.cols[2]);
+		result.cols[3] = Mul(a, b.cols[3]);
+
+		return result;
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::FromRows
@@ -432,10 +388,10 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z; result.mat[0][3] = r0.w;
-		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z; result.mat[1][3] = r1.w;
-		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z; result.mat[2][3] = r2.w;
-		result.mat[3][0] = r3.x; result.mat[3][1] = r3.y; result.mat[3][2] = r3.z; result.mat[3][3] = r3.w;
+		result.cols[0] = { r0.x, r1.x, r2.x, r3.x };
+		result.cols[1] = { r0.y, r1.y, r2.y, r3.y };
+		result.cols[2] = { r0.z, r1.z, r2.z, r3.z };
+		result.cols[3] = { r0.w, r1.w, r2.w, r3.w };
 
 		return result;
 	}
@@ -446,10 +402,10 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat4 result{};
 
-		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y; result.mat[2][0] = c0.z; result.mat[3][0] = c0.w;
-		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y; result.mat[2][1] = c1.z; result.mat[3][1] = c1.w;
-		result.mat[0][2] = c2.x; result.mat[1][2] = c2.y; result.mat[2][2] = c2.z; result.mat[3][2] = c2.w;
-		result.mat[0][3] = c3.x; result.mat[1][3] = c3.y; result.mat[2][3] = c3.z; result.mat[3][3] = c3.w;
+		result.cols[0] = c0;
+		result.cols[1] = c1;
+		result.cols[2] = c2;
+		result.cols[3] = c3;
 
 		return result;
 	}
@@ -457,33 +413,88 @@ namespace NuEngine::Math::Simd_Scalar
 	// \copydoc NuEngine::Math::MatrixAPI::Determinant
 	[[nodiscard]] NU_FORCEINLINE NuFloat Determinant(const NuMat4& m) noexcept
 	{
-		NuFloat det;
+		NuFloat subFactor00 = m.cols[2].z * m.cols[3].w - m.cols[2].w * m.cols[3].z;
+		NuFloat subFactor01 = m.cols[1].z * m.cols[3].w - m.cols[1].w * m.cols[3].z;
+		NuFloat subFactor02 = m.cols[1].z * m.cols[2].w - m.cols[1].w * m.cols[2].z;
+		NuFloat subFactor03 = m.cols[0].z * m.cols[3].w - m.cols[0].w * m.cols[3].z;
+		NuFloat subFactor04 = m.cols[0].z * m.cols[2].w - m.cols[0].w * m.cols[2].z;
+		NuFloat subFactor05 = m.cols[0].z * m.cols[1].w - m.cols[0].w * m.cols[1].z;
 
-		NuFloat subFactor00 = m.mat[2][2] * m.mat[3][3] - m.mat[3][2] * m.mat[2][3];
-		NuFloat subFactor01 = m.mat[2][1] * m.mat[3][3] - m.mat[3][1] * m.mat[2][3];
-		NuFloat subFactor02 = m.mat[2][1] * m.mat[3][2] - m.mat[3][1] * m.mat[2][2];
-		NuFloat subFactor03 = m.mat[2][0] * m.mat[3][3] - m.mat[3][0] * m.mat[2][3];
-		NuFloat subFactor04 = m.mat[2][0] * m.mat[3][2] - m.mat[3][0] * m.mat[2][2];
-		NuFloat subFactor05 = m.mat[2][0] * m.mat[3][1] - m.mat[3][0] * m.mat[2][1];
+		NuFloat cof00 = +(m.cols[1].y * subFactor00 - m.cols[2].y * subFactor01 + m.cols[3].y * subFactor02);
+		NuFloat cof01 = -(m.cols[0].y * subFactor00 - m.cols[2].y * subFactor03 + m.cols[3].y * subFactor04);
+		NuFloat cof02 = +(m.cols[0].y * subFactor01 - m.cols[1].y * subFactor03 + m.cols[3].y * subFactor05);
+		NuFloat cof03 = -(m.cols[0].y * subFactor02 - m.cols[1].y * subFactor04 + m.cols[2].y * subFactor05);
 
-		NuFloat cof00 = +(m.mat[1][1] * subFactor00 - m.mat[1][2] * subFactor01 + m.mat[1][3] * subFactor02);
-		NuFloat cof01 = -(m.mat[1][0] * subFactor00 - m.mat[1][2] * subFactor03 + m.mat[1][3] * subFactor04);
-		NuFloat cof02 = +(m.mat[1][0] * subFactor01 - m.mat[1][1] * subFactor03 + m.mat[1][3] * subFactor05);
-		NuFloat cof03 = -(m.mat[1][0] * subFactor02 - m.mat[1][1] * subFactor04 + m.mat[1][2] * subFactor05);
-
-		det = m.mat[0][0] * cof00 + m.mat[0][1] * cof01 + m.mat[0][2] * cof02 + m.mat[0][3] * cof03;
+		NuFloat det = m.cols[0].x * cof00 + m.cols[1].x * cof01 + m.cols[2].x * cof02 + m.cols[3].x * cof03;
 
 		return det;
 	}
 
-	//copydoc NuEngine::Math::MatrixAPI::CreateTranslation
+	// \copydoc NuEngine::Math::MatrixAPI::Inverse
+	[[nodiscard]] NU_FORCEINLINE NuMat4 Inverse(const NuMat4& m) noexcept
+    {
+        NuFloat sb_zw_00 = m.cols[2].z * m.cols[3].w - m.cols[2].w * m.cols[3].z;
+        NuFloat sb_zw_01 = m.cols[1].z * m.cols[3].w - m.cols[1].w * m.cols[3].z;
+        NuFloat sb_zw_02 = m.cols[1].z * m.cols[2].w - m.cols[1].w * m.cols[2].z;
+        NuFloat sb_zw_03 = m.cols[0].z * m.cols[3].w - m.cols[0].w * m.cols[3].z;
+        NuFloat sb_zw_04 = m.cols[0].z * m.cols[2].w - m.cols[0].w * m.cols[2].z;
+        NuFloat sb_zw_05 = m.cols[0].z * m.cols[1].w - m.cols[0].w * m.cols[1].z;
+
+        NuFloat sb_yw_00 = m.cols[2].y * m.cols[3].w - m.cols[2].w * m.cols[3].y;
+        NuFloat sb_yw_01 = m.cols[1].y * m.cols[3].w - m.cols[1].w * m.cols[3].y;
+        NuFloat sb_yw_02 = m.cols[1].y * m.cols[2].w - m.cols[1].w * m.cols[2].y;
+        NuFloat sb_yw_03 = m.cols[0].y * m.cols[3].w - m.cols[0].w * m.cols[3].y;
+        NuFloat sb_yw_04 = m.cols[0].y * m.cols[2].w - m.cols[0].w * m.cols[2].y;
+        NuFloat sb_yw_05 = m.cols[0].y * m.cols[1].w - m.cols[0].w * m.cols[1].y;
+        
+        NuFloat sb_yz_00 = m.cols[2].y * m.cols[3].z - m.cols[2].z * m.cols[3].y;
+        NuFloat sb_yz_01 = m.cols[1].y * m.cols[3].z - m.cols[1].z * m.cols[3].y;
+        NuFloat sb_yz_02 = m.cols[1].y * m.cols[2].z - m.cols[1].z * m.cols[2].y;
+        NuFloat sb_yz_03 = m.cols[0].y * m.cols[3].z - m.cols[0].z * m.cols[3].y;
+        NuFloat sb_yz_04 = m.cols[0].y * m.cols[2].z - m.cols[0].z * m.cols[2].y;
+        NuFloat sb_yz_05 = m.cols[0].y * m.cols[1].z - m.cols[0].z * m.cols[1].y;
+
+        NuFloat cof00 = +(m.cols[1].y * sb_zw_00 - m.cols[2].y * sb_zw_01 + m.cols[3].y * sb_zw_02);
+        NuFloat cof01 = -(m.cols[0].y * sb_zw_00 - m.cols[2].y * sb_zw_03 + m.cols[3].y * sb_zw_04);
+        NuFloat cof02 = +(m.cols[0].y * sb_zw_01 - m.cols[1].y * sb_zw_03 + m.cols[3].y * sb_zw_05);
+        NuFloat cof03 = -(m.cols[0].y * sb_zw_02 - m.cols[1].y * sb_zw_04 + m.cols[2].y * sb_zw_05);
+
+        NuFloat cof10 = -(m.cols[1].x * sb_zw_00 - m.cols[2].x * sb_zw_01 + m.cols[3].x * sb_zw_02);
+        NuFloat cof11 = +(m.cols[0].x * sb_zw_00 - m.cols[2].x * sb_zw_03 + m.cols[3].x * sb_zw_04);
+        NuFloat cof12 = -(m.cols[0].x * sb_zw_01 - m.cols[1].x * sb_zw_03 + m.cols[3].x * sb_zw_05);
+        NuFloat cof13 = +(m.cols[0].x * sb_zw_02 - m.cols[1].x * sb_zw_04 + m.cols[2].x * sb_zw_05);
+
+        NuFloat cof20 = +(m.cols[1].x * sb_yw_00 - m.cols[2].x * sb_yw_01 + m.cols[3].x * sb_yw_02);
+        NuFloat cof21 = -(m.cols[0].x * sb_yw_00 - m.cols[2].x * sb_yw_03 + m.cols[3].x * sb_yw_04);
+        NuFloat cof22 = +(m.cols[0].x * sb_yw_01 - m.cols[1].x * sb_yw_03 + m.cols[3].x * sb_yw_05);
+        NuFloat cof23 = -(m.cols[0].x * sb_yw_02 - m.cols[1].x * sb_yw_04 + m.cols[2].x * sb_yw_05);
+
+        NuFloat cof30 = -(m.cols[1].x * sb_yz_00 - m.cols[2].x * sb_yz_01 + m.cols[3].x * sb_yz_02);
+        NuFloat cof31 = +(m.cols[0].x * sb_yz_00 - m.cols[2].x * sb_yz_03 + m.cols[3].x * sb_yz_04);
+        NuFloat cof32 = -(m.cols[0].x * sb_yz_01 - m.cols[1].x * sb_yz_03 + m.cols[3].x * sb_yz_05);
+        NuFloat cof33 = +(m.cols[0].x * sb_yz_02 - m.cols[1].x * sb_yz_04 + m.cols[2].x * sb_yz_05);
+
+        NuFloat det = m.cols[0].x * cof00 + m.cols[1].x * cof01 + m.cols[2].x * cof02 + m.cols[3].x * cof03;
+
+        Core::Types::NuAssert(std::fabs(det) > 1e-8f, "Matrix is non-invertible (determinant is zero)!");
+
+        NuFloat invDet = 1.0f / det;
+        NuMat4 result{};
+        
+        result.cols[0] = { cof00 * invDet, cof01 * invDet, cof02 * invDet, cof03 * invDet };
+        result.cols[1] = { cof10 * invDet, cof11 * invDet, cof12 * invDet, cof13 * invDet };
+        result.cols[2] = { cof20 * invDet, cof21 * invDet, cof22 * invDet, cof23 * invDet };
+        result.cols[3] = { cof30 * invDet, cof31 * invDet, cof32 * invDet, cof33 * invDet };
+
+        return result;
+    }
+
+	// \copydoc NuEngine::Math::MatrixAPI::CreateTranslation
 	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateTranslation(const NuVec4& translation) noexcept
 	{
-		NuMat4 result = SetIdentityMatrix4x4();
+		NuMat4 result = SetIdentityMatrix();
 
-		result.mat[0][3] = translation.x;
-		result.mat[1][3] = translation.y;
-		result.mat[2][3] = translation.z;
+		result.cols[3] = { translation.x, translation.y, translation.z, 1.0f };
 
 		return result;
 	}
@@ -491,42 +502,92 @@ namespace NuEngine::Math::Simd_Scalar
 	// \copydoc NuEngine::Math::MatrixAPI::CreateScale
 	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateScale(const NuVec4& scale) noexcept
 	{
-		NuMat4 result = SetIdentityMatrix4x4();
+		NuMat4 result = SetIdentityMatrix();
 
-		result.mat[3][0] = scale.x;
-		result.mat[3][1] = scale.y;
-		result.mat[3][2] = scale.z;
+		result.cols[0].x = scale.x;
+		result.cols[1].y = scale.y;
+		result.cols[2].z = scale.z;
 
 		return result;
 	}
 
-	//copydoc NuEngine::Math::MatrixAPI::GetColumn
+	// \copydoc NuEngine::Math::MatrixAPI::CreateRotation
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateRotation(const NuVec4& quat) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::CreateLookAt
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateLookAt(const NuVec4& eye, const NuVec4& target, const NuVec4& up) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::CreatePerspective
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreatePerspective(NuFloat fovY, NuFloat aspect, NuFloat nearZ, NuFloat farZ) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::CreateOrthographic
+	[[nodiscard]] NU_FORCEINLINE NuMat4 CreateOrthographic() noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPi::Decompose
+	NU_FORCEINLINE void Decompose() noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Equal
+	[[nodiscard]] NU_FORCEINLINE Equal(const NuMat4& a, const NuMat4& b) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::IsIdentity
+	[[nodiscard]] NU_FORCEINLINE IsIdentity(const NuMat4& m, NuFloat epsilon) noexcept
+	{
+
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::GetColumn
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat4& m, NuInt32 index) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
-		return {
-			m.mat[0][index], m.mat[1][index], m.mat[2][index], m.mat[3][index]
-		};
+		return m.cols[index];
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::GetRow
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat4& m, NuInt32 index) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(index >= 0 && index < 4);
-		return { m.mat[index][0], m.mat[index][1], m.mat[index][2], m.mat[index][3] };
+
+		if (index == 0) return { m.cols[0].x, m.cols[1].x, m.cols[2].x, m.cols[3].x };
+		if (index == 1) return { m.cols[0].y, m.cols[1].y, m.cols[2].y, m.cols[3].y };
+		if (index == 2) return { m.cols[0].z, m.cols[1].z, m.cols[2].z, m.cols[3].z };
+
+		return { m.cols[0].w, m.cols[1].w, m.cols[2].w, m.cols[3].w };
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::Access
 	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat4& m, NuInt32 row, NuInt32 col) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(row >= 0 && row < 4 && col >= 0 && col < 4);
-		return m.mat[row][col];
+
+		const NuVec4& column = m.cols[col];
+		if (row == 0) return column.x;
+		if (row == 1) return column.y;
+		if (row == 2) return column.z;
+
+		return column.w;
 	}
 
-	// \copydoc NuEngine::Math::MatrixAPI::Data
 	NU_FORCEINLINE const NuFloat* Data(const NuMat4& m) noexcept
 	{
-		return &m.mat[0][0];
+		return &m.cols[0].x;
 	}
 
 	// =============================================
@@ -538,9 +599,9 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat3 result{};
 
-		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f; result.mat[0][2] = 0.0f;
-		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f; result.mat[1][2] = 0.0f;
-		result.mat[2][0] = 0.0f; result.mat[2][1] = 0.0f; result.mat[2][2] = 1.0f;
+		result.cols[0] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		result.cols[1] = { 0.0f, 1.0f, 0.0f, 0.0f };
+		result.cols[2] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 		return result;
 	}
@@ -550,17 +611,9 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat3 result{};
 
-		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
-		result.mat[0][2] = a.mat[0][2] + b.mat[0][2];
-
-		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
-		result.mat[1][2] = a.mat[1][2] + b.mat[1][2];
-
-		result.mat[2][0] = a.mat[2][0] + b.mat[2][0];
-		result.mat[2][1] = a.mat[2][1] + b.mat[2][1];
-		result.mat[2][2] = a.mat[2][2] + b.mat[2][2];
+		result.cols[0] = Add(a.cols[0], b.cols[0]);
+		result.cols[1] = Add(a.cols[1], b.cols[1]);
+		result.cols[2] = Add(a.cols[2], b.cols[2]);
 
 		return result;
 	}
@@ -570,37 +623,9 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat3 result{};
 
-		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
-		result.mat[0][2] = a.mat[0][2] - b.mat[0][2];
-
-		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
-		result.mat[1][2] = a.mat[1][2] - b.mat[1][2];
-
-		result.mat[2][0] = a.mat[2][0] - b.mat[2][0];
-		result.mat[2][1] = a.mat[2][1] - b.mat[2][1];
-		result.mat[2][2] = a.mat[2][2] - b.mat[2][2];
-
-		return result;
-	}
-
-	// \copydoc NuEngine::Math::MatrixAPI::Mul
-	[[nodiscard]] NU_FORCEINLINE NuMat3 Mul(const NuMat3& a, const NuMat3& b) noexcept
-	{
-		NuMat3 result{};
-
-		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0] + a.mat[0][2] * b.mat[2][0];
-		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1] + a.mat[0][2] * b.mat[2][1];
-		result.mat[0][2] = a.mat[0][0] * b.mat[0][2] + a.mat[0][1] * b.mat[1][2] + a.mat[0][2] * b.mat[2][2];
-
-		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0] + a.mat[1][2] * b.mat[2][0];
-		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1] + a.mat[1][2] * b.mat[2][1];
-		result.mat[1][2] = a.mat[1][0] * b.mat[0][2] + a.mat[1][1] * b.mat[1][2] + a.mat[1][2] * b.mat[2][2];
-
-		result.mat[2][0] = a.mat[2][0] * b.mat[0][0] + a.mat[2][1] * b.mat[1][0] + a.mat[2][2] * b.mat[2][0];
-		result.mat[2][1] = a.mat[2][0] * b.mat[0][1] + a.mat[2][1] * b.mat[1][1] + a.mat[2][2] * b.mat[2][1];
-		result.mat[2][2] = a.mat[2][0] * b.mat[0][2] + a.mat[2][1] * b.mat[1][2] + a.mat[2][2] * b.mat[2][2];
+		result.cols[0] = Sub(a.cols[0], b.cols[0]);
+		result.cols[1] = Sub(a.cols[1], b.cols[1]);
+		result.cols[2] = Sub(a.cols[2], b.cols[2]);
 
 		return result;
 	}
@@ -608,12 +633,23 @@ namespace NuEngine::Math::Simd_Scalar
 	// \copydoc NuEngine::Math::MatrixAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat3& m, const NuVec4& v) noexcept
 	{
-		return {
-			m.mat[0][0] * v.x + m.mat[0][1] * v.y + m.mat[0][2] * v.z,
-			m.mat[1][0] * v.x + m.mat[1][1] * v.y + m.mat[1][2] * v.z,
-			m.mat[2][0] * v.x + m.mat[2][1] * v.y + m.mat[2][2] * v.z,
-			0.0f,
-		};
+		NuVec4 r0 = Mul(m.cols[0], SetAll(v.x));
+		NuVec4 r1 = Mul(m.cols[1], SetAll(v.y));
+		NuVec4 r2 = Mul(m.cols[2], SetAll(v.z));
+
+		return Add(Add(r0, r1), r2);
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat3 Mul(const NuMat3& a, const NuMat3& b) noexcept
+	{
+		NuMat3 result{};
+
+		result.cols[0] = Mul(a, b.cols[0]);
+		result.cols[1] = Mul(a, b.cols[1]);
+		result.cols[2] = Mul(a, b.cols[2]);
+
+		return result;
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
@@ -621,9 +657,9 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat3 result{};
 
-		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y; result.mat[2][0] = c0.z;
-		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y; result.mat[2][1] = c1.z;
-		result.mat[0][2] = c2.x; result.mat[1][2] = c2.y; result.mat[2][2] = c2.z;
+		result.cols[0] = c0;
+		result.cols[1] = c1;
+		result.cols[2] = c2;
 
 		return result;
 	}
@@ -633,9 +669,9 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat3 result{};
 
-		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y; result.mat[0][2] = r0.z;
-		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y; result.mat[1][2] = r1.z;
-		result.mat[2][0] = r2.x; result.mat[2][1] = r2.y; result.mat[2][2] = r2.z;
+		result.cols[0] = { r0.x, r1.x, r2.x, 0.0f };
+		result.cols[1] = { r0.y, r1.y, r2.y, 0.0f };
+		result.cols[2] = { r0.z, r1.z, r2.z, 0.0f };
 
 		return result;
 	}
@@ -644,25 +680,27 @@ namespace NuEngine::Math::Simd_Scalar
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat3& m, NuInt32 col) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(col >= 0 && col < 3);
-		return {
-			m.mat[0][col], m.mat[1][col], m.mat[2][col], 0.0f
-		};
+		return m.cols[col];
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::GetRow
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat3& m, NuInt32 row) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(row >= 0 && row < 3);
-		return {
-			m.mat[row][0], m.mat[row][1], m.mat[row][2], 0.0f
-		};
+		if (row == 0) return { m.cols[0].x, m.cols[1].x, m.cols[2].x, 0.0f };
+		if (row == 1) return { m.cols[0].y, m.cols[1].y, m.cols[2].y, 0.0f };
+		return { m.cols[0].z, m.cols[1].z, m.cols[2].z, 0.0f };
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::Access
 	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat3& m, NuInt32 row, NuInt32 col) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(row >= 0 && row < 3 && col >= 0 && col < 3);
-		return m.mat[row][col];
+
+		const NuVec4& column = m.cols[col];
+		if (row == 0) return column.x;
+		if (row == 1) return column.y;
+		return column.z;
 	}
 
 	// =============================================
@@ -674,8 +712,8 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat2 result{};
 
-		result.mat[0][0] = 1.0f; result.mat[0][1] = 0.0f;
-		result.mat[1][0] = 0.0f; result.mat[1][1] = 1.0f;
+		result.cols[0] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		result.cols[1] = { 0.0f, 1.0f, 0.0f, 0.0f };
 
 		return result;
 	}
@@ -685,11 +723,8 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat2 result{};
 
-		result.mat[0][0] = a.mat[0][0] + b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] + b.mat[0][1];
-
-		result.mat[1][0] = a.mat[1][0] + b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] + b.mat[1][1];
+		result.cols[0] = Add(a.cols[0], b.cols[0]);
+		result.cols[1] = Add(a.cols[1], b.cols[1]);
 
 		return result;
 	}
@@ -699,24 +734,8 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat2 result{};
 
-		result.mat[0][0] = a.mat[0][0] - b.mat[0][0];
-		result.mat[0][1] = a.mat[0][1] - b.mat[0][1];
-
-		result.mat[1][0] = a.mat[1][0] - b.mat[1][0];
-		result.mat[1][1] = a.mat[1][1] - b.mat[1][1];
-
-		return result;
-	}
-
-	// \copydoc NuEngine::Math::MatrixAPI::Mul
-	[[nodiscard]] NU_FORCEINLINE NuMat2 Mul(const NuMat2& a, const NuMat2& b) noexcept
-	{
-		NuMat2 result{};
-
-		result.mat[0][0] = a.mat[0][0] * b.mat[0][0] + a.mat[0][1] * b.mat[1][0];
-		result.mat[0][1] = a.mat[0][0] * b.mat[0][1] + a.mat[0][1] * b.mat[1][1];
-		result.mat[1][0] = a.mat[1][0] * b.mat[0][0] + a.mat[1][1] * b.mat[1][0];
-		result.mat[1][1] = a.mat[1][0] * b.mat[0][1] + a.mat[1][1] * b.mat[1][1];
+		result.cols[0] = Sub(a.cols[0], b.cols[0]);
+		result.cols[1] = Sub(a.cols[1], b.cols[1]);
 
 		return result;
 	}
@@ -724,10 +743,20 @@ namespace NuEngine::Math::Simd_Scalar
 	// \copydoc NuEngine::Math::MatrixAPI::Mul
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(const NuMat2& m, const NuVec4& v) noexcept
 	{
-		return {
-			m.mat[0][0] * v.x + m.mat[0][1] * v.y,
-			m.mat[1][0] * v.x + m.mat[1][1] * v.y,
-		};
+		NuVec4 r0 = Mul(m.cols[0], SetAll(v.x));
+		NuVec4 r1 = Mul(m.cols[1], SetAll(v.y));
+		return Add(r0, r1);
+	}
+
+	// \copydoc NuEngine::Math::MatrixAPI::Mul
+	[[nodiscard]] NU_FORCEINLINE NuMat2 Mul(const NuMat2& a, const NuMat2& b) noexcept
+	{
+		NuMat2 result{};
+
+		result.cols[0] = Mul(a, b.cols[0]);
+		result.cols[1] = Mul(a, b.cols[1]);
+
+		return result;
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::FromColumns
@@ -735,8 +764,8 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat2 result{};
 
-		result.mat[0][0] = c0.x; result.mat[1][0] = c0.y;
-		result.mat[0][1] = c1.x; result.mat[1][1] = c1.y;
+		result.cols[0] = c0;
+		result.cols[1] = c1;
 
 		return result;
 	}
@@ -746,8 +775,8 @@ namespace NuEngine::Math::Simd_Scalar
 	{
 		NuMat2 result{};
 
-		result.mat[0][0] = r0.x; result.mat[0][1] = r0.y;
-		result.mat[1][0] = r1.x; result.mat[1][1] = r1.y;
+		result.cols[0] = { r0.x, r1.x, 0.0f, 0.0f };
+		result.cols[1] = { r0.y, r1.y, 0.0f, 0.0f };
 
 		return result;
 	}
@@ -756,24 +785,24 @@ namespace NuEngine::Math::Simd_Scalar
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetColumn(const NuMat2& m, NuInt32 col) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(col >= 0 && col < 2);
-		return {
-			m.mat[0][col], m.mat[1][col], 0.0f, 0.0f
-		};
+		return m.cols[col];
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI
 	[[nodiscard]] NU_FORCEINLINE NuVec4 GetRow(const NuMat2& m, NuInt32 row) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(row >= 0 && row < 2);
-		return {
-			m.mat[row][0], m.mat[row][1], 0.0f, 0.0f
-		};
+		if (row == 0) return { m.cols[0].x, m.cols[1].x, 0.0f, 0.0f };
+		return { m.cols[0].y, m.cols[1].y, 0.0f, 0.0f };
 	}
 
 	// \copydoc NuEngine::Math::MatrixAPI::Access
 	[[nodiscard]] NU_FORCEINLINE NuFloat Access(const NuMat2& m, NuInt32 row, NuInt32 col) noexcept
 	{
 		NuEngine::Core::Types::NuAssert(row >= 0 && row < 2 && col >= 0 && col < 2);
-		return m.mat[row][col];
+
+		const NuVec4& column = m.cols[col];
+		if (row == 0) return column.x;
+		return column.y;
 	}
 }

@@ -4,10 +4,8 @@
 
 #pragma once
 
-namespace NuEngine::Graphics
-{
-	class GraphicsDevice
-	{
 
-	};
+namespace NuEngine::Graphics::OpenGL
+{
+
 }

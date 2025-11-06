@@ -8,7 +8,8 @@
 #include <Core/IO/FileSystem.hpp>
 #include <Core/Types/Result.hpp>
 #include <Core/Errors/WindowError.hpp>
-#include <Graphics/OpenGL/OpenGLContext.hpp>
+#include <Renderer/Pipeline/ForwardPipeline.hpp>
+#include <Graphics/Abstractions/IRenderDevice.hpp>
 
 #include <Platform/IWindow.hpp>
 
@@ -16,9 +17,9 @@
 
 namespace NuEngine::Core
 {
-    using NuBool = NuEngine::Core::Types::NuBool;
-    using NuFloat = NuEngine::Core::Types::NuFloat;
-    using NuInt32 = NuEngine::Core::Types::NuInt32;
+    using NuBool = Types::NuBool;
+    using NuFloat = Types::NuFloat;
+    using NuInt32 = Types::NuInt32;
 
     /*
     * @brief The main class of the program that manages the lifecycle of the game engine.
@@ -31,19 +32,47 @@ namespace NuEngine::Core
         /*
         * @brief Default Constructor.
         */
-        Application();
+        Application() noexcept;
 
         /*
         * @brief Destructor that ensures correct termination of operation.
         */
-        ~Application();
+        ~Application() noexcept;
+
+        /*
+        * @brief Copy constructor (deleted).
+        *
+        * Application cannot be copied to prevent multiple ownership of resources.
+        */
+        Application(const Application& other) = delete;
+
+        /*
+        * @brief Move constructor.
+        *
+        * Transfers ownership of resources from another Application instance.
+        */
+        Application(Application&& other) noexcept = default;
+
+        /*
+        * @brief Copy assignment operator (deleted).
+        *
+        * Application cannot be copied to prevent multiple ownership of resources.
+        */
+        Application& operator=(const Application& other) = delete;
+
+        /*
+        * @brief Move assignment operator.
+        *
+        * Transfers ownership of resources from another Application instance.
+        */
+        Application& operator=(Application&& other) noexcept = default;
 
         /*
         * @brief Starts the main program loop.
         *
         * @return Result with void (success) or error WindowError.
         */
-        [[nodiscard]] NuEngine::Core::Result<void, WindowError> Run() noexcept;
+        [[nodiscard]] Result<void, WindowError> Run() noexcept;
 
     private:
         /*
@@ -51,14 +80,14 @@ namespace NuEngine::Core
         *
         * @return Result with void (success) or error WindowError.
         */
-        [[nodiscard]] NuEngine::Core::Result<void, WindowError> Initialize() noexcept;
+        [[nodiscard]] Result<void, WindowError> Initialize() noexcept;
 
         /*
         * @brief Completes the subsystem work.
         *
         * @return Result with void (success) or error WindowError.
         */
-        [[nodiscard]] NuEngine::Core::Result<void, WindowError> Shutdown() noexcept;
+        [[nodiscard]] Result<void, WindowError> Shutdown() noexcept;
 
         /*
         * @brief Executes the main program loop (event handling, rendering).
@@ -69,7 +98,8 @@ namespace NuEngine::Core
 
         NuBool m_isRunning = false;                                         // Program work status.
         std::unique_ptr<Platform::IWindow> m_window;                        // Pointer to platform-dependent window.
-        std::unique_ptr<Graphics::OpenGL::OpenGLContext> m_glContext;       // Pointer to OpenGL context
+        std::unique_ptr<Renderer::ForwardPipeline> m_pipeline;              // Rendering pipeline
+        std::unique_ptr<Graphics::IRenderDevice> m_renderDevice;            // Render device abstraction.
         FileSystem m_fileSystem;                                            // File system for working with resources.
     };
 }

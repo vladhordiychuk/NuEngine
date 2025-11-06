@@ -37,7 +37,6 @@ namespace NuEngine::Platform
 		{
 		}
 
-		// Getter methods
 		NuInt32 GetWidth() const noexcept { return width_; }
 		NuInt32 GetHeight() const noexcept { return height_; }
 		const std::string& GetTitle() const noexcept { return title_; }
@@ -48,7 +47,6 @@ namespace NuEngine::Platform
 		NuInt32 GetX() const noexcept { return x_; }
 		NuInt32 GetY() const noexcept { return y_; }
 
-		// Setter methods
 		WindowConfig& SetSize(NuInt32 width, NuInt32 height) noexcept
 		{
 			width_ = width;
@@ -93,13 +91,11 @@ namespace NuEngine::Platform
 			return *this;
 		}
 
-		// Validation methods
 		NuBool IsValid() const noexcept
 		{
 			return width_ > 0 && height_ > 0 && !title_.empty();
 		}
 
-		// Utility methods
 		float GetAspectRatio() const noexcept
 		{
 			return height_ > 0 ? static_cast<float>(width_) / height_ : 0.0f;

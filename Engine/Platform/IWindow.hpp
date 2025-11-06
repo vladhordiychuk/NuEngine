@@ -44,49 +44,49 @@ namespace NuEngine::Platform
         * @param config The configuration parameters (e.g., title, size, VSync).
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> Initialize(const WindowConfig& config) = 0;
+        virtual Core::Result<void, Core::WindowError> Initialize(const WindowConfig& config) = 0;
 
         /*
         * @brief Shuts down the window and releases associated resources.
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> Shutdown() = 0;
+        virtual Core::Result<void, Core::WindowError> Shutdown() = 0;
 
         /*
         * @brief Makes the window visible on the screen.
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> Show() = 0;
+        virtual Core::Result<void, Core::WindowError> Show() = 0;
 
         /*
         * @brief Hides the window from the screen.
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> Hide() = 0;
+        virtual Core::Result<void, Core::WindowError> Hide() = 0;
 
         /*
         * @brief Sets focus to the window.
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> Focus() = 0;
+        virtual Core::Result<void, Core::WindowError> Focus() = 0;
 
         /*
         * @brief Processes window events (e.g., keyboard, mouse, window close).
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> ProcessEvents() = 0;
+        virtual Core::Result<void, Core::WindowError> ProcessEvents() = 0;
 
         /*
         * @brief Swaps the front and back buffers for rendering (double buffering).
         *
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> SwapBuffers() = 0;
+        virtual Core::Result<void, Core::WindowError> SwapBuffers() = 0;
 
         /*
         * @brief Retrieves the platform-specific native window handle.
@@ -122,7 +122,7 @@ namespace NuEngine::Platform
         * @param title The new title for the window.
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> SetTitle(const std::string& title) = 0;
+        virtual Core::Result<void, Core::WindowError> SetTitle(const std::string& title) = 0;
 
         /*
         * @brief Sets the window size.
@@ -131,7 +131,7 @@ namespace NuEngine::Platform
         * @param height The new height of the window in pixels.
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> SetSize(NuInt32 width, NuInt32 height) = 0;
+        virtual Core::Result<void, Core::WindowError> SetSize(NuInt32 width, NuInt32 height) = 0;
 
         /*
         * @brief Sets the window position on the screen.
@@ -140,7 +140,7 @@ namespace NuEngine::Platform
         * @param y The y-coordinate of the window's top-left corner.
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> SetPosition(NuInt32 x, NuInt32 y) = 0;
+        virtual Core::Result<void, Core::WindowError> SetPosition(NuInt32 x, NuInt32 y) = 0;
 
         /*
         * @brief Enables or disables vertical synchronization (VSync).
@@ -148,7 +148,7 @@ namespace NuEngine::Platform
         * @param vsync True to enable VSync, false to disable.
         * @return Result<void, Core::WindowError> Returns Ok on success or an error code on failure.
         */
-        virtual NuEngine::Core::Result<void, NuEngine::Core::WindowError> SetVSync(NuBool vsync) = 0;
+        virtual Core::Result<void, Core::WindowError> SetVSync(NuBool vsync) = 0;
 
         /*
         * @brief Retrieves the event system for handling window events.
@@ -167,5 +167,5 @@ namespace NuEngine::Platform
     * @return Result<std::unique_ptr<IWindow>, Core::WindowError> Returns a unique pointer to the
     * window instance on success or an error code on failure.
     */
-    NuEngine::Core::Result<std::unique_ptr<IWindow>, NuEngine::Core::WindowError> CreatePlatformWindow() noexcept;
+    Core::Result<std::unique_ptr<IWindow>, Core::WindowError> CreatePlatformWindow() noexcept;
 }

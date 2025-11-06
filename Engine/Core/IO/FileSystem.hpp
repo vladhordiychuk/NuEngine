@@ -39,7 +39,7 @@ namespace NuEngine::Core
         *
         * @return Result with the file's contents or FileSystemError.
         */
-        [[nodiscard]] NuEngine::Core::Result<std::vector<NuChar>, FileSystemError> ReadFile(const std::string& path) const noexcept;
+        [[nodiscard]] Result<std::vector<NuChar>, FileSystemError> ReadFile(const std::string& path) const noexcept;
 
         /*
         * @brief Writes data to a file.
@@ -49,7 +49,7 @@ namespace NuEngine::Core
         *
         * @return Result with void (success) or FileSystemError.
         */
-        [[nodiscard]] NuEngine::Core::Result<void, FileSystemError> WriteFile(const std::string& path, const std::vector<NuChar>& data) noexcept;
+        [[nodiscard]] Result<void, FileSystemError> WriteFile(const std::string& path, const std::vector<NuChar>& data) noexcept;
 
         /*
         * @brief Checks if a file exists.
@@ -67,10 +67,10 @@ namespace NuEngine::Core
         *
         * @return Result with the absolute path or FileSystemError.
         */
-        [[nodiscard]] NuEngine::Core::Result<std::string, FileSystemError> GetAbsolutePath(const std::string& path) const noexcept;
+        [[nodiscard]] Result<std::string, FileSystemError> GetAbsolutePath(const std::string& path) const noexcept;
 
     private:
-        std::string m_basePath; // Base path for file operations
+        std::string m_basePath;         // Base path for file operations
         mutable std::mutex m_mutex;
 
         /*

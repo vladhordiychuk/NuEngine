@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <chrono>
-#include <iostream>
 
 namespace NuEngine::Platform
 {
@@ -24,20 +23,15 @@ namespace NuEngine::Platform
         }
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Initialize(const WindowConfig& config)
+    Core::Result<void, Core::WindowError> WindowWin32::Initialize(const WindowConfig& config)
     {
-        if (m_IsInitialized) {
-            std::cerr << "Window already initialized" << std::endl;
-            return Err(NuEngine::Core::WindowError::AlreadyInitialized);
+        if (m_IsInitialized) 
+        {
+            return Err(Core::WindowError::AlreadyInitialized);
         }
 
         m_Config = config;
         m_HInstance = GetModuleHandle(nullptr);
-        std::cerr << "WindowConfig: title=" << m_Config.GetTitle()
-            << ", width=" << m_Config.GetWidth()
-            << ", height=" << m_Config.GetHeight()
-            << ", resizable=" << m_Config.IsResizable()
-            << ", decorated=" << m_Config.IsDecorated() << std::endl;
 
         WNDCLASSEX wc{};
         wc.cbSize = sizeof(WNDCLASSEX);
@@ -47,15 +41,14 @@ namespace NuEngine::Platform
         wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wc.lpszClassName = L"NuEngineWindowClass";
 
-        if (!RegisterClassEx(&wc)) {
-            std::cerr << "RegisterClassEx failed: " << GetLastError() << std::endl;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!RegisterClassEx(&wc)) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
 
         int len = MultiByteToWideChar(CP_UTF8, 0, m_Config.GetTitle().c_str(), -1, nullptr, 0);
         if (len == 0) {
-            std::cerr << "MultiByteToWideChar failed: " << GetLastError() << std::endl;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Err(Core::WindowError::PlatformFailure);
         }
         std::wstring wideTitle(len, 0);
         MultiByteToWideChar(CP_UTF8, 0, m_Config.GetTitle().c_str(), -1, &wideTitle[0], len);
@@ -68,7 +61,6 @@ namespace NuEngine::Platform
         AdjustWindowRect(&rect, style, FALSE);
         int totalWidth = rect.right - rect.left;
         int totalHeight = rect.bottom - rect.top;
-        std::cerr << "Creating window with width=" << totalWidth << ", height=" << totalHeight << std::endl;
 
         m_HWND = CreateWindowEx(
             0,
@@ -80,117 +72,126 @@ namespace NuEngine::Platform
             nullptr, nullptr, m_HInstance, this
         );
 
-        if (!m_HWND) {
-            std::cerr << "CreateWindowEx failed: " << GetLastError() << std::endl;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!m_HWND) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
 
         SetWindowLongPtr(m_HWND, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
         m_HDC = GetDC(m_HWND);
-        if (!m_HDC) {
-            std::cerr << "GetDC failed: " << GetLastError() << std::endl;
+        if (!m_HDC) 
+        {
             DestroyWindow(m_HWND);
             m_HWND = nullptr;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Err(Core::WindowError::PlatformFailure);
         }
 
         m_IsOpen = true;
         m_IsInitialized = true;
-        std::cerr << "Window initialized successfully" << std::endl;
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Shutdown()
+    Core::Result<void, Core::WindowError> WindowWin32::Shutdown()
     {
-        if (!m_IsInitialized) {
-            return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        if (!m_IsInitialized)
+        {
+            return Core::Ok<Core::WindowError>();
         }
 
-        if (m_HDC && m_HWND) {
+        if (m_HDC && m_HWND) 
+        {
             int released = ReleaseDC(m_HWND, m_HDC);
             m_HDC = nullptr;
-            if (released == 0) {
-                return Err(NuEngine::Core::WindowError::PlatformFailure);
+            if (released == 0) 
+            {
+                return Err(Core::WindowError::PlatformFailure);
             }
         }
 
-        if (m_HWND) {
+        if (m_HWND) 
+        {
             BOOL destroyed = DestroyWindow(m_HWND);
             m_HWND = nullptr;
-            if (!destroyed) {
-                return Err(NuEngine::Core::WindowError::PlatformFailure);
+            if (!destroyed) 
+            {
+                return Err(Core::WindowError::PlatformFailure);
             }
         }
 
         m_IsOpen = false;
         m_IsInitialized = false;
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Show()
+    Core::Result<void, Core::WindowError> WindowWin32::Show()
     {
-        if (!m_HWND) {
-            std::cerr << "ShowWindow failed: HWND is null" << std::endl;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!m_HWND) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
 
         ShowWindow(m_HWND, SW_SHOW);
-        if (!UpdateWindow(m_HWND)) {
-            std::cerr << "UpdateWindow failed: " << GetLastError() << std::endl;
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!UpdateWindow(m_HWND)) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
 
-        std::cerr << "Window shown successfully" << std::endl;
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Hide()
+    Core::Result<void, Core::WindowError> WindowWin32::Hide()
     {
-        if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!m_HWND) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
-        if (!ShowWindow(m_HWND, SW_HIDE)) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!ShowWindow(m_HWND, SW_HIDE)) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::Focus()
+    Core::Result<void, Core::WindowError> WindowWin32::Focus()
     {
-        if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!m_HWND) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
         SetFocus(m_HWND);
         SetForegroundWindow(m_HWND);
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::ProcessEvents()
+    Core::Result<void, Core::WindowError> WindowWin32::ProcessEvents()
     {
         MSG msg;
-        while (PeekMessage(&msg, m_HWND, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) {
+        while (PeekMessage(&msg, m_HWND, 0, 0, PM_REMOVE)) 
+        {
+            if (msg.message == WM_QUIT)
+            {
                 m_IsOpen = false;
-                return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+                return Core::Ok<Core::WindowError>();
             }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SwapBuffers()
+    Core::Result<void, Core::WindowError> WindowWin32::SwapBuffers()
     {
-        if (!m_HDC) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+        if (!m_HDC) 
+        {
+            return Err(Core::WindowError::PlatformFailure);
         }
         if (!::SwapBuffers(m_HDC)) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Err(Core::WindowError::PlatformFailure);
         }
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
     void* WindowWin32::GetNativeHandle(NativeHandleType type) const
@@ -221,57 +222,55 @@ namespace NuEngine::Platform
         return m_IsFocused;
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetTitle(const std::string& title)
+    Core::Result<void, Core::WindowError> WindowWin32::SetTitle(const std::string& title)
     {
         if (!m_HWND) {
-            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Core::Err(Core::WindowError::PlatformFailure);
         }
         int len = MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, nullptr, 0);
         std::wstring wideTitle(len, 0);
         MultiByteToWideChar(CP_UTF8, 0, title.c_str(), -1, &wideTitle[0], len);
         if (!SetWindowText(m_HWND, wideTitle.c_str())) {
-            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Core::Err(Core::WindowError::PlatformFailure);
         }
         m_Config.SetTitle(title);
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetSize(NuInt32 width, NuInt32 height)
+    Core::Result<void, Core::WindowError> WindowWin32::SetSize(NuInt32 width, NuInt32 height)
     {
         if (!m_HWND) {
-            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Core::Err(Core::WindowError::PlatformFailure);
         }
         RECT rect{ 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
         DWORD style = GetWindowLong(m_HWND, GWL_STYLE);
         AdjustWindowRect(&rect, style, FALSE);
         if (!SetWindowPos(m_HWND, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER)) {
-            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Core::Err(Core::WindowError::PlatformFailure);
         }
         m_Config.SetSize(width, height);
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetPosition(NuInt32 x, NuInt32 y)
+    Core::Result<void, Core::WindowError> WindowWin32::SetPosition(NuInt32 x, NuInt32 y)
     {
         if (!m_HWND) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Err(Core::WindowError::PlatformFailure);
         }
-        // Перетворення клієнтських координат у координати повного вікна
         RECT rect{ 0, 0, 0, 0 };
         DWORD style = GetWindowLong(m_HWND, GWL_STYLE);
         AdjustWindowRect(&rect, style, FALSE);
         if (!SetWindowPos(m_HWND, nullptr, x - rect.left, y - rect.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER)) {
-            return NuEngine::Core::Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Core::Err(Core::WindowError::PlatformFailure);
         }
         m_Config.SetPosition(x, y);
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::SetVSync(NuBool vsync)
+    Core::Result<void, Core::WindowError> WindowWin32::SetVSync(NuBool vsync)
     {
         m_Config.SetVSync(vsync);
-        // TODO: Реалізувати для OpenGL (наприклад, wglSwapIntervalEXT)
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
     LRESULT CALLBACK WindowWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -289,15 +288,15 @@ namespace NuEngine::Platform
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
-    NuEngine::Core::Result<void, NuEngine::Core::WindowError> WindowWin32::PushWindowEvent(std::unique_ptr<WindowEvent> event)
+    Core::Result<void, Core::WindowError> WindowWin32::PushWindowEvent(std::unique_ptr<WindowEvent> event)
     {
         if (!event) {
-            return Err(NuEngine::Core::WindowError::PlatformFailure);
+            return Err(Core::WindowError::PlatformFailure);
         }
         event->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
         m_EventSystem.PushEvent(std::move(event));
-        return NuEngine::Core::Ok<NuEngine::Core::WindowError>();
+        return Core::Ok<Core::WindowError>();
     }
 
     LRESULT WindowWin32::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)

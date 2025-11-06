@@ -4,14 +4,19 @@
 
 #pragma once
 
+#include <Graphics/Abstractions/IRenderDevice.hpp>
+#include <Platform/IWindow.hpp>
 #include <Core/Types/Result.hpp>
 #include <Core/Errors/GraphicsError.hpp>
 
+#include <memory>
+
 namespace NuEngine::Graphics::OpenGL
 {
-	class OpenGLLoader
+	class OpenGLFactory
 	{
 	public:
-		static NuEngine::Core::Result<void, NuEngine::Core::GraphicsError> LoadFunctions() noexcept;
+		[[nodiscard]] static Core::Result<std::unique_ptr<IRenderDevice>, Core::GraphicsError> 
+			CreateDevice(Platform::IWindow* window) noexcept;
 	};
 }

@@ -2,7 +2,8 @@
 #include <fstream>
 #include <filesystem>
 
-namespace NuEngine::Core {
+namespace NuEngine::Core
+{
 
     FileSystem::FileSystem(const std::string& basePath)
         : m_basePath(basePath.empty() ? "." : basePath) 

@@ -33,7 +33,7 @@ namespace NuEngine::Core
         * @param logFilePath Path to the log file.
         * @return Result with void (success) or FileSystemError.
         */
-        [[nodiscard]] static NuEngine::Core::Result<void, FileSystemError> Init(const std::string& logFilePath) noexcept;
+        [[nodiscard]] static Result<void, FileSystemError> Init(const std::string& logFilePath) noexcept;
 
         /*
         * @brief Shuts down the logger.

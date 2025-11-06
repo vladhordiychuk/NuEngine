@@ -51,8 +51,8 @@ namespace NuEngine::Core::Types
     static_assert(sizeof(NuDouble) == 8, "NuDouble must be 8 bytes");
 
     // Constants for floating point
-    constexpr NuFloat NuFloat_EPSILON = std::numeric_limits<NuFloat>::epsilon();
-    constexpr NuDouble NuDouble_EPSILON = std::numeric_limits<NuDouble>::epsilon();
+    constexpr NuFloat NuFloatEPSILON = std::numeric_limits<NuFloat>::epsilon();
+    constexpr NuDouble NuDoubleEPSILON = std::numeric_limits<NuDouble>::epsilon();
 
     // ==========================
     // Other useful types
