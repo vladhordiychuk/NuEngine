@@ -1,23 +1,32 @@
 cmake_minimum_required(VERSION 3.16)
-project(NuEngine)
+project(NuEngineWorkspace) 
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_definitions(-DUNICODE -D_UNICODE)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+option(NU_BUILD_TESTS "Build unit tests" ON)
 
 if (MSVC)
-    add_compile_options(/W4 /permissive-)
+    add_compile_options(/W4 /permissive- /MP)
+    add_compile_definitions(UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
 else()
-    add_compile_options(-Wall -Wextra -pedantic -Wno-unused-parameter)
+    add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-add_subdirectory(thirdparty/glm ${CMAKE_BINARY_DIR}/glm)
-add_subdirectory(thirdparty/googletest ${CMAKE_BINARY_DIR}/googletest)
-add_subdirectory(thirdparty/benchmark ${CMAKE_BINARY_DIR}/benchmark)
+add_subdirectory(ThirdParty) 
 
-add_subdirectory(Engine)
+add_subdirectory(NuEngine) 
+
+add_subdirectory(NuEngine/NuMath)
+
 add_subdirectory(Game)
 
-enable_testing()
-add_subdirectory(Tests)
+if (NU_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(Tests)
+endif()

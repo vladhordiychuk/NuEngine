@@ -1,27 +1,32 @@
-#include <Core/Application/Application.hpp>
-#include <Core/Logging/Logger.hpp>
-#include <Core/Errors/WindowError.hpp>
-#include <Core/Errors/FileSystemError.hpp>
+#include <NuEngine/NuEngine.hpp>
+#include <NuEngine/Runtime/EntryPoint.hpp>
+#include <memory>
 
-int main()
+class SandboxApp : public NuEngine::Runtime::Application
 {
-    auto initResult = NuEngine::Core::Logger::Init("logs/app.log");
-    if (initResult.IsError())
+public:
+    SandboxApp()
     {
-        std::cerr << "Logger init failed: " << NuEngine::Core::ToString(initResult.UnwrapError()) << std::endl;
-        return -1;
-    }
-    LOG_INFO("Starting NuEngine...");
-
-    NuEngine::Core::Application app;
-    auto result = app.Run();
-    if (result.IsError())
-    {
-        LOG_ERROR("Application run failed: {}", NuEngine::Core::ToString(result.UnwrapError()));
-        NuEngine::Core::Logger::Shutdown();
-        return -1;
+        LOG_INFO("Sandbox App started! Hello NuEngine!");
+        LOG_WARNING("This is a warning test.");
     }
 
-    NuEngine::Core::Logger::Shutdown();
-    return 0;
+    ~SandboxApp()
+    {
+        LOG_INFO("Sandbox App Destroyed!");
+    }
+
+    void OnUpdate(float deltaTime) override
+    {
+
+    }
+
+    void OnRender() override
+    {
+    }
+};
+
+std::unique_ptr<NuEngine::Runtime::Application> NuEngine::CreateApplication()
+{
+    return std::make_unique<SandboxApp>();
 }

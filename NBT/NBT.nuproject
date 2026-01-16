@@ -1,0 +1,15 @@
+[project]
+name = "NBT"
+default_target = "nbt"
+
+[targets.nbt]
+type = "executable"
+modules = ["NBT"]
+entry = "src/main.cpp"
+output = "build/nbt.exe"
+
+[module]
+name = "NBT"
+type = "executable"
+sources = ["src/**/*.cpp"]
+includes = ["include", "thirdparty/toml11"]

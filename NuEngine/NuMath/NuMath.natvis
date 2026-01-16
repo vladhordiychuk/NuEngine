@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<!-- Vector4 -->
+	<Type Name="NuMath::Vector4">
+		<DisplayString>{{ x={m_data.m128_f32[0],g}, y={m_data.m128_f32[1],g}, z={m_data.m128_f32[2],g}, w={m_data.m128_f32[3],g} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_data.m128_f32[0],g</Item>
+			<Item Name="Y">m_data.m128_f32[1],g</Item>
+			<Item Name="Z">m_data.m128_f32[2],g</Item>
+			<Item Name="W">m_data.m128_f32[3],g</Item>
+		</Expand>
+	</Type>
+
+	<!-- Vector3 -->
+	<Type Name="NuMath::Vector3">
+		<DisplayString>{{ x={m_data.m128_f32[0],g}, y={m_data.m128_f32[1],g}, z={m_data.m128_f32[2],g} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_data.m128_f32[0],g</Item>
+			<Item Name="Y">m_data.m128_f32[1],g</Item>
+			<Item Name="Z">m_data.m128_f32[2],g</Item>
+		</Expand>
+	</Type>
+
+	<!-- Vector2 -->
+	<Type Name="NuMath::Vector2">
+		<DisplayString>{{ x={m_data.m128_f32[0],g}, y={m_data.m128_f32[1],g} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_data.m128_f32[0],g</Item>
+			<Item Name="Y">m_data.m128_f32[1],g</Item>
+		</Expand>
+	</Type>
+	
+	<!-- Quaternion -->
+	<Type Name="NuMath::Quaternion">
+		<DisplayString>{{ x={m_data.m128_f32[0],g}, y={m_data.m128_f32[1],g}, z={m_data.m128_f32[2],g}, w={m_data.m128_f32[3],g} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_data.m128_f32[0],g</Item>
+			<Item Name="Y">m_data.m128_f32[1],g</Item>
+			<Item Name="Z">m_data.m128_f32[2],g</Item>
+			<Item Name="W">m_data.m128_f32[3],g</Item>
+		</Expand>
+	</Type>
+
+	<!-- Matrix4x4 -->
+	<Type Name="NuMath::Matrix4x4">
+		<DisplayString>Matrix4x4 (Column-Major)</DisplayString>
+		<Expand>
+			<!-- Columns View -->
+			<Synthetic Name="[Columns]">
+				<DisplayString>Column-major storage</DisplayString>
+				<Expand>
+					<Synthetic Name="Col 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[0].m128_f32[1],g}, {m_data.cols[0].m128_f32[2],g}, {m_data.cols[0].m128_f32[3],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[0].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[0].m128_f32[2],g</Item>
+							<Item Name="[3]">m_data.cols[0].m128_f32[3],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 1">
+						<DisplayString>({m_data.cols[1].m128_f32[0],g}, {m_data.cols[1].m128_f32[1],g}, {m_data.cols[1].m128_f32[2],g}, {m_data.cols[1].m128_f32[3],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[1].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[1].m128_f32[2],g</Item>
+							<Item Name="[3]">m_data.cols[1].m128_f32[3],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 2">
+						<DisplayString>({m_data.cols[2].m128_f32[0],g}, {m_data.cols[2].m128_f32[1],g}, {m_data.cols[2].m128_f32[2],g}, {m_data.cols[2].m128_f32[3],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[2].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[2].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[2],g</Item>
+							<Item Name="[3]">m_data.cols[2].m128_f32[3],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 3">
+						<DisplayString>({m_data.cols[3].m128_f32[0],g}, {m_data.cols[3].m128_f32[1],g}, {m_data.cols[3].m128_f32[2],g}, {m_data.cols[3].m128_f32[3],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[3].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[3].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[3].m128_f32[2],g</Item>
+							<Item Name="[3]">m_data.cols[3].m128_f32[3],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+
+			<!-- Rows View (Transposed) -->
+			<Synthetic Name="[Rows]">
+				<DisplayString>Transposed view</DisplayString>
+				<Expand>
+					<Synthetic Name="Row 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[1].m128_f32[0],g}, {m_data.cols[2].m128_f32[0],g}, {m_data.cols[3].m128_f32[0],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[0],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[0],g</Item>
+							<Item Name="[3]">m_data.cols[3].m128_f32[0],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 1">
+						<DisplayString>({m_data.cols[0].m128_f32[1],g}, {m_data.cols[1].m128_f32[1],g}, {m_data.cols[2].m128_f32[1],g}, {m_data.cols[3].m128_f32[1],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[1],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[1],g</Item>
+							<Item Name="[3]">m_data.cols[3].m128_f32[1],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 2">
+						<DisplayString>({m_data.cols[0].m128_f32[2],g}, {m_data.cols[1].m128_f32[2],g}, {m_data.cols[2].m128_f32[2],g}, {m_data.cols[3].m128_f32[2],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[2],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[2],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[2],g</Item>
+							<Item Name="[3]">m_data.cols[3].m128_f32[2],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 3">
+						<DisplayString>({m_data.cols[0].m128_f32[3],g}, {m_data.cols[1].m128_f32[3],g}, {m_data.cols[2].m128_f32[3],g}, {m_data.cols[3].m128_f32[3],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[3],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[3],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[3],g</Item>
+							<Item Name="[3]">m_data.cols[3].m128_f32[3],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+
+			<Synthetic Name="[Raw SIMD]">
+				<DisplayString>16 floats in memory order</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>16</Size>
+						<ValuePointer>(float*)&amp;m_data.cols[0]</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<!-- Matrix3x3 -->
+	<Type Name="NuMath::Matrix3x3">
+		<DisplayString>Matrix3x3 (Column-Major)</DisplayString>
+		<Expand>
+			<Synthetic Name="[Columns]">
+				<DisplayString>Column-major storage</DisplayString>
+				<Expand>
+					<Synthetic Name="Col 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[0].m128_f32[1],g}, {m_data.cols[0].m128_f32[2],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[0].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[0].m128_f32[2],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 1">
+						<DisplayString>({m_data.cols[1].m128_f32[0],g}, {m_data.cols[1].m128_f32[1],g}, {m_data.cols[1].m128_f32[2],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[1].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[1].m128_f32[2],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 2">
+						<DisplayString>({m_data.cols[2].m128_f32[0],g}, {m_data.cols[2].m128_f32[1],g}, {m_data.cols[2].m128_f32[2],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[2].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[2].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[2],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+
+			<Synthetic Name="[Rows]">
+				<DisplayString>Transposed view</DisplayString>
+				<Expand>
+					<Synthetic Name="Row 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[1].m128_f32[0],g}, {m_data.cols[2].m128_f32[0],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[0],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[0],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 1">
+						<DisplayString>({m_data.cols[0].m128_f32[1],g}, {m_data.cols[1].m128_f32[1],g}, {m_data.cols[2].m128_f32[1],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[1],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[1],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 2">
+						<DisplayString>({m_data.cols[0].m128_f32[2],g}, {m_data.cols[1].m128_f32[2],g}, {m_data.cols[2].m128_f32[2],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[2],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[2],g</Item>
+							<Item Name="[2]">m_data.cols[2].m128_f32[2],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<!-- Matrix2x2 -->
+	<Type Name="NuMath::Matrix2x2">
+		<DisplayString>Matrix2x2 (Column-Major)</DisplayString>
+		<Expand>
+			<Synthetic Name="[Columns]">
+				<DisplayString>Column-major storage</DisplayString>
+				<Expand>
+					<Synthetic Name="Col 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[0].m128_f32[1],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[0].m128_f32[1],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Col 1">
+						<DisplayString>({m_data.cols[1].m128_f32[0],g}, {m_data.cols[1].m128_f32[1],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[1].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+
+			<Synthetic Name="[Rows]">
+				<DisplayString>Transposed view</DisplayString>
+				<Expand>
+					<Synthetic Name="Row 0">
+						<DisplayString>({m_data.cols[0].m128_f32[0],g}, {m_data.cols[1].m128_f32[0],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[0],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[0],g</Item>
+						</Expand>
+					</Synthetic>
+
+					<Synthetic Name="Row 1">
+						<DisplayString>({m_data.cols[0].m128_f32[1],g}, {m_data.cols[1].m128_f32[1],g})</DisplayString>
+						<Expand>
+							<Item Name="[0]">m_data.cols[0].m128_f32[1],g</Item>
+							<Item Name="[1]">m_data.cols[1].m128_f32[1],g</Item>
+						</Expand>
+					</Synthetic>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<!-- Color -->
+	<Type Name="NuMath::Color">
+		<DisplayString>{{ R={m_data.m128_f32[0],g}, G={m_data.m128_f32[1],g}, B={m_data.m128_f32[2],g}, A={m_data.m128_f32[3],g} }}</DisplayString>
+		<Expand>
+			<Item Name="Red (0-1)">m_data.m128_f32[0],g</Item>
+			<Item Name="Green (0-1)">m_data.m128_f32[1],g</Item>
+			<Item Name="Blue (0-1)">m_data.m128_f32[2],g</Item>
+			<Item Name="Alpha (0-1)">m_data.m128_f32[3],g</Item>
+
+			<Synthetic Name="[8-bit Values (Approx)]">
+				<DisplayString>Use for quick reference only</DisplayString>
+				<Expand>
+					<Item Name="R">(int)(m_data.m128_f32[0] * 255.0f)</Item>
+					<Item Name="G">(int)(m_data.m128_f32[1] * 255.0f)</Item>
+					<Item Name="B">(int)(m_data.m128_f32[2] * 255.0f)</Item>
+					<Item Name="A">(int)(m_data.m128_f32[3] * 255.0f)</Item>
+				</Expand>
+			</Synthetic>
+
+			<Item Name="[Underlying Vector]">m_data</Item>
+		</Expand>
+	</Type>
+
+</AutoVisualizer>

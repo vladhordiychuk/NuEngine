@@ -1,13 +1,15 @@
-file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
+project(Game)
+
+add_executable(Game 
+    main.cpp
 )
 
-add_executable(Game ${GAME_SRC})
+target_compile_features(Game PRIVATE cxx_std_20)
 
-target_include_directories(Game PRIVATE
-    ${CMAKE_SOURCE_DIR}/Engine/include
-    ${CMAKE_SOURCE_DIR}/Math/include
+target_link_libraries(Game PRIVATE NuEngine)
+
+add_custom_command(TARGET Game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/Resources"
+    "$<TARGET_FILE_DIR:Game>/Resources"
 )
-
-target_link_libraries(Game PRIVATE Engine)
