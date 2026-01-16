@@ -136,7 +136,7 @@ int main()
 - 4x4 Matrix operations (multiply, inverse, transpose)
 - Quaternion support (coming soon)
 - ~5x performance boost over scalar code
-- [📖 Full Math Documentation](Engine/Math/README.md)
+- [📖 Full Math Documentation](NuEngine/NuMath/README.md)
 
 </td>
 <td width="50%">
@@ -146,7 +146,7 @@ int main()
 - X11/Wayland support (Linux - in progress)
 - Event-driven input system
 - Keyboard and mouse support
-- [📖 Platform Documentation](Engine/Platform/README.md)
+- [📖 Platform Documentation](NuEngine/Platform/README.md)
 
 </td>
 </tr>
@@ -158,7 +158,7 @@ int main()
 - File and console output
 - Formatted messages with `std::format`
 - Thread-safe operations
-- [📖 Core Documentation](Engine/Core/README.md)
+- [📖 Core Documentation](NuEngine/Core/README.md)
 
 </td>
 <td>

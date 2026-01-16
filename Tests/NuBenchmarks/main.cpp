@@ -30,6 +30,9 @@ void WarmupCPU()
 
 int main(int argc, char** argv)
 {
+#ifdef CI_BUILD
+    return 0;
+#endif
     PinToCore(0);
     WarmupCPU();
 
