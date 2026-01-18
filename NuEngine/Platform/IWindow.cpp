@@ -12,7 +12,6 @@ namespace NuEngine::Platform
 {
     Core::Result<std::unique_ptr<IWindow>, WindowError> CreatePlatformWindow() noexcept
     {
-        // 1. Створюємо змінну базового типу
         std::unique_ptr<IWindow> window;
 
 #if defined(_WIN32)
@@ -22,11 +21,8 @@ namespace NuEngine::Platform
 #elif defined(__APPLE__)
         window = std::make_unique<WindowCocoa>();
 #else
-        // Виправлено NCore -> Core
         return Core::Err(WindowError(WindowErrorCode::PlatformFailure));
 #endif
-
-        // 2. Повертаємо вже правильний тип через std::move
         return Core::Ok(std::move(window));
     }
 }

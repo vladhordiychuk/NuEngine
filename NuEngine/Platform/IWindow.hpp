@@ -152,6 +152,8 @@ namespace NuEngine::Platform
         * @return WindowEventSystem& Reference to the event system for processing window events.
         */
         virtual WindowEventSystem& GetEventSystem() = 0;
+
+        virtual void SetEventCallback(const std::function<void(WindowEvent&)>& callback) = 0;
     };
 
     /*

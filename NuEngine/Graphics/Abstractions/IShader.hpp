@@ -24,4 +24,4 @@ namespace NuEngine::Graphics
 		virtual void SetVec4(const std::string& name, const NuMath::Vector4& vec4) = 0;
 		virtual void SetMat4x4(const std::string& name, const NuMath::Matrix4x4& mat4x4) = 0;
 	};
-}
+} //namespace NuEngine::Graphics

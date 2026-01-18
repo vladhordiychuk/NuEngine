@@ -11,6 +11,8 @@
 
 namespace NuEngine::Graphics
 {
+	class IShader;
+
 	/*
 	* @brief
 	*/
@@ -32,6 +34,8 @@ namespace NuEngine::Graphics
 			return Clear(color.R(), color.G(), color.B(), color.A());
 		}
 
+		virtual [[nodiscard]] Core::Result<std::shared_ptr<IShader>, GraphicsError> CreateShader(const std::string& vertexSrc, const std::string& fragmentSrc) noexcept = 0;
+
 		/*
 		* @brief
 		*/
@@ -41,5 +45,7 @@ namespace NuEngine::Graphics
 		* @brief
 		*/
 		virtual [[nodiscard]] Core::Result<void, GraphicsError> Present() noexcept = 0;
+
+		virtual void SetViewport(int x, int y, int width, int height) noexcept = 0;
 	};
-}
+} // namespace Engine::Graphics

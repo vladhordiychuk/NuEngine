@@ -6,6 +6,11 @@ namespace NuEngine::Platform
     void WindowEventSystem::PushEvent(std::unique_ptr<WindowEvent> event)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
+        
+        if (m_EventCallback)
+        {
+            m_EventCallback(*event);
+        }
         m_Events.push_back(std::move(event));
     }
 
@@ -17,7 +22,7 @@ namespace NuEngine::Platform
         return events;
     }
 
-    void WindowEventSystem::SetEventCallback(const std::function<void(const WindowEvent&)>& callback)
+    void WindowEventSystem::SetEventCallback(const EventCallbackFn& callback)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         m_EventCallback = callback;

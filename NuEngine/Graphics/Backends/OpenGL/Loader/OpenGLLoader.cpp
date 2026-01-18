@@ -1,20 +1,32 @@
 #include <Graphics/Backends/OpenGL/Loader/OpenGLLoader.hpp>
-
 #include <glad/glad.h>
+#include <windows.h>
 
 namespace NuEngine::Graphics::OpenGL
 {
-	Core::Result<void, GraphicsError> OpenGLLoader::LoadFunctions() noexcept
+	void* GetAnyGLFuncAddress(const char* name)
 	{
-		if (!gladLoadGL())
+		void* p = (void*)wglGetProcAddress(name);
+
+		if (p == 0 || (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) || (p == (void*)-1))
 		{
-			return Core::Err(GraphicsError(GraphicsErrorCode::FunctionLoadFailed));
+			static HMODULE module = LoadLibraryA("opengl32.dll");
+			p = (void*)GetProcAddress(module, name);
 		}
 
-		const char* version = (const char*)glGetString(GL_VERSION);
-		if (!version)
+		return p;
+	}
+
+	Core::Result<void, GraphicsError> OpenGLLoader::LoadFunctions() noexcept
+	{
+		if (!gladLoadGLLoader((GLADloadproc)GetAnyGLFuncAddress))
 		{
-			return Core::Err(GraphicsError(GraphicsErrorCode::FunctionLoadFailed));
+			return Core::Err(GraphicsError(GraphicsErrorCode::FunctionLoadFailed, "Failed to initialize GLAD"));
+		}
+
+		if (glGetString(GL_VERSION) == nullptr)
+		{
+			return Core::Err(GraphicsError(GraphicsErrorCode::FunctionLoadFailed, "OpenGL context invalid"));
 		}
 
 		return Core::Ok();

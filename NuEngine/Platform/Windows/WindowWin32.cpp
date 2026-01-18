@@ -184,6 +184,11 @@ namespace NuEngine::Platform
 
     Core::Result<void, WindowError> WindowWin32::SwapBuffers()
     {
+        if (!m_IsOpen)
+        {
+            return Core::Ok();
+        }
+
         if (!m_HDC) 
         {
             return Core::Err(WindowError(WindowErrorCode::PlatformFailure));
@@ -299,6 +304,11 @@ namespace NuEngine::Platform
         return Core::Ok();
     }
 
+    void WindowWin32::SetEventCallback(const std::function<void(WindowEvent&)>& callback)
+    {
+        m_EventSystem.SetEventCallback(callback);
+    }
+
     LRESULT WindowWin32::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
     {
         switch (msg) 
@@ -309,10 +319,12 @@ namespace NuEngine::Platform
                 if (result.IsError()) {
                     return 0;
                 }
+                DestroyWindow(m_HWND);
                 m_IsOpen = false;
                 return 0;
             }
             case WM_DESTROY:
+                PostQuitMessage(0);
                 m_IsOpen = false;
                 return 0;
             case WM_SIZE:

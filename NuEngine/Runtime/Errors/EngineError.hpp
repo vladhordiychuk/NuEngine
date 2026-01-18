@@ -3,6 +3,7 @@
 #include <variant>
 #include <string>
 #include <source_location>
+#include <iostream>
 
 #include <Core/Types/AppError.hpp>
 #include <Platform/Errors/WindowError.hpp>
@@ -21,24 +22,27 @@ namespace NuEngine::Runtime
             Core::FileSystemError
         >;
 
-        EngineError(const char* msg, std::source_location loc = std::source_location::current())
-            : m_error(Core::AppError(msg, loc)) {
-        }
-
         EngineError(std::string msg, std::source_location loc = std::source_location::current())
             : m_error(Core::AppError(std::move(msg), loc)) {
         }
 
-        EngineError(Core::AppError err) : m_error(std::move(err)) {}
+        EngineError(const char* msg, std::source_location loc = std::source_location::current())
+            : m_error(Core::AppError(msg, loc)) {
+        }
 
         template <typename T>
-            requires (!std::is_same_v<std::decay_t<T>, EngineError> &&
-        !std::is_same_v<std::decay_t<T>, Core::AppError>)
-            EngineError(T&& innerError, std::source_location loc = std::source_location::current())
-            : m_error(Core::AppError(
-                ToString(innerError),
-                loc
-            ))
+            requires (std::is_constructible_v<VariantType, T&&> &&
+        !std::is_same_v<std::decay_t<T>, EngineError>)
+            EngineError(T&& specificError)
+            : m_error(std::forward<T>(specificError))
+        {
+        }
+
+        template <typename T>
+            requires (!std::is_constructible_v<VariantType, T&&> &&
+        !std::is_same_v<std::decay_t<T>, EngineError>)
+            EngineError(T&& otherError, std::source_location loc = std::source_location::current())
+            : m_error(Core::AppError(ToString(otherError), loc))
         {
         }
 
@@ -51,6 +55,16 @@ namespace NuEngine::Runtime
                 }, m_error);
         }
 
+        template <typename T>
+        [[nodiscard]] bool Is() const {
+            return std::holds_alternative<T>(m_error);
+        }
+
+        template <typename T>
+        [[nodiscard]] const T* Get() const {
+            return std::get_if<T>(&m_error);
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const EngineError& e) {
             return os << e.ToString();
         }
@@ -61,10 +75,3 @@ namespace NuEngine::Runtime
 
     NU_FORCEINLINE std::string ToString(const EngineError& e) { return e.ToString(); }
 }
-
-template <>
-struct std::formatter<NuEngine::Runtime::EngineError> : std::formatter<std::string> {
-    auto format(const NuEngine::Runtime::EngineError& err, format_context& ctx) const {
-        return formatter<string>::format(err.ToString(), ctx);
-    }
-};

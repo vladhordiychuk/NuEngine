@@ -110,6 +110,12 @@ namespace NuEngine::Runtime {
          */
         [[nodiscard]] Core::Result<void, EngineError> PollEvents() noexcept;
 
+        void OnEvent(Platform::WindowEvent& event) noexcept;
+
+        [[nodiscard]] bool OnWindowClose(Platform::WindowClosedEvent& event) noexcept;
+
+        [[nodiscard]] bool OnWindowResize(Platform::WindowResizedEvent& event) noexcept;
+
         /**
          * @brief Updates application state
          */

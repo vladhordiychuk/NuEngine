@@ -4,106 +4,162 @@
 
 #pragma once
 
+#include <array>
 #include <string>
 #include <string_view>
-#include <iostream>
-#include <vector>
+#include <format>
+#include <ostream>
 
 #include <Core/Types/Types.hpp>
 #include <Core/Types/ErrorContext.hpp>
 
 namespace NuEngine::Graphics
 {
-    /**
-     * @brief Error codes for graphics operations.
-     */
-    enum class GraphicsErrorCode
-    {
-        Success,                    // No error
-        PlatformFailure,            // Platform-related error
-        DeviceLost,                 // GPU device lost
-        DriverFailure,              // Graphics driver error
-        ShaderCompilationFailed,    // Shader compilation error
-        ResourceCreationFailed,     // Failed to create buffer/texture/etc.
-        OutOfMemory,                // GPU ran out of memory
-        InvalidParameter,           // Invalid arguments passed
-        UnsupportedFeature,         // Feature not supported
-        InvalidWindow,              // Invalid window handle
-        ContextCreationFailed,      // Failed to create OpenGL context
-        FunctionLoadFailed,         // Failed to load OpenGL functions
-        InvalidContext,             // Invalid OpenGL context
-        SwapBuffersFailed           // Failed to swap buffers
-    };
+	/**
+	 * @brief Error codes for graphics operations.
+	 */
+	enum class GraphicsErrorCode
+	{
+		Success,
+		PlatformFailure,
+		DeviceLost,
+		DriverFailure,
+		CompilationFailed,
+		ResourceCreationFailed,
+		OutOfMemory,
+		InvalidParameter,
+		UnsupportedFeature,
+		InvalidWindow,
+		ContextCreationFailed,
+		FunctionLoadFailed,
+		InvalidContext,
+		SwapBuffersFailed
+	};
 
-    [[nodiscard]] NU_FORCEINLINE std::string_view ToErrorString(GraphicsErrorCode code) noexcept
-    {
-        switch (code)
-        {
-        [[likely]] case GraphicsErrorCode::Success:
-            return "Success";
-        case GraphicsErrorCode::PlatformFailure:
-            return "Platform failure";
-        case GraphicsErrorCode::DeviceLost:
-            return "Device lost";
-        case GraphicsErrorCode::DriverFailure:
-            return "Driver failure";
-        case GraphicsErrorCode::ShaderCompilationFailed:
-            return "Shader compilation failed";
-        case GraphicsErrorCode::ResourceCreationFailed:
-            return "Resource creation failed";
-        case GraphicsErrorCode::OutOfMemory:
-            return "Out of memory";
-        case GraphicsErrorCode::InvalidParameter:
-            return "Invalid parameter";
-        case GraphicsErrorCode::UnsupportedFeature:
-            return "Unsupported feature";
-        case GraphicsErrorCode::InvalidWindow:
-            return "Invalid window";
-        case GraphicsErrorCode::ContextCreationFailed:
-            return "Context creation failed";
-        case GraphicsErrorCode::FunctionLoadFailed:
-            return "Function load failed";
-        case GraphicsErrorCode::InvalidContext:
-            return "Invalid context";
-        case GraphicsErrorCode::SwapBuffersFailed:
-            return "Swap buffers failed";
-        default:
-            return "Unknown graphics error";
-        }
-    }
+	[[nodiscard]] constexpr std::string_view ToErrorString(GraphicsErrorCode code) noexcept
+	{
+		switch (code)
+		{
+			case GraphicsErrorCode::Success: 
+				return "Success";
+			case GraphicsErrorCode::PlatformFailure:
+				return "Platform failure";
+			case GraphicsErrorCode::DeviceLost: 
+				return "Device lost";
+			case GraphicsErrorCode::DriverFailure: 
+				return "Driver failure";
+			case GraphicsErrorCode::CompilationFailed: 
+				return "Compilation failed";
+			case GraphicsErrorCode::ResourceCreationFailed: 
+				return "Resource creation failed";
+			case GraphicsErrorCode::OutOfMemory: 
+				return "Out of memory";
+			case GraphicsErrorCode::InvalidParameter:
+				return "Invalid parameter";
+			case GraphicsErrorCode::UnsupportedFeature:
+				return "Unsupported feature";
+			case GraphicsErrorCode::InvalidWindow:
+				return "Invalid window";
+			case GraphicsErrorCode::ContextCreationFailed:
+				return "Context creation failed";
+			case GraphicsErrorCode::FunctionLoadFailed:
+				return "Function load failed";
+			case GraphicsErrorCode::InvalidContext:
+				return "Invalid context";
+			case GraphicsErrorCode::SwapBuffersFailed: 
+				return "Swap buffers failed";
+			default: 
+				return "Unknown graphics error";
+		}
+	}
 
-    struct GraphicsError
-    {
-        Core::ErrorSeverity severity;
-        GraphicsErrorCode code;
-        std::string details;
-        std::vector<Core::ErrorContext> context;
+	constexpr size_t MAX_ERROR_TRACE_DEPTH = 8;
 
-        GraphicsError(GraphicsErrorCode c, std::string d = "", Core::ErrorContext ctx = {}) noexcept
-            : code(c), details(std::move(d))
-        {
-            context.push_back(ctx);
-        }
+	/**
+	 * @brief Stack trace container without dynamic allocation.
+	 */
+	struct ErrorTrace
+	{
+		std::array<Core::ErrorContext, MAX_ERROR_TRACE_DEPTH> frames;
+		uint8_t count = 0;
 
-        [[nodiscard]] std::string ToString() const noexcept
-        {
-            std::string result(ToErrorString(code));
+		constexpr void Push(const Core::ErrorContext& ctx) noexcept
+		{
+			if (count < MAX_ERROR_TRACE_DEPTH)
+			{
+				frames[count++] = ctx;
+			}
+		}
 
-            if (!details.empty())
-            {
-                result += " (" + details + ")";
-            }
-            return result;
-        }
-    };
+		[[nodiscard]] constexpr bool Empty() const noexcept { return count == 0; }
+	};
 
-    NU_FORCEINLINE std::ostream& operator<<(std::ostream& os, const GraphicsError& e)
-    {
-        return os << e.ToString();
-    }
+	/**
+	 * @brief Specialized Graphics Error.
+	 * Designed to be cheap to construct and copy (on stack).
+	 */
+	struct GraphicsError
+	{
+		GraphicsErrorCode code;
+		Core::ErrorSeverity severity;
 
-    [[nodiscard]] NU_FORCEINLINE std::string ToString(const GraphicsError& e)
-    {
-        return e.ToString();
-    }
+		std::string details;
+
+		ErrorTrace trace;
+
+		GraphicsError(GraphicsErrorCode c, std::string d = "",
+			Core::ErrorContext ctx = {},
+			Core::ErrorSeverity sev = Core::ErrorSeverity::Error) noexcept
+			: code(c)
+			, severity(sev)
+			, details(std::move(d))
+		{
+			trace.Push(ctx);
+		}
+
+		bool operator==(GraphicsErrorCode c) const noexcept { return code == c; }
+		bool operator!=(GraphicsErrorCode c) const noexcept { return code != c; }
+
+		template <typename OutputIt>
+		void FormatTo(OutputIt out) const
+		{
+			std::format_to(out, "GraphicsError: {}", ToErrorString(code));
+
+			if (!details.empty())
+			{
+				std::format_to(out, " -> {}", details);
+			}
+
+			if (!trace.Empty())
+			{
+				std::format_to(out, "\nTrace:");
+				for (size_t i = 0; i < trace.count; ++i)
+				{
+					std::format_to(out, "\n  [{}] {}:{} ({})",
+						i, trace.frames[i].file, trace.frames[i].line, trace.frames[i].function);
+				}
+			}
+		}
+
+		[[nodiscard]] std::string ToString() const
+		{
+			std::string buffer;
+			buffer.reserve(256 + details.size());
+			FormatTo(std::back_inserter(buffer));
+			return buffer;
+		}
+	};
+
+	inline std::ostream& operator<<(std::ostream& os, const GraphicsError& e)
+	{
+		return os << e.ToString();
+	}
 }
+
+template <>
+struct std::formatter<NuEngine::Graphics::GraphicsError> : std::formatter<std::string> {
+	auto format(const NuEngine::Graphics::GraphicsError& err, format_context& ctx) const {
+		err.FormatTo(ctx.out());
+		return ctx.out();
+	}
+};

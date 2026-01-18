@@ -10,33 +10,33 @@
 namespace NuEngine::Graphics::OpenGL
 {
     /*
-    * 
+    * @brief
     */
     class OpenGLContextWin32 final : public OpenGLContext
     {
     public:
         /*
-        * 
+        * @brief
         */
         OpenGLContextWin32(Platform::IWindow* window);
 
         /*
-        * 
+        * @brief
         */
         ~OpenGLContextWin32() override;
 
         /*
-        * 
+        * @brief
         */
         [[nodiscard]] Core::Result<void, GraphicsError> Initialize() noexcept override;
 
         /*
-        * 
+        * @brief
         */
         [[nodiscard]] Core::Result<void, GraphicsError> SwapBuffers() noexcept override;
 
         /*
-        * 
+        * @brief
         */
         [[nodiscard]] Core::Result<void, GraphicsError> MakeCurrent() noexcept override;
 

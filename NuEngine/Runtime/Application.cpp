@@ -45,6 +45,10 @@ namespace NuEngine::Runtime
 
         NU_CHECK(window->Initialize(config));
 
+        window->SetEventCallback([this](Platform::WindowEvent& event) {
+            this->OnEvent(event);
+            });
+
         NU_CHECK(window->Show());
 
         return Core::Ok(std::move(window));
@@ -132,6 +136,47 @@ namespace NuEngine::Runtime
         return Core::Ok();
     }
 
+    void Application::OnEvent(Platform::WindowEvent& event) noexcept
+    {
+        switch (event.GetType())
+        {
+            case Platform::EventType::WindowClose:
+            {
+                auto& closeEvent = static_cast<Platform::WindowClosedEvent&>(event);
+                OnWindowClose(closeEvent);
+                break;
+            }
+            case Platform::EventType::WindowResize:
+            {
+                auto& resizeEvent = static_cast<Platform::WindowResizedEvent&>(event);
+                OnWindowResize(resizeEvent);
+                break;
+            }
+        }
+    }
+
+    bool Application::OnWindowClose(Platform::WindowClosedEvent& event) noexcept
+    {
+        LOG_INFO("");
+        m_isRunning = false;
+        return true;
+    }
+
+    bool Application::OnWindowResize(Platform::WindowResizedEvent& event) noexcept
+    {
+        if (event.width == 0 || event.height == 0)
+        {
+            return false;
+        }
+
+        if (m_pipeline)
+        {
+            m_pipeline->SetViewport(0, 0, event.width, event.height);
+        }
+
+        return false;
+    }
+
     Core::Result<void, EngineError> Application::Update() noexcept
     {
         // TODO: Calculate Delta Time correctly
@@ -142,7 +187,9 @@ namespace NuEngine::Runtime
     Core::Result<void, EngineError> Application::Render() noexcept
     {
         if (m_pipeline)
+        {
             NU_CHECK(m_pipeline->Render());
+        }
 
         return Core::Ok();
     }

@@ -13,47 +13,94 @@
 
 namespace NuEngine::Platform
 {
+    enum class EventType
+    {
+        None = 0,
+        WindowClose,
+        WindowResize,
+        WindowFocus,
+        WindowMove,
+        KeyPressed,
+        MouseButton,
+        MouseMove,
+        Scroll
+    };
+
     struct WindowEvent
     {
         virtual ~WindowEvent() = default;
+        virtual EventType GetType() const = 0;
         uint64_t timestamp;
     };
 
-    struct WindowClosedEvent : WindowEvent {};
-    struct WindowResizedEvent : WindowEvent { int width, height; };
-    struct WindowMovedEvent : WindowEvent { int x, y; };
-    struct WindowFocusEvent : WindowEvent { bool focused; };
+    struct WindowClosedEvent : WindowEvent
+    {
+        EventType GetType() const override { return EventType::WindowClose; }
+    };
 
-    struct KeyEvent : WindowEvent {
+    struct WindowResizedEvent : WindowEvent
+    {
+        int width, height;
+        EventType GetType() const override { return EventType::WindowResize; }
+    };
+
+    struct WindowFocusEvent : WindowEvent
+    {
+        bool focused;
+        EventType GetType() const override { return EventType::WindowFocus; }
+    };
+
+    struct WindowMovedEvent : WindowEvent
+    {
+        int x, y;
+        EventType GetType() const override { return EventType::WindowMove; }
+    };
+
+    struct KeyEvent : WindowEvent
+    {
         int key;
         int scancode;
         int action;
         int mods;
+        EventType GetType() const override { return EventType::KeyPressed; }
     };
 
-    struct MouseButtonEvent : WindowEvent {
+    struct MouseButtonEvent : WindowEvent
+    {
         int button;
         int action;
         int mods;
         int x, y;
+        EventType GetType() const override { return EventType::MouseButton; }
     };
 
-    struct MouseMoveEvent : WindowEvent { int x, y; };
-    struct ScrollEvent : WindowEvent { double xoffset, yoffset; };
+    struct MouseMoveEvent : WindowEvent
+    {
+        int x, y;
+        EventType GetType() const override { return EventType::MouseMove; }
+    };
+
+    struct ScrollEvent : WindowEvent
+    {
+        float xoffset, yoffset;
+        EventType GetType() const override { return EventType::Scroll; }
+    };
 
     class WindowEventSystem
     {
     public:
+        using EventCallbackFn = std::function<void(WindowEvent&)>;
+
         void PushEvent(std::unique_ptr<WindowEvent> event);
         std::vector<std::unique_ptr<WindowEvent>> PollEvents();
 
-        void SetEventCallback(const std::function<void(const WindowEvent&)>& callback);
+        void SetEventCallback(const EventCallbackFn& callback);
         void ProcessCallbacks();
 
     private:
         std::vector<std::unique_ptr<WindowEvent>> m_Events;
         std::vector<std::unique_ptr<WindowEvent>> m_EventQueue;
         std::mutex m_Mutex;
-        std::function<void(const WindowEvent&)> m_EventCallback;
+        EventCallbackFn m_EventCallback;
     };
 }

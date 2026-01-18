@@ -136,6 +136,8 @@ namespace NuEngine::Platform
         */
         WindowEventSystem& GetEventSystem() override { return m_EventSystem; }
 
+        void SetEventCallback(const std::function<void(WindowEvent&)>& callback) override;
+
     private:
         /*
         * @brief Static window procedure callback for Win32 messages.

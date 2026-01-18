@@ -11,7 +11,7 @@ namespace NuEngine::Renderer
 
 	Core::Result<void, Graphics::GraphicsError> ForwardPipeline::Render() noexcept
 	{
-		NuMath::Color color = NuMath::Colors::Linear::Black;
+		NuMath::Color color = NuMath::Colors::Linear::Green;
 
 		NuMath::Vector4 vec4 = { 0.0f, 0.0f, 1.0f, 2.0f };
 
@@ -36,5 +36,13 @@ namespace NuEngine::Renderer
 		}
 
 		return m_Device->Present();
+	}
+
+	void ForwardPipeline::SetViewport(int x, int y, int width, int height) noexcept
+	{
+		if (m_Device)
+		{
+			m_Device->SetViewport(x, y, width, height);
+		}
 	}
 }

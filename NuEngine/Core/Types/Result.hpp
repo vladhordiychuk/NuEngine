@@ -906,10 +906,7 @@ namespace NuEngine::Core
     auto variable_name##_res = (expr); \
     if (variable_name##_res.IsError()) { \
         return NuEngine::Core::Err( \
-            NuEngine::Runtime::EngineError( \
-                variable_name##_res.UnwrapError().ToString(), \
-                std::source_location::current() \
-            ) \
+            NuEngine::Runtime::EngineError(variable_name##_res.UnwrapError()) \
         ); \
     } \
     auto variable_name = std::move(variable_name##_res.Unwrap())
@@ -919,10 +916,7 @@ namespace NuEngine::Core
         auto _res_unique_ = (expr); \
         if (_res_unique_.IsError()) { \
             return NuEngine::Core::Err( \
-                NuEngine::Runtime::EngineError( \
-                    _res_unique_.UnwrapError().ToString(), \
-                    std::source_location::current() \
-                ) \
+                NuEngine::Runtime::EngineError(_res_unique_.UnwrapError()) \
             ); \
         } \
     } while(0)

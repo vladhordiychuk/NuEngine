@@ -4,28 +4,28 @@
 
 namespace NuEngine::Graphics::OpenGL
 {
-    Core::Result<std::unique_ptr<IRenderDevice>, GraphicsError>
-        OpenGLFactory::CreateDevice(Platform::IWindow* window) noexcept
-    {
-        auto ctxResult = CreatePlatformOpenGLContext(window);
-        if (ctxResult.IsError())
-        {
-            return Core::Err(GraphicsError(GraphicsErrorCode::ContextCreationFailed));
-        }
+	Core::Result<std::unique_ptr<IRenderDevice>, GraphicsError>
+		OpenGLFactory::CreateDevice(Platform::IWindow* window) noexcept
+	{
+		auto ctxResult = CreatePlatformOpenGLContext(window);
+		if (ctxResult.IsError())
+		{
+			// Тут ви теж "ковтали" помилку створення контексту. Виправляємо:
+			return Core::Err(ctxResult.UnwrapError());
+		}
 
-        auto ctx = std::move(ctxResult.Unwrap());
+		auto ctx = std::move(ctxResult.Unwrap());
 
-        auto initRes = ctx->Initialize();
-        if (initRes.IsError())
-        {
-            return Core::Err(GraphicsError(GraphicsErrorCode::FunctionLoadFailed));
-        }
+		auto initRes = ctx->Initialize();
+		if (initRes.IsError())
+		{
+			// !!! ВИПРАВЛЕННЯ ТУТ !!!
+			// Ми повертаємо саму помилку initRes, яка містить текст "GLAD init failed..."
+			return Core::Err(initRes.UnwrapError());
+		}
 
-        // ВАЖЛИВО: Явно вказуємо базовий тип (IRenderDevice), а не auto.
-        // Це дозволяє Core::Ok створити правильну обгортку, яку очікує Result.
+		std::unique_ptr<IRenderDevice> device = std::make_unique<OpenGLDevice>(std::move(ctx));
 
-        std::unique_ptr<IRenderDevice> device = std::make_unique<OpenGLDevice>(std::move(ctx));
-
-        return Core::Ok(std::move(device));
-    }
+		return Core::Ok(std::move(device));
+	}
 }

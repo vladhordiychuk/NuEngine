@@ -1,7 +1,8 @@
 #include <Graphics/Backends/OpenGL/Device/OpenGLDevice.hpp>
+#include <Graphics/Backends/OpenGL/Resources/Shader.hpp>
+#include <Core/Logging/Logger.hpp>
+
 #include <glad/glad.h>
-#include <NuMath/NuMath.hpp>
-#include <cmath>
 
 namespace NuEngine::Graphics::OpenGL
 {
@@ -18,7 +19,7 @@ namespace NuEngine::Graphics::OpenGL
         #version 330 core
         out vec4 FragColor;
         void main() {
-            FragColor = vec4(1.0, 1.0, 1.0, 0.2);
+            FragColor = vec4(1.0, 0.0, 1.0, 0.2);
         }
     )";
 
@@ -34,28 +35,42 @@ namespace NuEngine::Graphics::OpenGL
 
     OpenGLDevice::~OpenGLDevice()
     {
-        if (m_ShaderProgram) glDeleteProgram(m_ShaderProgram);
-        if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
-        if (m_VBO) glDeleteBuffers(1, &m_VBO);
+        if (m_VAO)
+        {
+            glDeleteVertexArrays(1, &m_VAO);
+        }
+
+        if (m_VBO)
+        {
+            glDeleteBuffers(1, &m_VBO);
+        }
+    }
+
+    Core::Result<std::shared_ptr<IShader>, GraphicsError> OpenGLDevice::CreateShader(const std::string& vertexSrc, const std::string& fragmentSrc) noexcept
+    {
+        auto shader = std::make_shared<Shader>();
+
+        auto initResult = shader->Initialize(vertexSrc, fragmentSrc);
+
+        if (initResult.IsError())
+        {
+            return Core::Err(initResult.UnwrapError());
+        }
+        return Core::Ok(std::static_pointer_cast<IShader>(shader));
     }
 
     void OpenGLDevice::CreatePipelineResources()
     {
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSrc, nullptr);
-        glCompileShader(vertexShader);
+        auto shaderRes = CreateShader(vertexShaderSrc, fragmentShaderSrc);
 
-        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSrc, nullptr);
-        glCompileShader(fragmentShader);
-
-        m_ShaderProgram = glCreateProgram();
-        glAttachShader(m_ShaderProgram, vertexShader);
-        glAttachShader(m_ShaderProgram, fragmentShader);
-        glLinkProgram(m_ShaderProgram);
-
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+        if (shaderRes.IsOk())
+        {
+            m_Shader = shaderRes.Unwrap();
+        }
+        else
+        {
+            LOG_ERROR("Failed to create default shader: {}", shaderRes.UnwrapError().ToString());
+        }
 
         float vertices[] = {
             -0.5f, -0.5f, 0.0f,
@@ -100,13 +115,20 @@ namespace NuEngine::Graphics::OpenGL
     {
         if (!m_Context) return Core::Err(GraphicsError(GraphicsErrorCode::InvalidContext));
 
-        glUseProgram(m_ShaderProgram);
+        if (m_Shader)
+        {
+            m_Shader->Bind();
+        }
 
         glBindVertexArray(m_VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);;
 
         glBindVertexArray(0);
-        glUseProgram(0);
+
+        if (m_Shader)
+        {
+            m_Shader->UnBind();
+        }
 
         return Core::Ok();
     }
@@ -115,5 +137,10 @@ namespace NuEngine::Graphics::OpenGL
     {
         if (!m_Context) return Core::Err(GraphicsError(GraphicsErrorCode::InvalidContext));
         return m_Context->SwapBuffers();
+    }
+
+    void OpenGLDevice::SetViewport(int x, int y, int width, int height) noexcept
+    {
+        glViewport(x, y, width, height);
     }
 }

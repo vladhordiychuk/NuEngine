@@ -26,6 +26,8 @@ namespace NuEngine::Renderer
 		*/
 		Core::Result<void, Graphics::GraphicsError> Render() noexcept;
 
+		void SetViewport(int x, int y, int width, int height) noexcept;
+
 	private:
 		Graphics::IRenderDevice* m_Device;
 	};

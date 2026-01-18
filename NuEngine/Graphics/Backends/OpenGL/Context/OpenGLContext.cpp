@@ -12,7 +12,6 @@ namespace NuEngine::Graphics::OpenGL
 {
     Core::Result<std::unique_ptr<OpenGLContext>, GraphicsError> CreatePlatformOpenGLContext(Platform::IWindow* window) noexcept
     {
-        // Створюємо змінну базового типу
         std::unique_ptr<OpenGLContext> context;
 
 #if defined(_WIN32)
@@ -24,8 +23,6 @@ namespace NuEngine::Graphics::OpenGL
 #else
         return Core::Err(GraphicsError(GraphicsErrorCode::PlatformFailure));
 #endif
-
-        // Повертаємо базовий тип
         return Core::Ok(std::move(context));
     }
 }
