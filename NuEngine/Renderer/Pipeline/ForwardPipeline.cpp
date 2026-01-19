@@ -7,16 +7,26 @@ namespace NuEngine::Renderer
 	const char* k_VertexShader = R"(
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
+		layout (location = 1) in vec2 aTexCoord;
+
+		out vec2 TexCoord;
+
 		void main() {
 			gl_Position = vec4(aPos, 1.0);
+			TexCoord = aTexCoord;
 		}
 	)";
 
 	const char* k_FragmentShader = R"(
 		#version 330 core
 		out vec4 FragColor;
+
+		in vec2 TexCoord;
+
+		uniform sampler2D u_Texture;
+
 		void main() {
-			FragColor = vec4(0.2, 0.8, 0.3, 1.0);
+			FragColor = texture(u_Texture, TexCoord);
 		}
 	)";
 
@@ -46,10 +56,10 @@ namespace NuEngine::Renderer
 		}
 
 		float vertices[] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // Нижній лівий
+			 0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // Нижній правий
+			 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Верхній правий
+			-0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // Верхній лівий
 		};
 
 		unsigned int indices[] = {
@@ -57,12 +67,27 @@ namespace NuEngine::Renderer
 			2, 3, 0
 		};
 
+		auto texture = m_Device->CreateTexture("Resources/Textures/wall.jpg");
+		if (texture)
+		{
+			m_Texture = texture;
+
+			m_Shader->Bind();
+			m_Shader->SetInt("u_Texture", 0);
+			m_Shader->Unbind();
+		}
+		else
+		{
+			LOG_ERROR("Failed to load texture!");
+		}
+
 		m_QuadVAO = m_Device->CreateVertexArray();
 
 		auto vbo = m_Device->CreateVertexBuffer(vertices, sizeof(vertices));
 
 		Graphics::BufferLayout layout = {
-			{ Graphics::ShaderDataType::Float3, "aPos" }
+			{ Graphics::ShaderDataType::Float3, "aPos" },
+			{ Graphics::ShaderDataType::Float2, "aTexCoord" }
 		};
 		vbo->SetLayout(layout);
 
@@ -88,6 +113,11 @@ namespace NuEngine::Renderer
 		else
 		{
 			return Core::Ok();
+		}
+
+		if (m_Texture)
+		{
+			m_Texture->Bind(0);
 		}
 
 		if (m_QuadVAO)

@@ -6,6 +6,7 @@
 #include <Graphics/Backends/OpenGL/Resources/OpenGLVertexArray.hpp>
 #include <Graphics/Backends/OpenGL/Resources/OpenGLVertexBuffer.hpp>
 #include <Graphics/Backends/OpenGL/Resources/OpenGLIndexBuffer.hpp>
+#include <Graphics/Backends/OpenGL/Resources/OpenGLTexture.hpp>
 
 #include <glad/glad.h>
 
@@ -54,6 +55,11 @@ namespace NuEngine::Graphics::OpenGL
     std::shared_ptr<IIndexBuffer> OpenGLDevice::CreateIndexBuffer(unsigned int* indices, unsigned int count)
     {
         return std::make_shared<OpenGLIndexBuffer>(indices, count);
+    }
+
+    std::shared_ptr<ITexture> OpenGLDevice::CreateTexture(const std::string& path)
+    {
+        return std::make_shared<OpenGLTexture>(path);
     }
 
     Core::Result<void, GraphicsError> OpenGLDevice::DrawIndices(const std::shared_ptr<IVertexArray>& vertexArray) noexcept

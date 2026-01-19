@@ -10,8 +10,10 @@
 #include <Graphics/Abstractions/IVertexBuffer.hpp>
 #include <Graphics/Abstractions/IIndexBuffer.hpp>
 #include <Graphics/Abstractions/IShader.hpp>
-
+#include <Graphics/Abstractions/ITexture.hpp>
 #include <NuMath/NuMath.hpp>
+
+#include <string>
 
 namespace NuEngine::Graphics
 {
@@ -43,6 +45,7 @@ namespace NuEngine::Graphics
 		virtual [[nodiscard]] std::shared_ptr<IVertexArray> CreateVertexArray() = 0;
 		virtual [[nodiscard]] std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float* vertices, unsigned int size) = 0;
 		virtual [[nodiscard]] std::shared_ptr<IIndexBuffer> CreateIndexBuffer(unsigned int* indices, unsigned int count) = 0;
+		virtual [[nodiscard]] std::shared_ptr<ITexture> CreateTexture(const std::string& path) = 0;
 
 		/*
 		* @brief

@@ -37,5 +37,6 @@ namespace NuEngine::Renderer
 
 		std::shared_ptr<Graphics::IShader> m_Shader;
 		std::shared_ptr<Graphics::IVertexArray> m_QuadVAO;
+		std::shared_ptr<Graphics::ITexture> m_Texture;
 	};
 }

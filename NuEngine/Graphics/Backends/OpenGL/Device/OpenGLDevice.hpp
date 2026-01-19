@@ -33,9 +33,10 @@ namespace NuEngine::Graphics::OpenGL
 
 		[[nodiscard]] Core::Result<std::shared_ptr<IShader>, GraphicsError> CreateShader(const std::string& vertexSrc, const std::string& fragmentSrc) noexcept override;
 		[[nodiscard]] Core::Result<void, GraphicsError> Clear(float r, float g, float b, float a) noexcept override;
-		[[nodiscard]] std::shared_ptr<IVertexArray> CreateVertexArray();
-		[[nodiscard]] std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float* vertices, unsigned int size);
-		[[nodiscard]] std::shared_ptr<IIndexBuffer> CreateIndexBuffer(unsigned int* indices, unsigned int count);
+		[[nodiscard]] std::shared_ptr<IVertexArray> CreateVertexArray() override;
+		[[nodiscard]] std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float* vertices, unsigned int size) override;
+		[[nodiscard]] std::shared_ptr<IIndexBuffer> CreateIndexBuffer(unsigned int* indices, unsigned int count) override;
+		[[nodiscard]] std::shared_ptr<ITexture> CreateTexture(const std::string& path) override;
 		[[nodiscard]] Core::Result<void, GraphicsError> DrawIndices(const std::shared_ptr<IVertexArray>& vertexArray) noexcept override;
 		[[nodiscard]] Core::Result<void, GraphicsError> Present() noexcept override;
 		void SetViewport(int x, int y, int width, int height) noexcept override;

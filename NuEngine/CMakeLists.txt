@@ -26,6 +26,7 @@ target_link_libraries(NuEngine
         Glad
         glm::glm
         OpenGL::GL
+        stb
 )
 
 if (WIN32)

@@ -25,6 +25,7 @@ namespace NuEngine::Graphics
 		DeviceLost,
 		DriverFailure,
 		CompilationFailed,
+		ResourceLoadFailed,
 		ResourceCreationFailed,
 		OutOfMemory,
 		InvalidParameter,
@@ -50,6 +51,8 @@ namespace NuEngine::Graphics
 				return "Driver failure";
 			case GraphicsErrorCode::CompilationFailed: 
 				return "Compilation failed";
+			case GraphicsErrorCode::ResourceLoadFailed:
+				return "Resource load failed";
 			case GraphicsErrorCode::ResourceCreationFailed: 
 				return "Resource creation failed";
 			case GraphicsErrorCode::OutOfMemory: 
