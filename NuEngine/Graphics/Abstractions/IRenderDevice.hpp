@@ -6,6 +6,10 @@
 
 #include <Core/Types/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
+#include <Graphics/Abstractions/IVertexArray.hpp>
+#include <Graphics/Abstractions/IVertexBuffer.hpp>
+#include <Graphics/Abstractions/IIndexBuffer.hpp>
+#include <Graphics/Abstractions/IShader.hpp>
 
 #include <NuMath/NuMath.hpp>
 
@@ -36,10 +40,14 @@ namespace NuEngine::Graphics
 
 		virtual [[nodiscard]] Core::Result<std::shared_ptr<IShader>, GraphicsError> CreateShader(const std::string& vertexSrc, const std::string& fragmentSrc) noexcept = 0;
 
+		virtual [[nodiscard]] std::shared_ptr<IVertexArray> CreateVertexArray() = 0;
+		virtual [[nodiscard]] std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float* vertices, unsigned int size) = 0;
+		virtual [[nodiscard]] std::shared_ptr<IIndexBuffer> CreateIndexBuffer(unsigned int* indices, unsigned int count) = 0;
+
 		/*
 		* @brief
 		*/
-		virtual [[nodiscard]] Core::Result<void, GraphicsError> DrawTriangle() noexcept = 0;
+		virtual [[nodiscard]] Core::Result<void, GraphicsError> DrawIndices(const std::shared_ptr<IVertexArray>& vertexArray) noexcept = 0;
 
 		/*
 		* @brief

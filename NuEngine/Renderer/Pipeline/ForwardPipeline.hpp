@@ -5,6 +5,8 @@
 #pragma once
 
 #include <Graphics/Abstractions/IRenderDevice.hpp>
+#include <Graphics/Abstractions/IShader.hpp>
+#include <Graphics/Abstractions/IVertexArray.hpp>
 #include <Core/Types/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 
@@ -19,7 +21,9 @@ namespace NuEngine::Renderer
 		/*
 		* 
 		*/
-		explicit ForwardPipeline(Graphics::IRenderDevice* device);
+		ForwardPipeline(Graphics::IRenderDevice* device);
+
+		void Initialize();
 
 		/*
 		* 
@@ -30,5 +34,8 @@ namespace NuEngine::Renderer
 
 	private:
 		Graphics::IRenderDevice* m_Device;
+
+		std::shared_ptr<Graphics::IShader> m_Shader;
+		std::shared_ptr<Graphics::IVertexArray> m_QuadVAO;
 	};
 }

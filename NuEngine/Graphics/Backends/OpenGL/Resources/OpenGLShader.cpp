@@ -1,11 +1,11 @@
-#include <Graphics/Backends/OpenGL/Resources/Shader.hpp>
+#include <Graphics/Backends/OpenGL/Resources/OpenGLShader.hpp>
 #include <Core/Logging/Logger.hpp>
 
 #include <vector>
 
 namespace NuEngine::Graphics::OpenGL
 {
-	Core::Result<void, GraphicsError> Shader::Initialize(const std::string& vertexSrc, const std::string& fragmentSrc)
+	Core::Result<void, GraphicsError> OpenGLShader::Initialize(const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
 		auto vsRes = CompileShader(GL_VERTEX_SHADER, vertexSrc);
 		if (vsRes.IsError())
@@ -58,7 +58,7 @@ namespace NuEngine::Graphics::OpenGL
 		return Core::Ok();
 	}
 
-	Shader::~Shader()
+	OpenGLShader::~OpenGLShader()
 	{
 		if (m_RendererID)
 		{
@@ -66,7 +66,7 @@ namespace NuEngine::Graphics::OpenGL
 		}
 	}
 
-	Core::Result<GLuint, GraphicsError> Shader::CompileShader(GLenum type, const std::string& source)
+	Core::Result<GLuint, GraphicsError> OpenGLShader::CompileShader(GLenum type, const std::string& source)
 	{
 		GLuint shader = glCreateShader(type);
 		const GLchar* sourceCStr = source.c_str();
@@ -96,17 +96,17 @@ namespace NuEngine::Graphics::OpenGL
 		return Core::Ok(shader);
 	}
 
-	void Shader::Bind()
+	void OpenGLShader::Bind()
 	{
 		glUseProgram(m_RendererID);
 	}
 
-	void Shader::UnBind()
+	void OpenGLShader::Unbind()
 	{
 		glUseProgram(0);
 	}
 
-	GLint Shader::GetUniformLocation(const std::string& name)
+	GLint OpenGLShader::GetUniformLocation(const std::string& name)
 	{
 		auto [it, inserted] = m_UniformLocationCache.try_emplace(name, -1);
 
@@ -122,27 +122,37 @@ namespace NuEngine::Graphics::OpenGL
 		return it->second;
 	}
 
-	void Shader::SetInt(const std::string& name, int value)
+	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
 		glUniform1i(GetUniformLocation(name), value);
 	}
 
-	void Shader::SetFloat(const std::string& name, float value)
+	void OpenGLShader::SetFloat(const std::string& name, float value)
 	{
 		glUniform1f(GetUniformLocation(name), value);
 	}
 
-	void Shader::SetVec3(const std::string& name, const NuMath::Vector3& vec3)
+	void OpenGLShader::SetVec2(const std::string& name, const NuMath::Vector2& vec2)
+	{
+		glUniform2fv(GetUniformLocation(name), 1, vec2.Data());
+	}
+
+	void OpenGLShader::SetVec3(const std::string& name, const NuMath::Vector3& vec3)
 	{
 		glUniform3fv(GetUniformLocation(name), 1, vec3.Data());
 	}
 
-	void Shader::SetVec4(const std::string& name, const NuMath::Vector4& vec4)
+	void OpenGLShader::SetVec4(const std::string& name, const NuMath::Vector4& vec4)
 	{
 		glUniform4fv(GetUniformLocation(name), 1, vec4.Data());
 	}
 
-	void Shader::SetMat4x4(const std::string& name, const NuMath::Matrix4x4& mat4x4)
+	void OpenGLShader::SetColor(const std::string& name, const NuMath::Color& color)
+	{
+		glUniform4fv(GetUniformLocation(name), 1, color.Data());
+	}
+
+	void OpenGLShader::SetMat4x4(const std::string& name, const NuMath::Matrix4x4& mat4x4)
 	{
 		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, mat4x4.Data());
 	}

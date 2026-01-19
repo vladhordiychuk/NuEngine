@@ -6,14 +6,16 @@
 
 #include <Graphics/Abstractions/IRenderDevice.hpp>
 #include <Graphics/Abstractions/IGraphicsContext.hpp>
+#include <Graphics/Abstractions/IVertexArray.hpp>
+#include <Graphics/Abstractions/IShader.hpp>
 #include <Core/Types/Result.hpp>
 
-#include <memory>
+#include <Graphics/Abstractions/IVertexArray.hpp>
+#include <Graphics/Abstractions/IVertexBuffer.hpp>
+#include <Graphics/Abstractions/IIndexBuffer.hpp>
+#include <Graphics/Abstractions/IShader.hpp>
 
-namespace NuEngine::Graphics 
-{ 
-	class IShader; 
-}
+#include <memory>
 
 namespace NuEngine::Graphics::OpenGL
 {
@@ -27,22 +29,19 @@ namespace NuEngine::Graphics::OpenGL
 	{
 	public:
 		OpenGLDevice(std::unique_ptr<IGraphicsContext> context);
-		~OpenGLDevice() override;
+		~OpenGLDevice() override = default;
 
 		[[nodiscard]] Core::Result<std::shared_ptr<IShader>, GraphicsError> CreateShader(const std::string& vertexSrc, const std::string& fragmentSrc) noexcept override;
 		[[nodiscard]] Core::Result<void, GraphicsError> Clear(float r, float g, float b, float a) noexcept override;
-		[[nodiscard]] Core::Result<void, GraphicsError> DrawTriangle() noexcept override;
+		[[nodiscard]] std::shared_ptr<IVertexArray> CreateVertexArray();
+		[[nodiscard]] std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float* vertices, unsigned int size);
+		[[nodiscard]] std::shared_ptr<IIndexBuffer> CreateIndexBuffer(unsigned int* indices, unsigned int count);
+		[[nodiscard]] Core::Result<void, GraphicsError> DrawIndices(const std::shared_ptr<IVertexArray>& vertexArray) noexcept override;
 		[[nodiscard]] Core::Result<void, GraphicsError> Present() noexcept override;
 		void SetViewport(int x, int y, int width, int height) noexcept override;
 
 	private:
-		void CreatePipelineResources();
-
 		std::unique_ptr<IGraphicsContext> m_Context;
 		std::shared_ptr<IShader> m_Shader;
-
-		GLuint m_VAO = 0;
-		GLuint m_VBO = 0;
-		GLuint m_EBO = 0;
 	};
 }

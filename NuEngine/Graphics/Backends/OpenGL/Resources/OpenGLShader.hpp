@@ -15,21 +15,23 @@
 
 namespace NuEngine::Graphics::OpenGL
 {
-	class Shader : public IShader
+	class OpenGLShader : public IShader
 	{
 	public:
-		Shader() = default;
-		~Shader() override;
+		OpenGLShader() = default;
+		~OpenGLShader() override;
 
 		[[nodiscard]] Core::Result<void, GraphicsError> Initialize(const std::string& vertexSrc, const std::string& fragmentSrc);
 
 		void Bind() override;
-		void UnBind() override;
+		void Unbind() override;
 
 		void SetInt(const std::string& name, int value) override;
 		void SetFloat(const std::string& name, float value) override;
+		void SetVec2(const std::string& name, const NuMath::Vector2& vec2) override;
 		void SetVec3(const std::string& name, const NuMath::Vector3& vec3) override;
 		void SetVec4(const std::string& name, const NuMath::Vector4& vec4) override;
+		void SetColor(const std::string& name, const NuMath::Color& color) override;
 		void SetMat4x4(const std::string& name, const NuMath::Matrix4x4& mat4x4) override;
 	private:
 		GLint GetUniformLocation(const std::string& name);
