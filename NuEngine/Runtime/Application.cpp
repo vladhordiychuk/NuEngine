@@ -1,9 +1,9 @@
 #include <Runtime/Application.hpp>
 #include <Core/Logging/Logger.hpp>
 #include <Platform/IWindow.hpp>
-#include <Graphics/Abstractions/GraphicsFactory.hpp>
-#include <Graphics/Abstractions/IRenderDevice.hpp>
-#include <Renderer/Pipeline/ForwardPipeline.hpp>
+#include <Graphics/Abstractions/Core/GraphicsFactory.hpp>
+#include <Graphics/Abstractions/Core/IRenderDevice.hpp>
+#include <Renderer/Pipelines/Forward/ForwardPipeline.hpp>
 #include <iostream>
 
 namespace NuEngine::Runtime

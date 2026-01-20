@@ -8,8 +8,8 @@
 #include <Core/IO/FileSystem.hpp>
 #include <Core/Types/Result.hpp>
 #include <Runtime/Errors/EngineError.hpp>
-#include <Renderer/Pipeline/ForwardPipeline.hpp>
-#include <Graphics/Abstractions/IRenderDevice.hpp>
+#include <Renderer/Pipelines/Forward/ForwardPipeline.hpp>
+#include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Platform/IWindow.hpp>
 
 #include <memory>

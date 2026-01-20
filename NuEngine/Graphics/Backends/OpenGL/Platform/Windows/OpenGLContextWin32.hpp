@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Graphics/Backends/OpenGL/Context/OpenGLContext.hpp>
+#include <Graphics/Backends/OpenGL/Core/OpenGLContext.hpp>
 #include <windows.h>
 
 namespace NuEngine::Graphics::OpenGL
