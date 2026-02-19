@@ -21,8 +21,10 @@ namespace NuEngine::Platform
         WindowFocus,
         WindowMove,
         KeyPressed,
-        MouseButton,
-        MouseMove,
+        KeyReleased,
+        MouseButtonPressed,   
+        MouseButtonReleased,
+        MouseMoved,
         Scroll
     };
 
@@ -56,13 +58,33 @@ namespace NuEngine::Platform
         EventType GetType() const override { return EventType::WindowMove; }
     };
 
+    struct KeyPressedEvent : WindowEvent
+    {
+        int key;
+        int scancode;
+        int mods;
+        EventType GetType() const override { return EventType::KeyPressed; }
+    };
+
+    struct KeyReleasedEvent : WindowEvent
+    {
+        int key;
+        int scancode;
+        int mods;
+        EventType GetType() const override { return EventType::KeyReleased; }
+    };
+
     struct KeyEvent : WindowEvent
     {
         int key;
         int scancode;
         int action;
         int mods;
-        EventType GetType() const override { return EventType::KeyPressed; }
+
+        EventType GetType() const override
+        {
+            return (action == 0) ? EventType::KeyReleased : EventType::KeyPressed;
+        }
     };
 
     struct MouseButtonEvent : WindowEvent
@@ -71,13 +93,13 @@ namespace NuEngine::Platform
         int action;
         int mods;
         int x, y;
-        EventType GetType() const override { return EventType::MouseButton; }
+        EventType GetType() const override { return EventType::MouseButtonPressed; }
     };
 
     struct MouseMoveEvent : WindowEvent
     {
         int x, y;
-        EventType GetType() const override { return EventType::MouseMove; }
+        EventType GetType() const override { return EventType::MouseMoved; }
     };
 
     struct ScrollEvent : WindowEvent

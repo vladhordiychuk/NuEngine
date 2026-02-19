@@ -10,6 +10,8 @@
 
 namespace NuEngine::Graphics
 {
+	typedef unsigned int GLuint;
+
 	class IShader
 	{
 	public:
@@ -17,6 +19,8 @@ namespace NuEngine::Graphics
 
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+
+		virtual GLuint GetID() const = 0;
 
 		virtual void SetInt(const std::string& name, int value) = 0;
 		virtual void SetFloat(const std::string& name, float value) = 0;

@@ -167,11 +167,7 @@ namespace NuMath::ColorAPI
 	{
 		float a = GetW(color);
 		NuColor alpha_vec = SetAll(a);
-
-		// Keep alpha unchanged, multiply RGB only
 		NuColor rgb_premul = Mul(color, alpha_vec);
-
-		// Restore original alpha in W component
 		return VectorAPI::SetW(rgb_premul, a);
 	}
 
@@ -190,8 +186,6 @@ namespace NuMath::ColorAPI
 		float g = GetY(color);
 		float b = GetZ(color);
 		float a = GetW(color);
-
-		// Rec. 709 luminance weights
 		float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
 
 		return Set(luminance, luminance, luminance, a);
@@ -208,8 +202,6 @@ namespace NuMath::ColorAPI
 	{
 		NuColor one = Set(1.0f, 1.0f, 1.0f, 0.0f);
 		NuColor inverted = Sub(one, color);
-
-		// Restore original alpha
 		return VectorAPI::SetW(inverted, GetW(color));
 	}
 

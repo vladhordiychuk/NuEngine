@@ -20,7 +20,7 @@ namespace NuEngine::Graphics::OpenGL
 
 	Core::Result<void, GraphicsError> OpenGLTexture::Initialize()
 	{
-		stbi_set_flip_vertically_on_load(1);
+		stbi_set_flip_vertically_on_load(true);
 
         int width, height, channels;
         stbi_uc* data = stbi_load(m_Path.c_str(), &width, &height, &channels, 0);

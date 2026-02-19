@@ -17,6 +17,10 @@ namespace NuMath
 	[[nodiscard]] NU_FORCEINLINE float Sqrt(float x) noexcept { return std::sqrtf(x); }
 	[[nodiscard]] NU_FORCEINLINE float Abs(float x) noexcept { return std::fabsf(x); }
 
+	[[nodiscard]] NU_FORCEINLINE float ASin(float x) noexcept { return std::asinf(x); }
+	[[nodiscard]] NU_FORCEINLINE float ACos(float x) noexcept { return std::acosf(x); }
+	[[nodiscard]] NU_FORCEINLINE float ATan(float x) noexcept { return std::atanf(x); }
+
 	template <typename T>
 	[[nodiscard]] NU_FORCEINLINE T Min(T a, T b) noexcept { return (a < b) ? a : b; }
 

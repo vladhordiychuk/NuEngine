@@ -5,6 +5,7 @@
 #pragma once
 
 #include <NuMath/Algebra/Matrix/MatrixAPI.hpp>
+#include <NuMath/Algebra/Quaternion/Quaternion.hpp>
 #include <NuMath/Algebra/Vector/Vector4.hpp>
 #include <NuMath/Algebra/Vector/Vector3.hpp>
 #include <NuMath/Core/Common.hpp>
@@ -64,12 +65,12 @@ namespace NuMath
 								 float m20, float m21, float m22, float m23,
 								 float m30, float m31, float m32, float m33) noexcept
 		{
-			Vector4 r0(m00, m01, m02, m03);
-			Vector4 r1(m10, m11, m12, m13);
-			Vector4 r2(m20, m21, m22, m23);
-			Vector4 r3(m30, m31, m32, m33);
+			Vector4 row0(m00, m01, m02, m03);
+			Vector4 row1(m10, m11, m12, m13);
+			Vector4 row2(m20, m21, m22, m23);
+			Vector4 row3(m30, m31, m32, m33);
 
-			m_data = MatrixAPI::FromRows(r0.SimdData(), r1.SimdData(), r2.SimdData(), r3.SimdData());
+			m_data = MatrixAPI::FromRows(row0.SimdData(), row1.SimdData(), row2.SimdData(), row3.SimdData());
 		}
 
 		/**
@@ -124,6 +125,16 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE Matrix4x4(Matrix4x4&& other) noexcept
 			: m_data(std::move(other.m_data))
+		{
+		}
+
+		/**
+		 * @brief Private constructor to create a matrix from the internal API type.
+		 *
+		 * @param simdData Data in MatrixAPI::NuMat4 format.
+		 */
+		NU_FORCEINLINE Matrix4x4(const MatrixAPI::NuMat4& simdData) noexcept
+			: m_data(simdData)
 		{
 		}
 		
@@ -370,7 +381,7 @@ _        * @param other The matrix to compare against.
 		 *
 		 * @return A rotation matrix.
 		 */
-		[[nodiscard]] NU_FORCEINLINE static Matrix4x4 CreateRotation(const Vector4& rotation) noexcept
+		[[nodiscard]] NU_FORCEINLINE static Matrix4x4 CreateRotation(const Quaternion& rotation) noexcept
 		{
 			return Matrix4x4(MatrixAPI::CreateRotation(rotation.SimdData()));
 		}
@@ -599,15 +610,5 @@ _        * @param other The matrix to compare against.
 		 * @brief Internal data storage.
 		 */
 		MatrixAPI::NuMat4 m_data;
-
-		/**
-		 * @brief Private constructor to create a matrix from the internal API type.
-		 *
-		 * @param simdData Data in MatrixAPI::NuMat4 format.
-		 */
-		explicit NU_FORCEINLINE Matrix4x4(const MatrixAPI::NuMat4& simdData) noexcept
-			: m_data(simdData)
-		{
-		}
 	};
 } // namespace NuMath

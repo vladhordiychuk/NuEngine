@@ -13,7 +13,7 @@
     #include <malloc.h>
 #endif
 
-namespace NuEngine::Memory
+namespace NuEngine::Core
 {
     /**
      * @brief Allocator that guarantees memory alignment.
@@ -91,9 +91,9 @@ namespace NuEngine
     /**
      * @brief Flexible vector with memory alignment.
      * Usage:
-     * NuEngine::AlignedVector<float>     -> alignment 32 bytes (Default, for AVX)
-     * NuEngine::AlignedVector<float, 16> -> alignment 16 bytes (for SSE)
+     * NuEngine::AlignedVector<float>     -> alignment 16 bytes (Default, for SSE)
+     * NuEngine::AlignedVector<float, 32> -> alignment 32 bytes (for AVX)
      */
-    template <typename T, size_t Alignment = 32>
-    using AlignedVector = std::vector<T, NuEngine::Memory::AlignedAllocator<T, Alignment>>;
+    template <typename T, size_t Alignment = 16>
+    using AlignedVector = std::vector<T, NuEngine::Core::AlignedAllocator<T, Alignment>>;
 }

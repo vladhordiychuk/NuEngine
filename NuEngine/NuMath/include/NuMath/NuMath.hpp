@@ -21,8 +21,11 @@
 #include <NuMath/Algebra/Vector/Vector3.hpp>
 #include <NuMath/Algebra/Vector/Vector4.hpp>
 
-// #include <NuMath/Algebra/Quaternion/QuaternionAPI.hpp>
-// #include <NuMath/Algebra/Quaternion/Quaternion.hpp>
+#include <NuMath/Algebra/Quaternion/QuaternionAPI.hpp>
+#include <NuMath/Algebra/Quaternion/Quaternion.hpp>
+
+#include <NuMath/Algebra/Transform/TransformAPI.hpp>
+#include <NuMath/Algebra/Transform/Transform.hpp>
 
 #include <NuMath/Algebra/Matrix/MatrixAPI.hpp>
 // #include <NuMath/Algebra/Matrix/Matrix2x2.hpp>

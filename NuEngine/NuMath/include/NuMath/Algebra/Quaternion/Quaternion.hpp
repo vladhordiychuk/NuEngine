@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <NuMath/Algebra/Vector/QuaternionAPI.hpp>
+#include <NuMath/Algebra/Quaternion/QuaternionAPI.hpp>
 #include <NuMath/Algebra/Vector/Vector4.hpp>
 #include <NuMath/Algebra/Vector/Vector3.hpp>
 #include <NuMath/Algebra/Vector/Vector2.hpp>
@@ -99,6 +99,14 @@ namespace NuMath
 		}
 
 		/**
+		 *
+		 */
+		explicit NU_FORCEINLINE Quaternion(QuaternionAPI::NuQuat vec) noexcept
+			: m_data(vec)
+		{
+		}
+
+		/**
 		 * 
 		 */
 		[[nodiscard]] NU_FORCEINLINE float X() const noexcept
@@ -127,7 +135,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE float W() const noexcept
 		{
-			return QuatAPI::GetW(m_data);
+			return QuaternionAPI::GetW(m_data);
 		}
 
 		/**
@@ -143,7 +151,7 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE void SetY(float y) noexcept
 		{
-			m_data = QuatAPI::SetY(m_data, y);
+			m_data = QuaternionAPI::SetY(m_data, y);
 		}
 
 		/**
@@ -173,7 +181,7 @@ namespace NuMath
 		/**
 		 * 
 		 */
-		[[nodiscard]] const NU_FORCEINLINE NuQuat& SimdData() const noexcept
+		[[nodiscard]] const NU_FORCEINLINE QuaternionAPI::NuQuat& SimdData() const noexcept
 		{
 			return m_data;
 		}
@@ -215,7 +223,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE Quaternion operator*(float scalar) const noexcept
 		{
-			return Quaternion(QuaternionAPI::Mul(m_data, scalar));
+			return Quaternion(QuaternionAPI::Mul(m_data, QuaternionAPI::SetAll(scalar)));
 		}
 
 		/**
@@ -223,7 +231,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE Quaternion operator/(float scalar) const noexcept
 		{
-			return Quaternion(QuaternionAPI::Div(m_data, scalar));
+			return Quaternion(QuaternionAPI::Div(m_data, QuaternionAPI::SetAll(scalar)));
 		}
 
 		/**
@@ -267,7 +275,7 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE Quaternion& operator*=(float scalar) noexcept
 		{
-			m_data = QuaternionAPI::Mul(m_data, scalar);
+			m_data = QuaternionAPI::Mul(m_data, QuaternionAPI::SetAll(scalar));
 			return *this;
 		}
 
@@ -276,7 +284,7 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE Quaternion& operator/=(float scalar) noexcept
 		{
-			m_data = QuaternionAPI::Div(m_data, scalar);
+			m_data = QuaternionAPI::Div(m_data, QuaternionAPI::SetAll(scalar));
 			return *this;
 		}
 
@@ -333,7 +341,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE float Length() const noexcept
 		{
-			return QuaternionAPI::Length(m_data);
+			return QuaternionAPI::Length4(m_data);
 		}
 
 		/**
@@ -341,7 +349,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE float LengthSquared() const noexcept
 		{
-			return QuaternionAPI::LengthSquared(m_data);
+			return QuaternionAPI::Dot4(m_data, m_data);
 		}
 
 		/**
@@ -349,7 +357,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE Quaternion Normalize() const noexcept
 		{
-			return Quaternion(QuaternionAPI::Normalize(m_data));
+			return Quaternion(QuaternionAPI::Normalize4(m_data));
 		}
 
 		/**
@@ -365,7 +373,7 @@ namespace NuMath
 		 */
 		[[nodiscard]] NU_FORCEINLINE float Dot(Quaternion other) const noexcept
 		{
-			return QuaternionAPI::Dot(m_data, other.m_data);
+			return QuaternionAPI::Dot4(m_data, other.m_data);
 		}
 
 		/**
@@ -401,6 +409,14 @@ namespace NuMath
 		}
 
 		/**
+		 *
+		 */
+		[[nodiscard]] static NU_FORCEINLINE Quaternion Slerp(Quaternion a, Quaternion b, float t) noexcept
+		{
+			return Quaternion(QuaternionAPI::Slerp(a.m_data, b.m_data, t));
+		}
+
+		/**
 		 * 
 		 */
 		[[nodiscard]] std::string ToString() const
@@ -422,11 +438,5 @@ namespace NuMath
 		 * 
 		 */
 		QuaternionAPI::NuQuat m_data;
-
-		/**
-		 * 
-		 */
-		explicit Quaternion(QuaternionAPI::NuQuat vec)
-			: m_data(vec) {};
 	};
 } // namespace NuMath

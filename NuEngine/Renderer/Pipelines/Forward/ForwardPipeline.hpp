@@ -9,6 +9,7 @@
 #include <Graphics/Abstractions/Buffers/IVertexArray.hpp>
 #include <Core/Types/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
+#include <Renderer/Camera.hpp>
 
 namespace NuEngine::Renderer
 {
@@ -28,9 +29,13 @@ namespace NuEngine::Renderer
 		/*
 		* 
 		*/
-		Core::Result<void, Graphics::GraphicsError> Render() noexcept;
+		Core::Result<void, Graphics::GraphicsError> Render(bool present = true) noexcept;
 
 		void SetViewport(int x, int y, int width, int height) noexcept;
+
+		void SetClearColor(const NuMath::Color& color) { m_ClearColor = color; }
+
+		std::shared_ptr<Camera> GetCamera() const { return m_Camera; }
 
 	private:
 		Graphics::IRenderDevice* m_Device;
@@ -38,5 +43,11 @@ namespace NuEngine::Renderer
 		std::shared_ptr<Graphics::IShader> m_Shader;
 		std::shared_ptr<Graphics::IVertexArray> m_QuadVAO;
 		std::shared_ptr<Graphics::ITexture> m_Texture;
+		std::shared_ptr<Camera> m_Camera;
+		NuMath::Color m_ClearColor = NuMath::Colors::Linear::Black;
+
+		float m_RotationAngle = 0.0f;
+		int m_Width;
+		int m_Height;
 	};
 }

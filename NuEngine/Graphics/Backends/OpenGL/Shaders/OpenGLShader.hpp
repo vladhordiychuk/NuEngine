@@ -26,6 +26,8 @@ namespace NuEngine::Graphics::OpenGL
 		void Bind() override;
 		void Unbind() override;
 
+		GLuint GetID() const { return m_RendererID; }
+
 		void SetInt(const std::string& name, int value) override;
 		void SetFloat(const std::string& name, float value) override;
 		void SetVec2(const std::string& name, const NuMath::Vector2& vec2) override;

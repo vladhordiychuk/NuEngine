@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <filesystem>
 
 #include <Core/Types/Result.hpp>
 #include <Core/Errors/FileSystemError.hpp>
@@ -50,6 +51,8 @@ namespace NuEngine::Core
         */
         [[nodiscard]] Result<void, FileSystemError> WriteFile(const std::string& path, const std::vector<char>& data);
 
+        [[nodiscard]] Result<std::string, FileSystemError> ReadTextFile(const std::string& path) const;
+
         /*
         * @brief Checks if a file exists.
         *
@@ -70,7 +73,7 @@ namespace NuEngine::Core
 
         [[nodiscard]] std::string GetBasePath() const noexcept;
 
-        
+        static std::filesystem::path GetPath(const std::string& path);
 
     private:
         std::string m_basePath;         // Base path for file operations

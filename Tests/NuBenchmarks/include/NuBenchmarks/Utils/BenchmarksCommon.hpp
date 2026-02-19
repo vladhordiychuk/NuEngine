@@ -176,6 +176,28 @@ namespace NuEngine::Benchmarks
         ReportThroughput(state, count, sizeof(T) * 2 + sizeof(float));
     }
 
+    template <typename T, typename Func>
+    void BM_Array_UnaryOp(benchmark::State& state, Func func)
+    {
+        const size_t count = state.range(0);
+        FastRNG rng;
+
+        AlignedVector<T> A(count), R(count);
+
+        for (size_t i = 0; i < count; ++i) {
+            A[i] = MakeTestValue<T>(rng);
+        }
+
+        for (auto _ : state) {
+            for (size_t i = 0; i < count; ++i) {
+                R[i] = func(A[i]);
+            }
+            benchmark::ClobberMemory();
+        }
+
+        ReportThroughput(state, count, sizeof(T) * 2);
+    }
+
     // =========================================================================
     // Single / Scalar Benchmarks (Latency)
     // =========================================================================

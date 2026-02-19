@@ -12,10 +12,18 @@
 #include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Platform/IWindow.hpp>
 
+#include <NuMath/NuMath.hpp>
+
 #include <memory>
 #include <string>
 
-namespace NuEngine::Runtime {
+namespace NuEngine::Runtime 
+{
+    struct ApplicationSpecification
+    {
+        std::string Name = "NuEngine App";
+        bool Windowed = true;
+    };
 
     /**
      * @brief The main class of the program that manages the lifecycle of the game engine.
@@ -40,12 +48,12 @@ namespace NuEngine::Runtime {
         /**
          * @brief Default Constructor.
          */
-        Application() noexcept;
+        Application(const ApplicationSpecification& spec = ApplicationSpecification()) noexcept;
 
         /**
          * @brief Destructor that ensures correct termination of operation.
          */
-        ~Application() noexcept;
+        virtual ~Application() noexcept;
 
         /**
          * @brief Copy constructor (deleted).
@@ -74,9 +82,30 @@ namespace NuEngine::Runtime {
          */
         [[nodiscard]] Core::Result<void, EngineError> Run() noexcept;
 
+        void RenderFrame();
+
+        void UpdateFrame(float deltaTime);
+
+        Platform::IWindow* GetWindow() const { return m_window.get(); }
+
+        void InitializeGraphicsForEditor();
+
+        void OnWindowResize(int width, int height) {
+            if (m_pipeline) {
+                m_pipeline->SetViewport(0, 0, width, height);
+            }
+        }
+
+        void SetClearColor(float r, float g, float b, float a) {
+            if (m_pipeline) {
+                m_pipeline->SetClearColor(NuMath::Color(r, g, b, a));
+            }
+        }
+
     protected:
-        virtual void OnUpdate(float deltaTime) {}
+        virtual void OnUpdate(float deltaTime);
         virtual void OnRender() {}
+        virtual void OnEvent(Platform::WindowEvent& event) noexcept;
 
     private:
         /**
@@ -110,8 +139,6 @@ namespace NuEngine::Runtime {
          */
         [[nodiscard]] Core::Result<void, EngineError> PollEvents() noexcept;
 
-        void OnEvent(Platform::WindowEvent& event) noexcept;
-
         [[nodiscard]] bool OnWindowClose(Platform::WindowClosedEvent& event) noexcept;
 
         [[nodiscard]] bool OnWindowResize(Platform::WindowResizedEvent& event) noexcept;
@@ -128,10 +155,14 @@ namespace NuEngine::Runtime {
 
         bool m_isRunning = false;
         AppState m_state = AppState::Created;
+        ApplicationSpecification m_specification;
         std::unique_ptr<Platform::IWindow> m_window;
         std::unique_ptr<Renderer::ForwardPipeline> m_pipeline;
         std::unique_ptr<Graphics::IRenderDevice> m_renderDevice;
         Core::FileSystem m_fileSystem;
+        float m_fpsTimer = 0.0f;    // Накопичувач часу (секунди)
+        uint32_t m_frameCount = 0;  // Лічильник кадрів за цей проміжок
+        uint32_t m_lastFPS = 0;
     };
 
 }

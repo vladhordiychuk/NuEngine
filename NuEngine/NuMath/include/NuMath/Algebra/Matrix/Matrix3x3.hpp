@@ -127,6 +127,16 @@ namespace NuMath
 		}
 
 		/**
+		 * @brief Private constructor ro create a matrix from the internal API type.
+		 *
+		 * @param simdData Data in MatrixAPI::NuMat4 format.
+		 */
+		NU_FORCEINLINE Matrix3x3(const MatrixAPI::NuMat3& simdData) noexcept
+			: m_data(simdData)
+		{
+		}
+
+		/**
 		 * @brief Copy assignment operator.
 		 * 
 		 * Assigns the value from another matrix to this instance.
@@ -515,15 +525,5 @@ namespace NuMath
 		 * @brief Internal data storage.
 		 */
 		MatrixAPI::NuMat3 m_data;
-
-		/**
-		 * @brief Private constructor ro create a matrix from the internal API type.
-		 * 
-		 * @param simdData Data in MatrixAPI::NuMat4 format.
-		 */
-		explicit NU_FORCEINLINE Matrix3x3(const MatrixAPI::NuMat3& simdData) noexcept
-			: m_data(simdData)
-		{
-		}
 	};
 } // namespace NuMath

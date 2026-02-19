@@ -1,141 +1,187 @@
 #include <Renderer/Pipelines/Forward/ForwardPipeline.hpp>
 #include <NuMath/NuMath.hpp>
 #include <Core/Logging/Logger.hpp>
+#include <Core/IO/FileSystem.hpp>
+#include <Core/Timer/Time.hpp>
+#include <glad/glad.h>
+#include <cmath> // Для константи PI, якщо треба
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 namespace NuEngine::Renderer
 {
-	const char* k_VertexShader = R"(
-		#version 330 core
-		layout (location = 0) in vec3 aPos;
-		layout (location = 1) in vec2 aTexCoord;
+    ForwardPipeline::ForwardPipeline(Graphics::IRenderDevice* device)
+        : m_Device(device), m_Width(1280), m_Height(720)
+    {
+        Initialize();
+    }
 
-		out vec2 TexCoord;
+    void ForwardPipeline::Initialize()
+    {
+        if (!m_Device)
+        {
+            LOG_ERROR("ForwardPipeline: Invalid Device Context");
+            return;
+        }
 
-		void main() {
-			gl_Position = vec4(aPos, 1.0);
-			TexCoord = aTexCoord;
-		}
-	)";
+        Core::FileSystem fs(".");
 
-	const char* k_FragmentShader = R"(
-		#version 330 core
-		out vec4 FragColor;
+        std::string vertexSrc;
+        auto vertRes = fs.ReadTextFile("Resources/Shaders/Forward.vert");
+        if (vertRes.IsOk()) vertexSrc = vertRes.Unwrap();
+        else { LOG_ERROR("Failed to load Vertex Shader! Error: {}", vertRes.UnwrapError().ToString()); return; }
 
-		in vec2 TexCoord;
+        std::string fragmentSrc;
+        auto fragRes = fs.ReadTextFile("Resources/Shaders/Forward.frag");
+        if (fragRes.IsOk()) fragmentSrc = fragRes.Unwrap();
+        else { LOG_ERROR("Failed to load Fragment Shader! Error: {}", fragRes.UnwrapError().ToString()); return; }
 
-		uniform sampler2D u_Texture;
+        auto shaderRes = m_Device->CreateShader(vertexSrc, fragmentSrc);
+        if (shaderRes.IsOk()) m_Shader = shaderRes.Unwrap();
+        else LOG_ERROR("Critical: Failed to create shader! Reason: {}", shaderRes.UnwrapError().ToString());
 
-		void main() {
-			FragColor = texture(u_Texture, TexCoord);
-		}
-	)";
+        glEnable(GL_DEPTH_TEST);
 
-	ForwardPipeline::ForwardPipeline(Graphics::IRenderDevice* device)
-		: m_Device(device)
-	{
-		Initialize();
-	}
+        float aspectRatio = (float)m_Width / (float)m_Height;
 
-	void ForwardPipeline::Initialize()
-	{
-		if (!m_Device)
-		{
-			LOG_ERROR("ForwardPipeline: Invalid Device Context");
-			return;
-		}
+        // ВИПРАВЛЕНО: Ручне переведення в радіани, якщо NuMath::ToRadians відсутній
+        float fovRadians = 45.0f * (static_cast<float>(M_PI) / 180.0f);
+        m_Camera = std::make_shared<Camera>(fovRadians, aspectRatio, 0.1f, 100.0f);
 
-		auto shaderRes = m_Device->CreateShader(k_VertexShader, k_FragmentShader);
+        m_Camera->SetPosition(NuMath::Vector3(0.0f, 0.0f, 3.0f));
 
-		if (shaderRes.IsOk())
-		{
-			m_Shader = shaderRes.Unwrap();
-		}
-		else
-		{
-			LOG_ERROR("Critical: Failed to create shader! Reason: {}", shaderRes.UnwrapError().ToString());
-		}
+        float vertices[] = {
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+                 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+                // ... (решта вершин без змін) ...
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-		float vertices[] = {
-			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // Нижній лівий
-			 0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // Нижній правий
-			 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Верхній правий
-			-0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // Верхній лівий
-		};
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-		unsigned int indices[] = {
-			0, 1, 2,
-			2, 3, 0
-		};
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-		auto texture = m_Device->CreateTexture("Resources/Textures/wall.jpg");
-		if (texture)
-		{
-			m_Texture = texture;
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-			m_Shader->Bind();
-			m_Shader->SetInt("u_Texture", 0);
-			m_Shader->Unbind();
-		}
-		else
-		{
-			LOG_ERROR("Failed to load texture!");
-		}
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        };
 
-		m_QuadVAO = m_Device->CreateVertexArray();
+        auto texPath = Core::FileSystem::GetPath("Resources/Textures/wall.jpg");
+        auto texture = m_Device->CreateTexture(texPath.generic_string());
 
-		auto vbo = m_Device->CreateVertexBuffer(vertices, sizeof(vertices));
+        if (texture)
+        {
+            m_Texture = texture;
+            m_Shader->Bind();
+            m_Shader->SetInt("u_Texture", 0);
+            m_Shader->Unbind();
+        }
+        else
+        {
+            LOG_ERROR("Failed to load texture. Tried path: {}", texPath.string());
+        }
 
-		Graphics::BufferLayout layout = {
-			{ Graphics::ShaderDataType::Float3, "aPos" },
-			{ Graphics::ShaderDataType::Float2, "aTexCoord" }
-		};
-		vbo->SetLayout(layout);
+        m_QuadVAO = m_Device->CreateVertexArray();
+        auto vbo = m_Device->CreateVertexBuffer(vertices, sizeof(vertices));
+        Graphics::BufferLayout layout = {
+            { Graphics::ShaderDataType::Float3, "aPos" },
+            { Graphics::ShaderDataType::Float2, "aTexCoord" }
+        };
+        vbo->SetLayout(layout);
+        m_QuadVAO->AddVertexBuffer(vbo);
+    }
 
-		m_QuadVAO->AddVertexBuffer(vbo);
+    Core::Result<void, Graphics::GraphicsError> ForwardPipeline::Render(bool present) noexcept
+    {
+        if (!m_Device) return Core::Err(Graphics::GraphicsError(Graphics::GraphicsErrorCode::InvalidContext));
 
-		auto ibo = m_Device->CreateIndexBuffer(indices, sizeof(indices) / sizeof(unsigned int));
-		m_QuadVAO->SetIndexBuffer(ibo);
-	}
+        glClearColor(m_ClearColor.R(), m_ClearColor.G(), m_ClearColor.B(), m_ClearColor.A());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Core::Result<void, Graphics::GraphicsError> ForwardPipeline::Render() noexcept
-	{
-		if (!m_Device)
-		{
-			return Core::Err(Graphics::GraphicsError(Graphics::GraphicsErrorCode::InvalidContext));
-		}
+        if (m_Shader && m_Camera)
+        {
+            m_Shader->Bind();
 
-		m_Device->Clear(NuMath::Color(0.1f, 0.1f, 0.1f, 1.0f));
+            NuMath::Matrix4x4 projection = m_Camera->GetProjectionMatrix();
+            NuMath::Matrix4x4 view = m_Camera->GetViewMatrix();
 
-		if (m_Shader)
-		{
-			m_Shader->Bind();
-		}
-		else
-		{
-			return Core::Ok();
-		}
+            float animSpeed = 0.5f;
+            float angle = Core::Time::GetTimeSinceStartup() * animSpeed;
+            NuMath::Quaternion currentRot = NuMath::Quaternion::FromAxisAngle(
+                NuMath::Vector3(0.5f, 1.0f, 0.0f).Normalize(),
+                angle
+            );
 
-		if (m_Texture)
-		{
-			m_Texture->Bind(0);
-		}
+            NuMath::Transform meshTransform;
+            meshTransform.SetPosition(NuMath::Vector3(0.0f, 0.0f, 0.0f));
+            meshTransform.SetRotation(currentRot);
 
-		if (m_QuadVAO)
-		{
-			auto result = m_Device->DrawIndices(m_QuadVAO);
-			if (result.IsError()) return result;
-		}
+            NuMath::Matrix4x4 model = meshTransform.GetMatrix();
 
-		m_Shader->Unbind();
+            GLint modelLoc = glGetUniformLocation(m_Shader->GetID(), "model");
+            GLint viewLoc = glGetUniformLocation(m_Shader->GetID(), "view");
+            GLint projLoc = glGetUniformLocation(m_Shader->GetID(), "projection");
 
-		return m_Device->Present();
-	}
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model.Data());
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view.Data());
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, projection.Data());
+        }
 
-	void ForwardPipeline::SetViewport(int x, int y, int width, int height) noexcept
-	{
-		if (m_Device)
-		{
-			m_Device->SetViewport(x, y, width, height);
-		}
-	}
+        if (m_Texture) m_Texture->Bind(0);
+
+        if (m_QuadVAO)
+        {
+            m_QuadVAO->Bind();
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            m_QuadVAO->Unbind();
+        }
+
+        m_Shader->Unbind();
+
+        if (present) return m_Device->Present();
+
+        return Core::Ok();
+    }
+
+    void ForwardPipeline::SetViewport(int x, int y, int width, int height) noexcept
+    {
+        if (m_Device)
+        {
+            m_Device->SetViewport(x, y, width, height);
+            m_Width = width;
+            m_Height = height;
+
+            if (m_Camera) m_Camera->SetViewportSize(width, height);
+        }
+    }
 }

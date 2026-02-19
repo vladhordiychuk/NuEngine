@@ -19,7 +19,7 @@ namespace NuMath::VectorAPI
 	// =============================================
 	// Load and Store
 	// =============================================
-	
+
 	/**
 	 * @brief Load a 4-component vector from a storage location.
 	 *
@@ -228,7 +228,7 @@ namespace NuMath::VectorAPI
 	*
 	* @return New NuVec4 where each component is a[i] + b[i].
 	*/
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept 
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Add(NuVec4 a, NuVec4 b) noexcept
 	{
 		return Impl::Add(a, b);
 	}
@@ -243,7 +243,7 @@ namespace NuMath::VectorAPI
 	 *
 	 * @return New NuVec4 where each component is a[i] - b[i].
 	 */
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept 
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Sub(NuVec4 a, NuVec4 b) noexcept
 	{
 		return Impl::Sub(a, b);
 	}
@@ -258,7 +258,7 @@ namespace NuMath::VectorAPI
 	 *
 	 * @return New NuVec4 where each component a[i] * b[i].
 	 */
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept 
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Mul(NuVec4 a, NuVec4 b) noexcept
 	{
 		return Impl::Mul(a, b);
 	}
@@ -273,7 +273,8 @@ namespace NuMath::VectorAPI
 	 *
 	 * @return New NuVec4 where each component a[i] / b[i].
 	 */
-	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept {
+	[[nodiscard]] NU_FORCEINLINE NuVec4 Div(NuVec4 a, NuVec4 b) noexcept 
+	{
 		return Impl::Div(a, b);
 	}
 
@@ -349,7 +350,7 @@ namespace NuMath::VectorAPI
 	 * @return true if all components are exactly equal.
 	 * @warning Floating-point imprecision may affect results.
 	 */
-	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b)noexcept
+	[[nodiscard]] NU_FORCEINLINE bool Equal(NuVec4 a, NuVec4 b) noexcept
 	{
 		return Impl::Equal(a, b);
 	}
@@ -432,13 +433,13 @@ namespace NuMath::VectorAPI
 	}
 
 	/**
-	 * @brief Normalizes first 2 components (x,y) of 4D vector.
+	 * @brief Normalizes the first 2 components (x, y) with high precision.
 	 *
-	 * Computes a unit vector from x/y components while leaving z/w unchanged.
+	 * Scales x and y to form a unit vector using Newton-Raphson refinement (~22 bits precision).
+	 * Use for 2D physics and precise direction calculations.
 	 *
 	 * @param v Input vector.
-	 *
-	 * @return Normalized vector with original z/w.
+	 * @return Normalized vector (z and w unchanged).
 	 */
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v) noexcept
 	{
@@ -446,13 +447,27 @@ namespace NuMath::VectorAPI
 	}
 
 	/**
-	 * @brief Normalizes first 3 components (x,y,z) of 4D vector.
+	 * @brief Quickly normalizes the first 2 components (x, y).
 	 *
-	 * Computes unit vector from x,y,z components while preserving w.
+	 * Uses raw RSQRT approximation (~12 bits precision).
+	 * Use for VFX, AI heuristics, or non-critical directions.
 	 *
 	 * @param v Input vector.
+	 * @return Approximate normalized vector.
+	 */
+	[[nodiscard]] NU_FORCEINLINE NuVec4 FastNormalize2(NuVec4 v) noexcept
+	{
+		return Impl::FastNormalize2(v);
+	}
+
+	/**
+	 * @brief Normalizes the first 3 components (x, y, z) with high precision.
 	 *
-	 * @return Normalized vector with original w component.
+	 * Scales x, y, and z to form a unit vector using Newton-Raphson refinement (~22 bits precision).
+	 * Use for 3D physics, camera orientation, and lighting normals.
+	 *
+	 * @param v Input vector.
+	 * @return Normalized vector (w unchanged).
 	 */
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v) noexcept
 	{
@@ -460,17 +475,45 @@ namespace NuMath::VectorAPI
 	}
 
 	/**
-	 * @brief Normalizes full 4D vector.
+	 * @brief Quickly normalizes the first 3 components (x, y, z).
 	 *
-	 * Computes unit vector from all components (x,y,z,w).
+	 * Uses raw RSQRT approximation (~12 bits precision).
+	 * Use for particles, simple vertex shading, or distance checks.
 	 *
 	 * @param v Input vector.
+	 * @return Approximate normalized vector.
+	 */
+	[[nodiscard]] NU_FORCEINLINE NuVec4 FastNormalize3(NuVec4 v) noexcept
+	{
+		return Impl::FastNormalize3(v);
+	}
+
+	/**
+	 * @brief Normalizes all 4 components (x, y, z, w) with high precision.
 	 *
+	 * Scales the full vector to length 1.0 using Newton-Raphson refinement (~22 bits precision).
+	 * Use for Quaternions and 4D geometric operations.
+	 *
+	 * @param v Input vector.
 	 * @return Fully normalized vector.
 	 */
 	[[nodiscard]] NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v) noexcept
 	{
 		return Impl::Normalize4(v);
+	}
+
+	/**
+	 * @brief Quickly normalizes all 4 components (x, y, z, w).
+	 *
+	 * Uses raw RSQRT approximation (~12 bits precision).
+	 * Use for non-critical 4D operations.
+	 *
+	 * @param v Input vector.
+	 * @return Approximate normalized vector.
+	 */
+	[[nodiscard]] NU_FORCEINLINE NuVec4 FastNormalize4(NuVec4 v) noexcept
+	{
+		return Impl::FastNormalize4(v);
 	}
 
 	// =============================================
@@ -606,7 +649,7 @@ namespace NuMath::VectorAPI
 	 * @tparam I2 Index for the new Z component (0-3).
 	 * @tparam I3 Index for the new W component (0-3).
 	 * @param v The vector to shuffle.
-	 * 
+	 * 
 	 * @return A new NuVec4 composed of { v[I0], v[I1], v[I2], v[I3] }.
 	 */
 	template <int I0, int I1, int I2, int I3>

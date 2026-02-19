@@ -29,6 +29,10 @@ target_link_libraries(NuEngine
         stb
 )
 
+file(TO_CMAKE_PATH "${CMAKE_SOURCE_DIR}" PROJECT_ROOT_DIR)
+
+add_compile_definitions(NU_ROOT_DIR="${PROJECT_ROOT_DIR}")
+
 if (WIN32)
     target_compile_definitions(NuEngine PRIVATE "_CRT_SECURE_NO_WARNINGS" "NOMINMAX")
 endif()

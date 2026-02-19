@@ -9,8 +9,6 @@
 #include <NuMath/Core/Constants.hpp>
 #include <NuMath/Core/Math.hpp>
 
-
-
 namespace NuMath::Detail
 {
 	struct NEON_Traits

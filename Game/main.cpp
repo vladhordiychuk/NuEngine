@@ -8,17 +8,15 @@ public:
     SandboxApp()
     {
         LOG_INFO("Sandbox App started! Hello NuEngine!");
-        LOG_WARNING("This is a warning test.");
     }
 
     ~SandboxApp()
     {
-        LOG_INFO("Sandbox App Destroyed!");
     }
 
     void OnUpdate(float deltaTime) override
     {
-
+        NuEngine::Runtime::Application::OnUpdate(deltaTime);
     }
 
     void OnRender() override

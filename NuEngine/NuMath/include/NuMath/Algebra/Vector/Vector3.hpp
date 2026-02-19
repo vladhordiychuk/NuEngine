@@ -700,13 +700,36 @@ namespace NuMath
         }
 
         /**
-         * @brief Normalizes the vector.
+         * @brief Normalizes the vector using high precision (Newton-Raphson refinement).
          *
-         * @return Normalized vector.
+         * Uses iterative refinement to achieve ~22 bits of precision.
+         * * @note Use this for:
+         * - 3D Physics (collision normals, sliding vectors).
+         * - Camera orientation (LookAt, Right, Up vectors).
+         * - Lighting calculations (vertex/pixel normals) where visual artifacts are noticeable.
+         *
+         * @return Normalized vector (length approx 1.0).
          */
         [[nodiscard]] NU_FORCEINLINE Vector3 Normalize() const noexcept
         {
             return Vector3(VectorAPI::Normalize3(m_data));
+        }
+
+        /**
+         * @brief Quickly normalizes the vector using a rough approximation.
+         *
+         * Uses raw RSQRT instruction (~12 bits precision). Faster but less accurate.
+         *
+         * @note Use this for:
+         * - Particle systems (velocity direction).
+         * - Simple distance checks or AI vision cones.
+         * - Passing data to shaders where the GPU will re-normalize anyway.
+         *
+         * @return Approximate normalized vector.
+         */
+        [[nodiscard]] NU_FORCEINLINE Vector3 FastNormalize() const noexcept
+        {
+            return Vector3(VectorAPI::FastNormalize3(m_data));
         }
 
         /**

@@ -15,8 +15,17 @@ namespace NuEngine::Benchmarks
         REGISTER_ARRAY_BENCHMARK(NuMath::Vector3, Mul, BM_Array_BinaryOp,
             [](auto& a, auto& b) { return a * b; });
 
+        REGISTER_ARRAY_BENCHMARK(NuMath::Vector3, Div, BM_Array_BinaryOp,
+            [](auto& a, auto& b) { return a / b; });
+
         REGISTER_ARRAY_SCALAR_BENCHMARK(NuMath::Vector3, Dot, BM_Array_ScalarRet_Op,
-            [](const auto& a, const auto& b) { return a.Dot(b); });
+            [](auto& a, auto& b) { return a.Dot(b); });
+
+        REGISTER_ARRAY_BENCHMARK(NuMath::Vector3, Normalize, BM_Array_UnaryOp,
+            [](auto& a) { return a.Normalize(); });
+
+        REGISTER_ARRAY_BENCHMARK(NuMath::Vector3, FastNormalize, BM_Array_UnaryOp,
+            [](auto& a) { return a.FastNormalize(); });
 #endif
 
 #if ENABLE_SINGLE_BENCHMARKS
@@ -64,6 +73,9 @@ namespace NuEngine::Benchmarks
 
         REGISTER_SINGLE_BENCHMARK(NuMath::Vector3, Normalize, BM_Single_UnaryOp,
             [](auto& a) { return a.Normalize(); });
+
+        REGISTER_SINGLE_BENCHMARK(NuMath::Vector3, FastNormalize, BM_Single_UnaryOp,
+            [](auto& a) { return a.FastNormalize(); });
 #endif
     }
 }

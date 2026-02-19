@@ -26,6 +26,8 @@ add_subdirectory(NuEngine/NuMath)
 
 add_subdirectory(Game)
 
+add_subdirectory(NuEditor)
+
 if (NU_BUILD_TESTS)
     enable_testing()
     add_subdirectory(Tests)

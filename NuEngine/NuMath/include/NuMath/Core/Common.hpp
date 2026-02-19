@@ -43,9 +43,17 @@
     #define NU_USE_AVX 1
 #endif
 
+#if defined(_MSC_VER)
+    #define NU_NORETURN __declspec(noreturn)
+#elif defined(__GNUC__) || defined(__clang__)
+    #define NU_NORETURN __attribute__((noreturn))
+#else
+    #define NU_NORETURN
+#endif
+
 namespace NuMath::Detail
 {
-    NU_NO_INLINE inline void AssertHandler(const char* expression, const char* message, const char* file, int line)
+    NU_NORETURN inline void AssertHandler(const char* expression, const char* message, const char* file, int line) noexcept
     {
         std::fprintf(stderr,
             "=========================================\n"

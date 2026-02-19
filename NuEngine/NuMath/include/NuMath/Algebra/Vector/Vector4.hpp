@@ -711,15 +711,42 @@ namespace NuMath
         {
             return m_data;
         }
-
         /**
-         * @brief Normalizes the vector.
+         * @brief Normalizes the vector using high precision (Newton-Raphson refinement).
          *
-         * @return Normalized vector.
+         * This method utilizes an iterative refinement step to achieve ~22 bits of precision.
+         * It is slightly slower than FastNormalize but significantly more accurate.
+         *
+         * @note Use this for:
+         * - Physics calculations (collisions, rigid bodies).
+         * - Camera positioning and look vectors.
+         * - Skeletal animation and bone transforms.
+         * - Any logic where errors might accumulate over frames.
+         *
+         * @return Normalized vector (length approx 1.0).
          */
         [[nodiscard]] NU_FORCEINLINE Vector4 Normalize() const noexcept
         {
             return Vector4(VectorAPI::Normalize4(m_data));
+        }
+
+        /**
+         * @brief Quickly normalizes the vector using a rough approximation.
+         *
+         * This method uses the raw hardware `rsqrt` instruction (~12 bits of precision).
+         * It is faster than Normalize() but introduces a small error (~1.5e-4).
+         *
+         * @note Use this for:
+         * - Visual effects (particles, sparks, trails).
+         * - Shader data preparation (vertex normals/tangents often renormalized on GPU anyway).
+         * - AI heuristics (e.g., "is enemy roughly in this direction?").
+         * - Comparison checks where absolute precision is not critical.
+         *
+         * @return Approximate normalized vector.
+         */
+        [[nodiscard]] NU_FORCEINLINE Vector4 FastNormalize() const noexcept
+        {
+            return Vector4(VectorAPI::FastNormalize4(m_data));
         }
 
         /**

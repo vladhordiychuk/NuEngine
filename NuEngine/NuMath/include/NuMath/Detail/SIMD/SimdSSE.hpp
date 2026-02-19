@@ -32,6 +32,13 @@ namespace NuMath::Detail
 
 		static constexpr int Width = 4;
 
+		struct alignas(16) NuTransform
+		{
+			NuVec4 position;
+			NuVec4 rotation;
+			NuVec4 scale;
+		};
+
 		/**
 		 * @brief 4x4 matrix type with 16-byte alignment.
 		 *
@@ -135,9 +142,10 @@ namespace NuMath::Detail
 #if defined(__SSE4_1__)
 			return _mm_insert_ps(v, _mm_set_ss(w), 0x30);
 #else
-			NuVec4 temp = _mm_set_ss(w);
-			temp = _mm_shuffle_ps(v, temp, _MM_SHUFFLE(0, 0, 2, 0));
-			return _mm_shuffle_ps(temp, temp, _MM_SHUFFLE(2, 1, 1, 0));
+			NuVec4 w_vec = _mm_set_ss(w);
+			w_vec = _mm_shuffle_ps(w_vec, w_vec, _MM_SHUFFLE(0, 0, 0, 0));
+			NuVec4 mask = _mm_castsi128_ps(_mm_setr_epi32(0, 0, 0, 0xFFFFFFFF));
+			return _mm_or_ps(_mm_andnot_ps(mask, v), _mm_and_ps(mask, w_vec));
 #endif
 		}
 
@@ -278,29 +286,80 @@ namespace NuMath::Detail
 			return _mm_cvtss_f32(sum);
 		}
 
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 NewtonRaphsonRefine(NuVec4 approxRsqrt, NuVec4 originalValue) noexcept
+		{
+			NuVec4 half = _mm_set1_ps(0.5f);
+			NuVec4 three = _mm_set1_ps(3.0f);
+			NuVec4 muls = _mm_mul_ps(_mm_mul_ps(approxRsqrt, approxRsqrt), originalValue);
+			return _mm_mul_ps(_mm_mul_ps(half, approxRsqrt), _mm_sub_ps(three, muls));
+		}
+
 		// \copydoc NuMath::VectorAPI::Normalize2
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 Normalize2(NuVec4 v) noexcept
 		{
-			NuVec4 squared = Mul(v, v);
-			float lenSq = HorizontalAdd2(squared);
-			NU_MATH_ASSERT(lenSq > 0.0f, "Cannot normalize zero vector!");
-			float invLen = 1.0f / SqrtScalar(lenSq);
-			NuVec4 scale = Set(invLen, invLen, 1.0f, 1.0f);
+#if defined(__SSE4_1__)
+			NuVec4 dot = _mm_dp_ps(v, v, 0x3F);
+#else
+			NuVec4 squared = _mm_mul_ps(v, v);
+			NuVec4 shuf = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 sum = _mm_add_ss(squared, shuf);
+			NuVec4 dot = _mm_shuffle_ps(sum, sum, 0);
+#endif
+			NuVec4 rsqrt = _mm_rsqrt_ps(dot);
+			NuVec4 preciseRsqrt = NewtonRaphsonRefine(rsqrt, dot);
+			return _mm_mul_ps(v, preciseRsqrt);
+		}
 
-			return Mul(v, scale);
+		// \copydoc NuMath::VectorAPI::FastNormalize2
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 FastNormalize2(NuVec4 v) noexcept
+		{
+#if defined(__SSE4_1__)
+			NuVec4 dot = _mm_dp_ps(v, v, 0x3F);
+#else
+			NuVec4 squared = _mm_mul_ps(v, v);
+			NuVec4 shuf = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 sum = _mm_add_ss(squared, shuf);
+			NuVec4 dot = _mm_shuffle_ps(sum, sum, 0);
+#endif
+			return _mm_mul_ps(v, _mm_rsqrt_ps(dot));
 		}
 
 		// \copydoc NuMath::VectorAPI::Normalize3
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 Normalize3(NuVec4 v) noexcept
 		{
-			NuVec4 squared = Mul(v, v);
-			float lengthSquared = HorizontalAdd3(squared);
-			NU_MATH_ASSERT(lengthSquared > 0.0f, "Cannot normalize zero vector!");
-			float invLength = 1.0f / SqrtScalar(lengthSquared);
-			return Mul(v, SetAll(invLength));
+#if defined(__SSE4_1__)
+			NuVec4 dot = _mm_dp_ps(v, v, 0x7F);
+#else
+			NuVec4 squared = _mm_mul_ps(v, v);
+			NuVec4 shuf1 = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(0, 0, 1, 1));
+			NuVec4 sum1 = _mm_add_ss(squared, shuf1);
+			NuVec4 shuf2 = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 sum2 = _mm_add_ss(sum1, shuf2);
+			NuVec4 dot = _mm_shuffle_ps(sum2, sum2, 0);
+#endif
+			NuVec4 rsqrt = _mm_rsqrt_ps(dot);
+			NuVec4 preciseRsqrt = NewtonRaphsonRefine(rsqrt, dot);
+
+			return _mm_mul_ps(v, preciseRsqrt);
 		}
 
-		// \copydoc NuMath::VectorAPI::Normalize4
+		// \copydoc NuMath::VectorAPI::FastNormalize3
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 FastNormalize3(NuVec4 v) noexcept
+		{
+#if defined(__SSE4_1__)
+			NuVec4 dot = _mm_dp_ps(v, v, 0x7F);
+#else
+			NuVec4 squared = _mm_mul_ps(v, v);
+			NuVec4 shuf1 = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(0, 0, 1, 1));
+			NuVec4 sum1 = _mm_add_ss(squared, shuf1);
+			NuVec4 shuf2 = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 sum2 = _mm_add_ss(sum1, shuf2);
+			NuVec4 dot = _mm_shuffle_ps(sum2, sum2, 0);
+#endif
+			return _mm_mul_ps(v, _mm_rsqrt_ps(dot));
+		}
+
+		// \copydoc NuMath::VectorAPI::FastNormalize4
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 Normalize4(NuVec4 v) noexcept
 		{
 #if defined(__SSE4_1__)
@@ -314,7 +373,24 @@ namespace NuMath::Detail
 			dot = _mm_shuffle_ps(dot, dot, 0);
 #endif
 			NuVec4 rsqrt = _mm_rsqrt_ps(dot);
-			return _mm_mul_ps(v, rsqrt);
+			NuVec4 preciseRsqrt = NewtonRaphsonRefine(rsqrt, dot);
+			return _mm_mul_ps(v, preciseRsqrt);
+		}
+
+		// \copydoc NuMath::VectorAPI::Normalize4
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 FastNormalize4(NuVec4 v) noexcept
+		{
+#if defined(__SSE4_1__)
+			NuVec4 dot = _mm_dp_ps(v, v, 0xFF);
+#else
+			NuVec4 squared = _mm_mul_ps(v, v);
+			NuVec4 shuf = _mm_movehdup_ps(squared);
+			NuVec4 sums = _mm_add_ps(squared, shuf);
+			shuf = _mm_movehl_ps(shuf, sums);
+			NuVec4 dot = _mm_add_ss(sums, shuf);
+			dot = _mm_shuffle_ps(dot, dot, 0);
+#endif
+			return _mm_mul_ps(v, _mm_rsqrt_ps(dot));
 		}
 
 		// \copydoc NuMath::VectorAPI::Cross
@@ -410,6 +486,331 @@ namespace NuMath::Detail
 			static_assert(I3 >= 0 && I3 <= 3, "Shuffle index I3 out of bounds!");
 
 			return _mm_shuffle_ps(v, v, _MM_SHUFFLE(I3, I2, I1, I0));
+		}
+
+		// =============================================
+		// Quaternions
+		// =============================================
+
+		// \copydoc NuMath::QuaternionAPI::QuatIdentity
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatIdentity() noexcept
+		{
+			return _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatMul
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatMul(NuVec4 a, NuVec4 b) noexcept
+		{
+			NuVec4 w1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(3, 3, 3, 3));
+			NuVec4 mul1 = _mm_mul_ps(w1, b);
+
+			NuVec4 x1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(0, 0, 0, 0));
+			NuVec4 b1 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(0, 1, 2, 3));
+			NuVec4 mul2 = _mm_mul_ps(x1, b1);
+
+			NuVec4 y1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 b2 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(2, 3, 0, 1));
+			NuVec4 mul3 = _mm_mul_ps(y1, b2);
+
+			NuVec4 z1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 b3 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(1, 0, 3, 2));
+			NuVec4 mul4 = _mm_mul_ps(z1, b3);
+
+			const NuVec4 mask2 = _mm_castsi128_ps(_mm_setr_epi32(0, 0x80000000, 0, 0x80000000));
+			const NuVec4 mask3 = _mm_castsi128_ps(_mm_setr_epi32(0, 0, 0x80000000, 0x80000000));
+			const NuVec4 mask4 = _mm_castsi128_ps(_mm_setr_epi32(0x80000000, 0, 0, 0x80000000));
+
+			mul2 = _mm_xor_ps(mul2, mask2);
+			mul3 = _mm_xor_ps(mul3, mask3);
+			mul4 = _mm_xor_ps(mul4, mask4);
+
+			return _mm_add_ps(_mm_add_ps(mul1, mul2), _mm_add_ps(mul3, mul4));
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatConjugate
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatConjugate(NuVec4 q) noexcept
+		{
+			const NuVec4 mask = _mm_castsi128_ps(_mm_setr_epi32(0x80000000, 0x80000000, 0x80000000, 0));
+			return _mm_xor_ps(q, mask);
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatInverse
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatInverse(NuVec4 q) noexcept
+		{
+			NuVec4 conj = QuatConjugate(q);
+			float lensq = Length4(q);
+
+			if (lensq < EPSILON)
+			{
+				return QuatIdentity();
+			}
+
+			return Mul(conj, SetAll(1.0f / lensq));
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatRotateVector
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatRotateVector(NuVec4 q, NuVec4 v) noexcept
+		{
+			NuVec4 W = _mm_shuffle_ps(q, q, _MM_SHUFFLE(3, 3, 3, 3));
+#if defined(__SSE4_1__)
+			NuVec4 Q_xyz = _mm_insert_ps(q, q, 0x08);
+#else
+			const NuVec4 mask = _mm_castsi128_ps(_mm_setr_epi32(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0));
+			NuVec4 Q_xyz = _mm_and_ps(q, mask);
+#endif
+			NuVec4 T = Mul(SetAll(2.0f), Cross(Q_xyz, v));
+			NuVec4 WT = Mul(W, T);
+			NuVec4 CrossQT = Cross(Q_xyz, T);
+
+			return Add(v, Add(WT, CrossQT));
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatFromAxisAngle
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatFromAxisAngle(NuVec4 axis, float angleRadians) noexcept
+		{
+			float halfAngle = angleRadians * 0.5f;
+			float sinVal = Sin(halfAngle);
+			float cosVal = Cos(halfAngle);
+
+			NuVec4 s = _mm_set1_ps(sinVal);
+			NuVec4 q = _mm_mul_ps(axis, s);
+
+			q = SetW(q, cosVal);
+
+			return Normalize4(q);
+		}
+
+		// \copydoc NuMath::QuaternionAPI::QuatFromEuler
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatFromEuler(float pitch, float yaw, float roll) noexcept
+		{
+			float p = pitch * 0.5f;
+			float y = yaw * 0.5f;
+			float r = roll * 0.5f;
+
+			float cp = Cos(p);
+			float sp = Sin(p);
+			float cy = Cos(y);
+			float sy = Sin(y);
+			float cr = Cos(r);
+			float sr = Sin(r);
+
+			float qw = cr * cp * cy + sr * sp * sy;
+			float qx = sr * cp * cy - cr * sp * sy;
+			float qy = cr * sp * cy + sr * cp * sy;
+			float qz = cr * cp * sy - sr * sp * cy;
+
+			NuVec4 q = _mm_setr_ps(qx, qy, qz, qw);
+			return Normalize4(q);
+		}
+
+		// \copydoc NuMath::QuaternionAPI::Slerp
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 Slerp(NuVec4 a, NuVec4 b, float t) noexcept
+		{
+			float cosTheta = Dot4(a, b);
+
+			NuVec4 end = b;
+			if (cosTheta < 0.0f)
+			{
+				end = Neg(b);
+				cosTheta = -cosTheta;
+			}
+
+			float scale0, scale1;
+
+			if (cosTheta > 0.9995f)
+			{
+				scale0 = 1.0f - t;
+				scale1 = t;
+			}
+			else
+			{
+				float theta = ACos(cosTheta);
+				float sinTheta = Sin(theta);
+
+				float invSinTheta = 1.0f / sinTheta;
+				
+				scale0 = Sin((1.0f - t) * theta) * invSinTheta;
+				scale1 = Sin(t * theta) * invSinTheta;
+			}
+
+			NuVec4 vScale0 = _mm_set1_ps(scale0);
+			NuVec4 vScale1 = _mm_set1_ps(scale1);
+
+			NuVec4 term0 = _mm_mul_ps(a, vScale0);
+			NuVec4 term1 = _mm_mul_ps(end, vScale1);
+
+			return _mm_add_ps(term0, term1);
+		}
+
+		// =============================================
+		// Transform
+		// =============================================
+
+		// \copydoc NuMath::TransformAPI::TransformIdentity
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformIdentity() noexcept
+		{
+			return NuTransform{
+				SetZero(),
+				QuatIdentity(),
+				Set(1.0f, 1.0f, 1.0f, 0.0f)
+			};
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformCreate
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformCreate(NuVec4 position, NuVec4 rotation, NuVec4 scale) noexcept
+		{
+			return NuTransform{ position, rotation, scale };
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformSetPosition
+		static NU_FORCEINLINE void TransformSetPosition(NuTransform& t, NuVec4 position) noexcept
+		{
+			t.position = position;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformSetRotation
+		static NU_FORCEINLINE void TransformSetRotation(NuTransform& t, NuVec4 rotation) noexcept
+		{
+			t.rotation = rotation;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformSetScale
+		static NU_FORCEINLINE void TransformSetScale(NuTransform& t, NuVec4 scale) noexcept
+		{
+			t.scale = scale;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetPosition
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetPosition(const NuTransform& t) noexcept
+		{
+			return t.position;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetRotation
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetRotation(const NuTransform& t) noexcept
+		{
+			return t.rotation;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetScale
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetScale(const NuTransform& t) noexcept
+		{
+			return t.scale;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformToMatrix
+		[[nodiscard]] static NU_FORCEINLINE NuMat4 TransformToMatrix(const NuTransform& t) noexcept
+		{
+			NuMat4 scaleMat = CreateScale(t.scale);
+			NuMat4 rotMat = CreateRotation(t.rotation);
+			NuMat4 transMat = CreateTranslation(t.position);
+
+			NuMat4 result = Mul(rotMat, scaleMat);
+			result = Mul(transMat, result);
+
+			return result;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformToInverseMatrix
+		[[nodiscard]] static NU_FORCEINLINE NuMat4 TransformToInverseMatrix(const NuTransform& t) noexcept
+		{
+			NuTransform invTransform = TransformInverse(t);
+			return TransformToMatrix(invTransform);
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformInverse
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformInverse(const NuTransform& t) noexcept
+		{
+			NuTransform result;
+			result.rotation = QuatInverse(t.rotation);
+			result.scale = Div(Set(1.0f, 1.0f, 1.0f, 0.0f), t.scale);
+
+			NuVec4 scaledPos = Mul(t.position, result.scale);
+			result.position = Neg(QuatRotateVector(result.rotation, scaledPos));
+
+			return result;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformCombine
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformCombine(const NuTransform& parent, const NuTransform& child) noexcept
+		{
+			NuTransform result;
+
+			result.scale = Mul(parent.scale, child.scale);
+			result.rotation = QuatMul(parent.rotation, child.rotation);
+			NuVec4 scaledChildPos = Mul(parent.scale, child.position);
+			NuVec4 rotatedPos = QuatRotateVector(parent.rotation, scaledChildPos);
+			result.position = Add(parent.position, rotatedPos);
+
+			return result;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformPoint
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformPoint(const NuTransform& t, NuVec4 point) noexcept
+		{
+			NuVec4 scaled = Mul(t.scale, point);
+			NuVec4 rotated = QuatRotateVector(t.rotation, scaled);
+			return Add(t.position, rotated);
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformDirection
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformDirection(const NuTransform& t, NuVec4 direction) noexcept
+		{
+			return QuatRotateVector(t.rotation, direction);
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetForward
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetForward(const NuTransform& t) noexcept
+		{
+			return QuatRotateVector(t.rotation, Set(0.0f, 0.0f, -1.0f, 0.0f));
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetUp
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetUp(const NuTransform& t) noexcept
+		{
+			return QuatRotateVector(t.rotation, Set(0.0f, 1.0f, 0.0f, 0.0f));
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformGetRight
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 TransformGetRight(const NuTransform& t) noexcept
+		{
+			return QuatRotateVector(t.rotation, Set(1.0f, 0.0f, 0.0f, 0.0f));
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformLerp
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformLerp(const NuTransform& a, const NuTransform& b, float t) noexcept
+		{
+			NuTransform result;
+			result.position = Lerp(a.position, b.position, t);
+			result.rotation = Slerp(a.rotation, b.rotation, t);
+			result.scale = Lerp(a.scale, b.scale, t);
+			return result;
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformTranslation
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformTranslation(NuVec4 position) noexcept
+		{
+			return TransformCreate(position, QuatIdentity(), Set(1.0f, 1.0f, 1.0f, 0.0f));
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformRotation
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformRotation(NuVec4 rotation) noexcept
+		{
+			return TransformCreate(SetZero(), rotation, Set(1.0f, 1.0f, 1.0f, 0.0f));
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformScale
+		[[nodiscard]] static NU_FORCEINLINE NuTransform TransformScale(NuVec4 scale) noexcept
+		{
+			return TransformCreate(SetZero(), QuatIdentity(), scale);
+		}
+
+		// \copydoc NuMath::TransformAPI::TransformEqual
+		[[nodiscard]] static NU_FORCEINLINE bool TransformEqual(const NuTransform& a, const NuTransform& b) noexcept
+		{
+			return Equal(a.position, b.position) &&
+				Equal(a.rotation, b.rotation) &&
+				Equal(a.scale, b.scale);
 		}
 
 		// =============================================
@@ -704,13 +1105,13 @@ namespace NuMath::Detail
 		// \copydoc NuMath::MatrixAPI::CreateLookAt
 		[[nodiscard]] static NU_FORCEINLINE NuMat4 CreateLookAt(const NuVec4& eye, const NuVec4& target, const NuVec4& up) noexcept
 		{
-			NuVec4 forward = Normalize4(Sub(target, eye));
+			NuVec4 forward = Normalize4(Sub(eye, target));
 			NuVec4 right = Normalize4(Cross(up, forward));
 			NuVec4 trueUp = Cross(forward, right);
 
 			NuMat4 result = SetIdentityMatrix();
 
-			result.cols[0] = _mm_setr_ps(GetX(right), GetY(trueUp), GetX(forward), 0.0f);
+			result.cols[0] = _mm_setr_ps(GetX(right), GetX(trueUp), GetX(forward), 0.0f);
 			result.cols[1] = _mm_setr_ps(GetY(right), GetY(trueUp), GetY(forward), 0.0f);
 			result.cols[2] = _mm_setr_ps(GetZ(right), GetZ(trueUp), GetZ(forward), 0.0f);
 
@@ -743,15 +1144,31 @@ namespace NuMath::Detail
 		// \copydoc NuMath::MatrixAPI::CreateOrthographic
 		[[nodiscard]] static NU_FORCEINLINE NuMat4 CreateOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ) noexcept
 		{
-			return SetIdentityMatrix();
-			// TO DO
+			NuMat4 result = {};
+
+			float rl = 1.0f / (right - left);
+			float tb = 1.0f / (top - bottom);
+			float fn = 1.0f / (farZ - nearZ);
+
+			result.cols[0] = _mm_setr_ps(rl, 0.0f, 0.0f, 0.0f);
+			result.cols[1] = _mm_setr_ps(0.0f, tb, 0.0f, 0.0f);
+			result.cols[2] = _mm_setr_ps(0.0f, 0.0f, -2.0f * fn, 0.0f);
+			result.cols[3] = _mm_setr_ps(
+				-(right + left) * rl,
+				-(top + bottom) * tb,
+				-(farZ + nearZ) * fn,
+				1.0f
+			);
+
+			return result;
 		}
 
 		// \copydoc NuMath::MatrixAPI::Decompose
-		//NU_FORCEINLINE void Decompose() noexcept
-		//{
+		NU_FORCEINLINE void Decompose() noexcept
+		{
+			return;
 			// TO DO
-		//}
+		}
 
 		// \copydoc NuMath::MatrixAPI::Equal
 		[[nodiscard]] static NU_FORCEINLINE bool Equal(const NuMat4& a, const NuMat4& b) noexcept
@@ -787,11 +1204,13 @@ namespace NuMath::Detail
 			return trasposedMatrix.cols[index];
 		}
 
+		// \copydoc NuMath::MatrixAPI::SetColumn
 		static NU_FORCEINLINE void SetColumn(NuMat4& m, int col, NuVec4 v) noexcept {
 			NU_MATH_ASSERT(col >= 0 && col < 4, "Column index out of bounds");
 			m.cols[col] = v;
 		}
 
+		// \copydoc NuMath::MatrixAPI::SetRow
 		static NU_FORCEINLINE void SetRow(NuMat4& m, int row, NuVec4 v) noexcept {
 			NU_MATH_ASSERT(row >= 0 && row < 4, "Row index out of bounds");
 			float* c0 = reinterpret_cast<float*>(&m.cols[0]);
@@ -817,12 +1236,12 @@ namespace NuMath::Detail
 
 			switch (row)
 			{
-			case 0: return GetX(column);
-			case 1: return GetY(column);
-			case 2: return GetZ(column);
-			case 3: return GetW(column);
-			default:
-				return 0.0f;
+				case 0: return GetX(column);
+				case 1: return GetY(column);
+				case 2: return GetZ(column);
+				case 3: return GetW(column);
+				default:
+					return 0.0f;
 			}
 		}
 
@@ -910,8 +1329,16 @@ namespace NuMath::Detail
 
 			for (int i = 0; i < 3; ++i)
 			{
-
+				// TO DO
 			}
+		}
+
+		// \copydoc NuMath::MatrixAPI::Transpose
+		[[nodiscard]] static NU_FORCEINLINE NuMat3 Transpose(const NuMat3& mat) noexcept
+		{
+			NuMat3 result;
+
+
 		}
 
 		// \copydoc NuMath::MatrixAPI::FromColumns
@@ -935,7 +1362,9 @@ namespace NuMath::Detail
 			result.cols[1] = row1;
 			result.cols[2] = row2;
 
-			return result; // TO DO
+			result = Transpose(result);
+
+			return result;
 		}
 
 		// =============================================

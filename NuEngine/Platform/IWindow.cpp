@@ -13,7 +13,6 @@ namespace NuEngine::Platform
     Core::Result<std::unique_ptr<IWindow>, WindowError> CreatePlatformWindow() noexcept
     {
         std::unique_ptr<IWindow> window;
-
 #if defined(_WIN32)
         window = std::make_unique<WindowWin32>();
 #elif defined(__linux__)

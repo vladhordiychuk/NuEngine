@@ -176,7 +176,6 @@ namespace NuEngine::Core {
             std::cout << formatted << std::endl;
 #endif
 
-        // 5. Вивід у файл
         if (state.logFile.is_open()) {
             state.logFile << formatted << std::endl;
         }
@@ -198,10 +197,10 @@ namespace NuEngine::Core {
 #ifdef _WIN32
     unsigned short Logger::GetWinColor(LogLevel level) noexcept {
         switch (level) {
-        case LogLevel::Trace:    return 8; // Gray
-        case LogLevel::Debug:    return FOREGROUND_BLUE | FOREGROUND_GREEN; // Cyan
+        case LogLevel::Trace:    return 8;
+        case LogLevel::Debug:    return FOREGROUND_BLUE | FOREGROUND_GREEN;
         case LogLevel::Info:     return FOREGROUND_GREEN;
-        case LogLevel::Warning:  return FOREGROUND_RED | FOREGROUND_GREEN; // Yellow
+        case LogLevel::Warning:  return FOREGROUND_RED | FOREGROUND_GREEN;
         case LogLevel::Error:    return FOREGROUND_RED;
         case LogLevel::Critical:
             return BACKGROUND_RED | (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);

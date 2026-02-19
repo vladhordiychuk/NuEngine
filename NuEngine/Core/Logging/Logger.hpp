@@ -55,7 +55,6 @@ namespace NuEngine::Core
         static LoggerState& GetState() noexcept;
         static void EnsureInitialized(LoggerState& state) noexcept;
 
-        // Внутрішня версія Init без блокування (викликається, коли mutex вже заблоковано)
         static Result<void, FileSystemError> InitInternal(LoggerState& state, const std::string& path) noexcept;
 
         static Result<void, FileSystemError> CreateLogDirectory(const std::string& logPath) noexcept;
@@ -69,7 +68,6 @@ namespace NuEngine::Core
     };
 }
 
-// Macros
 #define LOG_TRACE(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Trace, std::format(__VA_ARGS__))
 #define LOG_DEBUG(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Debug, std::format(__VA_ARGS__))
 #define LOG_INFO(...)     NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Info, std::format(__VA_ARGS__))

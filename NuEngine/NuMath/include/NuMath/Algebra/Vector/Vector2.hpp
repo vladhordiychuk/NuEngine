@@ -667,13 +667,33 @@ namespace NuMath
 		}
 
 		/**
-		 * @brief Normalizes the vector.
+		 * @brief Normalizes the vector using high precision (Newton-Raphson refinement).
+		 *
+		 * @note Use this for:
+		 * - 2D Physics engines (Box2D style solvers).
+		 * - Precise steering behaviors (boids, pathfollowing).
+		 * - Texture coordinates generation requiring precision.
 		 *
 		 * @return Normalized vector.
 		 */
 		[[nodiscard]] NU_FORCEINLINE Vector2 Normalize() const noexcept
 		{
 			return Vector2(VectorAPI::Normalize2(m_data));
+		}
+
+		/**
+		 * @brief Quickly normalizes the vector using a rough approximation.
+		 *
+		 * @note Use this for:
+		 * - UI directions/animations.
+		 * - 2D Particle effects (sparks, smoke).
+		 * - Joystick/Gamepad input normalization (deadzone handling usually masks the error).
+		 *
+		 * @return Approximate normalized vector.
+		 */
+		[[nodiscard]] NU_FORCEINLINE Vector2 FastNormalize() const noexcept
+		{
+			return Vector2(VectorAPI::FastNormalize2(m_data));
 		}
 
 		/**

@@ -9,6 +9,10 @@ namespace NuEngine::Benchmarks
         REGISTER_ARRAY_BENCHMARK(glm::vec2, Add, BM_Array_BinaryOp, [](auto& a, auto& b) { return a + b; });
         REGISTER_ARRAY_BENCHMARK(glm::vec2, Sub, BM_Array_BinaryOp, [](auto& a, auto& b) { return a - b; });
         REGISTER_ARRAY_BENCHMARK(glm::vec2, Mul, BM_Array_BinaryOp, [](auto& a, auto& b) { return a * b; });
+        REGISTER_ARRAY_SCALAR_BENCHMARK(glm::vec2, Dot, BM_Array_ScalarRet_Op,
+            [](const auto& a, const auto& b) { return glm::dot(a, b); });
+        REGISTER_ARRAY_BENCHMARK(glm::vec2, Normalize, BM_Array_UnaryOp,
+            [](auto& a) { return glm::normalize(a); });
 #endif
 
 #if ENABLE_SINGLE_BENCHMARKS

@@ -9,7 +9,6 @@
 #include <NuMath/Core/MathConstants.hpp>
 #include <NuMath/Core/Math.hpp>
 
-#include <cassert>
 #include <bit>
 
 namespace NuMath::Detail

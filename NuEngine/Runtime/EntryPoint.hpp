@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifndef NU_EDITOR_MODE
+
 #include <Runtime/Application.hpp>
 #include <memory>
 #include <iostream>
@@ -51,4 +53,5 @@ int main(int argc, char** argv)
 
     return 0;
 }
+#endif
 #endif

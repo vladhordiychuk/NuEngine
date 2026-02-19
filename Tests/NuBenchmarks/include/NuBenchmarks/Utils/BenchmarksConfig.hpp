@@ -23,7 +23,7 @@
 #endif
 
 #ifndef ENABLE_SINGLE_BENCHMARKS
-    #define ENABLE_SINGLE_BENCHMARKS 1
+    #define ENABLE_SINGLE_BENCHMARKS 0
 #endif
 
 #define IN_TIME_STR "1.0s"

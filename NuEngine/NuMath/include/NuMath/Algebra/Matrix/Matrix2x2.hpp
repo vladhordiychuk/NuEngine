@@ -54,10 +54,17 @@ namespace NuMath
 			m_data = MatrixAPI::FromRows(row0.SimdData(), row1.SimdData());
 		}
 
+		/**
+		 * @brief Constructs a matrix from two row vectors.
+		 * 
+		 * @param row0 The first row (m00, m01).
+		 * @param row1 The second row (m10, m11).
+		 */
 		NU_FORCEINLINE Matrix2x2(const Vector2& row0, const Vector3& row1) noexcept
 			: m_data(MatrixAPI::FromRows(row0.SimdData(), row1.SimdData())
 		{
 		}
+
 
 		NU_FORCEINLINE Matrix2x2(const Vector2& col0, const Vector2& col1) noexcept
 			: m_data(MatrixAPI::FromColumns(col0.SimdData(), col1.SimdData())
@@ -80,7 +87,6 @@ namespace NuMath
 			: m_data(std::move(other.m_data))
 		{
 		}
-
 
 	private:
 		MatrixAPI::NuMat2 m_data;

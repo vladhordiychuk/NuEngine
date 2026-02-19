@@ -1,4 +1,5 @@
 #include <Graphics/Backends/OpenGL/Core/OpenGLContext.hpp>
+#include <Graphics/Backends/OpenGL/Core/OpenGLContextExternal.hpp>
 
 #if defined(_WIN32)
 #include <Graphics/Backends/OpenGL/Platform/Windows/OpenGLContextWin32.hpp>
@@ -12,6 +13,15 @@ namespace NuEngine::Graphics::OpenGL
 {
     Core::Result<std::unique_ptr<OpenGLContext>, GraphicsError> CreatePlatformOpenGLContext(Platform::IWindow* window) noexcept
     {
+        if (window == nullptr)
+        {
+            // 1. Створюємо derived вказівник і одразу зберігаємо як base
+            std::unique_ptr<OpenGLContext> externalCtx = std::make_unique<OpenGLExternalContext>();
+
+            // 2. Переміщуємо (move) вже правильний тип
+            return Core::Ok(std::move(externalCtx));
+        }
+
         std::unique_ptr<OpenGLContext> context;
 
 #if defined(_WIN32)
