@@ -1,0 +1,47 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>icons/menu.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/rotate.svg</file>
+        <file>icons/scale.svg</file>
+        <file>icons/search.svg</file>
+        <file>icons/stop.svg</file>
+        <file>icons/translate.svg</file>
+        <file>icons/min.svg</file>
+        <file>icons/max.svg</file>
+        <file>icons/square.svg</file>
+        <file>icons/save.svg</file>
+        <file>icons/open_scene.svg</file>
+        <file>icons/new_scene.svg</file>
+        <file>icons/compile.svg</file>
+        <file>icons/reload.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/select.svg</file>
+        <file>icons/exit.svg</file>
+        <file>icons/x.svg</file>
+        <file>icons/x_small.svg</file>
+        <file>icons/save_as.svg</file>
+        <file>icons/content.svg</file>
+        <file>icons/console.svg</file>
+        <file>icons/zoom_fit.svg</file>
+        <file>icons/minimap.svg</file>
+        <file>icons/arrow_down.svg</file>
+        <file>icons/arrow_right.svg</file>
+        <file>icons/check.svg</file>
+        <file>icons/palette.svg</file>
+        <file>icons/keyboard.svg</file>
+        <file>icons/layout.svg</file>
+        <file>icons/performance.svg</file>
+        <file>icons/code.svg</file>
+
+        <file>themes/base.qss</file>
+        <file>themes/arctic_slate.qss</file>
+        <file>themes/warm_ember.qss</file>
+        <file>themes/volcanic_ash.qss</file>
+        <file>themes/forest_depth.qss</file>
+        <file>themes/dusk_purple.qss</file>
+        <file>themes/midnight_rose.qss</file>
+    </qresource>
+</RCC>
