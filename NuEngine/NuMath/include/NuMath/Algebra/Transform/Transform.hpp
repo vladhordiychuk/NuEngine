@@ -51,18 +51,22 @@ namespace NuMath
         /**
          * @brief Copy constructor.
          */
-        NU_FORCEINLINE Transform(const Transform& other) noexcept
-            : m_data(other.m_data)
-        {
-        }
+        NU_FORCEINLINE Transform(const Transform& other) noexcept = default;
 
         /**
          * @brief Move constructor.
          */
-        NU_FORCEINLINE Transform(Transform&& other) noexcept
-            : m_data(std::move(other.m_data))
-        {
-        }
+        NU_FORCEINLINE Transform(Transform&& other) noexcept = default;
+
+        /**
+         * @brief Copy assignment.
+         */
+        NU_FORCEINLINE Transform& operator=(const Transform& other) noexcept = default;
+
+        /**
+         * @brief Move assignment.
+         */
+        NU_FORCEINLINE Transform& operator=(Transform&& other) noexcept = default;
 
         /**
          * @brief Internal constructor from API data.
@@ -242,30 +246,6 @@ namespace NuMath
         [[nodiscard]] NU_FORCEINLINE Transform operator*(const Transform& other) const noexcept
         {
             return Combine(other);
-        }
-
-        /**
-         * @brief Copy assignment.
-         */
-        NU_FORCEINLINE Transform& operator=(const Transform& other) noexcept
-        {
-            if (this != &other)
-            {
-                m_data = other.m_data;
-            }
-            return *this;
-        }
-
-        /**
-         * @brief Move assignment.
-         */
-        NU_FORCEINLINE Transform& operator=(Transform&& other) noexcept
-        {
-            if (this != &other)
-            {
-                m_data = std::move(other.m_data);
-            }
-            return *this;
         }
 
         /**

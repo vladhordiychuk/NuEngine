@@ -51,14 +51,16 @@ namespace NuMath::MatrixAPI
 	/**
 	 *
 	 */
-	NU_FORCEINLINE void SetColumn(NuMat4& m, int col, NuVec4 v) noexcept {
+	NU_FORCEINLINE void SetColumn(NuMat4& m, int col, NuVec4 v) noexcept 
+	{
 		Impl::SetColumn(m, col, v);
 	}
 
 	/**
 	 *
 	 */
-	NU_FORCEINLINE void SetRow(NuMat4& m, int row, NuVec4 v) noexcept {
+	NU_FORCEINLINE void SetRow(NuMat4& m, int row, NuVec4 v) noexcept 
+	{
 		Impl::SetRow(m, row, v);
 	}
 

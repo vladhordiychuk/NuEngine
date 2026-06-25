@@ -113,20 +113,14 @@ namespace NuMath
 		 *
 		 * @param other The matrix to copy from.
 		 */
-		NU_FORCEINLINE Matrix4x4(const Matrix4x4& other) noexcept
-			: m_data(other.m_data)
-		{
-		}
+		NU_FORCEINLINE Matrix4x4(const Matrix4x4& other) noexcept = default;
 
 		/**
 		 * @brief Move constructor.
 		 *
 		 * @param other The matrix to move from.
 		 */
-		NU_FORCEINLINE Matrix4x4(Matrix4x4&& other) noexcept
-			: m_data(std::move(other.m_data))
-		{
-		}
+		NU_FORCEINLINE Matrix4x4(Matrix4x4&& other) noexcept = default;
 
 		/**
 		 * @brief Private constructor to create a matrix from the internal API type.
@@ -148,11 +142,7 @@ namespace NuMath
 		 *
          * @return A reference to this matrix after assignment.
          */
-		NU_FORCEINLINE Matrix4x4& operator=(const Matrix4x4& other) noexcept
-		{
-			m_data = other.m_data;
-			return *this;
-		}
+		NU_FORCEINLINE Matrix4x4& operator=(const Matrix4x4& other) noexcept = default;
 
 		/**
          * @brief Move assignment operator.
@@ -164,11 +154,7 @@ namespace NuMath
 		 *
          * @return A reference to this matrix after the move.
          */
-		NU_FORCEINLINE Matrix4x4& operator=(Matrix4x4&& other) noexcept
-		{
-			m_data = std::move(other.m_data);
-			return *this;
-		}
+		NU_FORCEINLINE Matrix4x4& operator=(Matrix4x4&& other) noexcept = default;
 
 		/**
 		 * @brief Destructor.
@@ -318,12 +304,20 @@ namespace NuMath
 		}
 
 		/**
+		 * @brief 
+		 */
+		[[nodiscard]] NU_FORCEINLINE bool NearEqual(const Matrix4x4& other, float epsilon = EPSILON) const noexcept
+		{
+			return MatrixAPI::NearEqual(m_data, other.m_data, epsilon);
+		}
+
+		/**
          * @brief Inequality comparison operator.
 		 *
          * Checks if at least one component of this matrix differs
          * from the components of another matrix.
 		 *
-_        * @param other The matrix to compare against.
+         * @param other The matrix to compare against.
 		 *
          * @return true if the matrices are not identical, false otherwise.
          */
@@ -451,10 +445,11 @@ _        * @param other The matrix to compare against.
 		 * @param[out] rotation The rotation quaternion.
 		 * @param[out] scale The scale vector.
 		 */
-		//NU_FORCEINLINE void Decompose(Vector3& translation, Vector4& rotation, Vector3& scale) const noexcept
-		//{
-		//	MatrixAPI::Decompose(m_data, translation.SimdData(), rotation.SimdData(), scale.SimdData());
-		//}
+		NU_FORCEINLINE void Decompose(Vector3& translation, Vector4& rotation, Vector3& scale) const noexcept
+		{
+			NU_MATH_ASSERT(false, "Matrix4x4::Decompose is not yet implemented!");
+			// MatrixAPI::Decompose(m_data, translation.SimdData(), rotation.SimdData(), scale.SimdData());
+		}
 
 		/**
 		 * @brief Gets a specified column of the matrix as a Vector4.
@@ -560,7 +555,7 @@ _        * @param other The matrix to compare against.
 		 *
 		 * @return true if the matrix is identity, false otherwise.
 		 */
-		[[nodiscard]] NU_FORCEINLINE bool IsIdentity(float epsilon = 1e-6f) const noexcept
+		[[nodiscard]] NU_FORCEINLINE bool IsIdentity(float epsilon = EPSILON) const noexcept
 		{
 			return MatrixAPI::IsIdentity(m_data, epsilon);
 		}

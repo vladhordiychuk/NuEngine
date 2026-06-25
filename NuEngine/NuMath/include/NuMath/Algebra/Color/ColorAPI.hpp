@@ -6,6 +6,7 @@
 
 #include <NuMath/Detail/SIMD/SimdBackend.hpp>
 #include <NuMath/Algebra/Vector/VectorAPI.hpp>
+#include <NuMath/Core/SRGBLut.hpp>
 #include <cmath>
 
 namespace NuMath::ColorAPI
@@ -79,8 +80,6 @@ namespace NuMath::ColorAPI
 	 */
 	[[nodiscard]] NU_FORCEINLINE NuColor FromBytes(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
 	{
-		extern const float SRGBToLinearLUT[256];
-
 		return Set(
 			SRGBToLinearLUT[r],
 			SRGBToLinearLUT[g],

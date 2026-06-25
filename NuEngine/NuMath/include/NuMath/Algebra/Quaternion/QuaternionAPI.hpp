@@ -81,9 +81,9 @@ namespace NuMath::QuaternionAPI
 		return Impl::QuatFromAxisAngle(axis, angleRadians);
 	}
 
-	[[nodiscard]] static NU_FORCEINLINE NuQuat FromEuler(float pitch, float yall, float roll) noexcept
+	[[nodiscard]] static NU_FORCEINLINE NuQuat FromEuler(float pitch, float yaw, float roll) noexcept
 	{
-		return Impl::QuatFromEuler(pitch, yall, roll);
+		return Impl::QuatFromEuler(pitch, yaw, roll);
 	}
 
 	[[nodiscard]] static NU_FORCEINLINE NuQuat Slerp(NuQuat a, NuQuat b, float t) noexcept

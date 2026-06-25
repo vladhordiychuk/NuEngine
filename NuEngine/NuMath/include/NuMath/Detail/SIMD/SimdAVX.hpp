@@ -81,7 +81,7 @@ namespace NuMath::Detail
 
 		[[nodiscard]] static NU_FORCEINLINE Register Neg(Register a) noexcept
 		{
-			return _mm256_sub_ps(_mm256_setzero_ps(), a);
+			return _mm256_xor_ps(a, _mm256_set1_ps(-0.0f));
 		}
 	};
 }

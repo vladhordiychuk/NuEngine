@@ -102,13 +102,6 @@ namespace NuMath
          * @return Reference to this vector.
         */
         NU_FORCEINLINE Vector4& operator=(Vector4&& other) noexcept = default;
-
-        /**
-         * @brief Destructor.
-         *
-         * Defaulted since Vector4 does not manage resources.
-         */
-        NU_FORCEINLINE ~Vector4() = default;
         
         /**
          * @brief Constructs a Vector4 from a Vector3 with a custom W component.
@@ -141,6 +134,13 @@ namespace NuMath
             : m_data(vec)
         {
         }
+
+        /**
+         * @brief Destructor.
+         *
+         * Defaulted since Vector4 does not manage resources.
+         */
+        NU_FORCEINLINE ~Vector4() = default;
 
         /**
          * @brief Adding another vector to this one.
@@ -372,7 +372,7 @@ namespace NuMath
          *
          * @return A new Vector4 that is the result of the addition.
          */
-        friend [[nodiscard]] Vector4 operator+(float scalar, const Vector4& vec) noexcept
+        friend [[nodiscard]] NU_FORCEINLINE Vector4 operator+(float scalar, const Vector4& vec) noexcept
         {
             return Vector4(VectorAPI::Add(VectorAPI::SetAll(scalar), vec.m_data));
         }
@@ -385,7 +385,7 @@ namespace NuMath
          *
          * @return A new Vector4 that is the result of the subtraction.
          */
-        friend [[nodiscard]] Vector4 operator-(float scalar, const Vector4& vec) noexcept
+        friend [[nodiscard]] NU_FORCEINLINE Vector4 operator-(float scalar, const Vector4& vec) noexcept
         {
             return Vector4(VectorAPI::Sub(VectorAPI::SetAll(scalar), vec.m_data));
         }
@@ -398,7 +398,7 @@ namespace NuMath
          *
          * @return A new Vector4 that is the result of the multiplication.
          */
-        friend [[nodiscard]] Vector4 operator*(float scalar, const Vector4& vec) noexcept
+        friend [[nodiscard]] NU_FORCEINLINE Vector4 operator*(float scalar, const Vector4& vec) noexcept
         {
             return Vector4(VectorAPI::Mul(VectorAPI::SetAll(scalar), vec.m_data));
         }
@@ -411,7 +411,7 @@ namespace NuMath
          *
          * @return A new Vector4 that is the result of the division.
          */
-        friend [[nodiscard]] Vector4 operator/(float scalar, const Vector4& vec) noexcept
+        friend [[nodiscard]] NU_FORCEINLINE Vector4 operator/(float scalar, const Vector4& vec) noexcept
         {
             return Vector4(VectorAPI::Div(VectorAPI::SetAll(scalar), vec.m_data));
         }
@@ -534,7 +534,7 @@ namespace NuMath
          *
          * @return true if all components differ no more than epsilon, false otherwise.
          */
-        [[nodiscard]] NU_FORCEINLINE bool NearEqual(const Vector4& other, float epsilon) const noexcept
+        [[nodiscard]] NU_FORCEINLINE bool NearEqual(const Vector4& other, float epsilon = EPSILON) const noexcept
         {
             return VectorAPI::NearEqual(m_data, other.m_data, epsilon);
         }
@@ -826,7 +826,7 @@ namespace NuMath
          *
          * @return String representation of the vector.
          */
-        [[nodiscard]] NU_FORCEINLINE std::string ToString() const
+        [[nodiscard]] std::string ToString() const
         {
             return std::format("({}, {}, {}, {})", X(), Y(), Z(), W());
         }
@@ -858,23 +858,35 @@ namespace NuMath
 #include <NuMath/Algebra/Vector/Vector3.hpp>
 #include <NuMath/Algebra/Vector/Vector2.hpp>
 
-namespace NuMath 
+namespace NuMath
 {
+    /**
+     * @brief Constructs a Vector4 from a Vector3 with a custom W component.
+     */
     NU_FORCEINLINE Vector4::Vector4(const Vector3& vec, float w) noexcept
         : m_data(VectorAPI::SetW(vec.SimdData(), w))
     {
     }
 
+    /**
+     * @brief Constructs a Vector4 from a Vector2 with custom Z and W components.
+     */
     NU_FORCEINLINE Vector4::Vector4(const Vector2& vec, float z, float w) noexcept
         : m_data(VectorAPI::SetW(VectorAPI::SetZ(vec.SimdData(), z), w))
     {
-    }
+    } 
 
+    /**
+     * @brief Returns a Vector3 swizzle (x, y, z).
+     */
     [[nodiscard]] NU_FORCEINLINE Vector3 Vector4::XYZ() const noexcept
     {
         return Vector3(VectorAPI::SetW(m_data, 0.0f));
     }
 
+    /**
+     * @brief Returns a Vector2 swizzle (x, y).
+     */
     [[nodiscard]] NU_FORCEINLINE Vector2 Vector4::XY() const noexcept
     {
         return Vector2(VectorAPI::SetZ(VectorAPI::SetW(m_data, 0.0f), 0.0f));

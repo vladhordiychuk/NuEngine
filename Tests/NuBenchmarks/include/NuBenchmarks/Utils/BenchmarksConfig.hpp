@@ -19,11 +19,11 @@
 #endif
 
 #ifndef ENABLE_SOA_BENCHMARKS
-    #define ENABLE_SOA_BENCHMARKS 1
+    #define ENABLE_SOA_BENCHMARKS 0
 #endif
 
 #ifndef ENABLE_SINGLE_BENCHMARKS
-    #define ENABLE_SINGLE_BENCHMARKS 0
+    #define ENABLE_SINGLE_BENCHMARKS 1
 #endif
 
 #define IN_TIME_STR "1.0s"

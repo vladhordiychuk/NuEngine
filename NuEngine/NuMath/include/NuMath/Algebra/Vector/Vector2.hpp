@@ -68,10 +68,7 @@ namespace NuMath
 		 *
 		 * @param other The vector to copy.
 		 */
-		NU_FORCEINLINE Vector2(const Vector2& other) noexcept
-			: m_data(other.m_data)
-		{
-		}
+		NU_FORCEINLINE Vector2(const Vector2& other) noexcept = default;
 
 		/*
 		* @brief Constructs a Vector2 by moving another one.
@@ -81,10 +78,25 @@ namespace NuMath
 		*
 		* @param other The vector to move from.
 		*/
-		NU_FORCEINLINE Vector2(Vector2&& other) noexcept
-			: m_data(std::move(other.m_data))
-		{
-		}
+		NU_FORCEINLINE Vector2(Vector2&& other) noexcept = default;
+
+		/**
+		 * @brief Copy assignment operator.
+		 *
+		 * @param other The vector to copy from.
+		 *
+		 * @return Reference to this vector.
+		 */
+		NU_FORCEINLINE Vector2& operator=(const Vector2& other) noexcept = default;
+
+		/**
+		 * @brief Move assignment operator.
+		 *
+		 * @param other The vector to move from.
+		 *
+		 * @return Reference to this vector.
+		 */
+		NU_FORCEINLINE Vector2& operator=(Vector2&& other) noexcept = default;
 
 		/*
 		* @brief Constructs a Vector2 from a Vector3.
@@ -482,7 +494,7 @@ namespace NuMath
 		 *
 		 * @return true if all components differ no more than epsilon, false otherwise.
 		 */
-		[[nodiscard]] NU_FORCEINLINE bool NearEqual(const Vector2& other, float epsilon) const noexcept
+		[[nodiscard]] NU_FORCEINLINE bool NearEqual(const Vector2& other, float epsilon = EPSILON) const noexcept
 		{
 			return VectorAPI::NearEqual(m_data, other.m_data, epsilon);
 		}
@@ -571,38 +583,6 @@ namespace NuMath
             NU_MATH_ASSERT(index >= 0 && index < 2, "Vector2 index out of bounds! Valid range: 0..1");
 			return reinterpret_cast<const float*>(&m_data)[index];
         }
-
-		/**
-		 * @brief Copy assignment operator.
-		 *
-		 * @param other The vector to copy from.
-		 *
-		 * @return Reference to this vector.
-		 */
-		NU_FORCEINLINE Vector2& operator=(const Vector2& other) noexcept
-		{
-			if (this != &other)
-			{
-				m_data = other.m_data;
-			}
-			return *this;
-		}
-
-		/**
-		 * @brief Move assignment operator.
-		 *
-		 * @param other The vector to move from.
-		 *
-		 * @return Reference to this vector.
-		 */
-		NU_FORCEINLINE Vector2& operator=(Vector2&& other) noexcept
-		{
-			if (this != &other)
-			{
-				m_data = std::move(other.m_data);
-			}
-			return *this;
-		}
 
 		/**
 		 * @brief Calculates the length (magnitude) of the vector.
@@ -770,7 +750,7 @@ namespace NuMath
 		 *
 		 * @return String representation of the vector.
 		 */
-		[[nodiscard]] NU_FORCEINLINE std::string ToString() const
+		[[nodiscard]] std::string ToString() const
 		{
 			return std::format("({}, {})", X(), Y());
 		}
@@ -805,41 +785,65 @@ namespace NuMath
 
 namespace NuMath
 {
+	/**
+	 * @brief Construcnts a Vector2 from a Vector3.
+	 */
 	NU_FORCEINLINE Vector2::Vector2(const Vector3& vec) noexcept
 		: m_data(VectorAPI::SetZ(vec.SimdData(), 0.0f))
 	{
 	}
 
+	/**
+	 * @brief Constructs a Vector3 from a Vector4.
+	 */
 	NU_FORCEINLINE Vector2::Vector2(const Vector4& vec) noexcept
 		: m_data(VectorAPI::SetZ(VectorAPI::SetW(vec.SimdData(), 0.0f), 0.0f))
 	{
 	}
 
+	/**
+	 * @brief Returns a Vector4 swizzle (x, x, x, x).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector4 Vector2::XXXX() const noexcept
 	{
 		return Vector4(VectorAPI::Shuffle<0, 0, 0, 0>(m_data));
 	}
 
+	/**
+	 * @brief Returns a Vector4 swizzle (y, y, y, y).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector4 Vector2::YYYY() const noexcept
 	{
 		return Vector4(VectorAPI::Shuffle<1, 1, 1, 1>(m_data));
 	}
 
+	/**
+	 * @brief Returns a Vector4 swizzle (x, y, 0, 0).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector4 Vector2::XY00() const noexcept
 	{
 		return Vector4(m_data);
 	}
 
+	/**
+	 * @brief Returns a Vector4 swizzle (x, y, 0, 1).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector4 Vector2::XY01() const noexcept
 	{
 		return Vector4(VectorAPI::SetW(m_data, 1.0f));
 	}
 
+	/**
+	 * @brief Returns a Vector3 swizzle (x, y, 0).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector3 Vector2::XY0() const noexcept
 	{
 		return Vector3(m_data);
 	}
 
+	/**
+	 * @brief Returns a Vector3 swizzle (x, y, 1).
+	 */
 	[[nodiscard]] NU_FORCEINLINE Vector3 Vector2::XY1() const noexcept
 	{
 		return Vector3(VectorAPI::SetZ(m_data, 1.0f));

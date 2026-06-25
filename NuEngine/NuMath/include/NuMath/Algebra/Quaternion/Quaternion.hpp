@@ -54,7 +54,7 @@ namespace NuMath
 		 *
 		 */
 		NU_FORCEINLINE Quaternion(const Vector3& vec) noexcept
-			: m_data(vec.X(), vec.Y(), vec.Z(), 0.0f)
+			: m_data(QuaternionAPI::Set(vec.X(), vec.Y(), vec.Z(), 0.0f))
 		{
 		}
 
@@ -63,7 +63,7 @@ namespace NuMath
 		 *
 		 */
 		NU_FORCEINLINE Quaternion(const Vector2& vec) noexcept
-			: m_data(vec.X(), vec.Y(), 0.0f, 0.0f)
+			: m_data(QuaternionAPI::Set(vec.X(), vec.Y(), 0.0f, 0.0f))
 		{
 		}
 

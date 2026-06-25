@@ -75,18 +75,6 @@ namespace NuMath
 		}
 
 		/**
-		 * @brief Constructs a matrix from three column vectors.
-		 *
-		 * @param col0 The first column (m00, m01, m02).
-		 * @param col1 The second column (m10, m11, m12).
-		 * @param col2 The third column (m20, m21, m22).
-		 */
-		NU_FORCEINLINE Matrix3x3(const Vector3& col0, const Vector3& col1, const Vector3& col2) noexcept
-			: m_data(MatrixAPI::FromColumns(col0.SimdData(), col1.SimdData(), col2.SimdData()))
-		{
-		}
-
-		/**
 		 * @brief Constructs a matrix from an initializer list.
 		 * 
 		 * Assumes the 9 values are provided in row-major order.
@@ -224,7 +212,7 @@ namespace NuMath
 		 * 
 		 * @return The result of the multiplication (this * other).
 		 */
-		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator*(const Matrix3x3& other) noexcept
+		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator*(const Matrix3x3& other) const noexcept
 		{
 			return Matrix3x3(MatrixAPI::Mul(m_data, other.m_data));
 		}
@@ -236,7 +224,7 @@ namespace NuMath
 		 * 
 		 * @return The transformed vector.
 		 */
-		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator*(const Vector3& vec) noexcept
+		[[nodiscard]] NU_FORCEINLINE Vector3 operator*(const Vector3& vec) const noexcept
 		{
 			return Vector3(MatrixAPI::Mul(m_data, vec.SimdData()));
 		}
@@ -248,7 +236,7 @@ namespace NuMath
 		 * 
 		 * @return The result of the addition.
 		 */
-		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator+(const Matrix3x3& other) noexcept
+		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator+(const Matrix3x3& other) const noexcept
 		{
 			return Matrix3x3(MatrixAPI::Add(m_data, other.m_data));
 		}
@@ -260,7 +248,7 @@ namespace NuMath
 		 * 
 		 * @return The result of subtraction.
 		 */		
-		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator-(const Matrix3x3& other) noexcept
+		[[nodiscard]] NU_FORCEINLINE Matrix3x3 operator-(const Matrix3x3& other) const noexcept
 		{
 			return Matrix3x3(MatrixAPI::Sub(m_data, other.m_data));
 		}
@@ -404,7 +392,7 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE void SetColumn(int index, const Vector3& column) noexcept
 		{
-			m_data = MatrixAPI::SetColumn(m_data, index, column.SimdData());
+			MatrixAPI::SetColumn(m_data, index, column.SimdData());
 		}
 
 		/**
@@ -418,7 +406,7 @@ namespace NuMath
 		 */
 		NU_FORCEINLINE void SetRow(int index, const Vector3& row) noexcept
 		{
-			m_data = MatrixAPI::SetRow(m_data, index, row.SimdData());
+			MatrixAPI::SetRow(m_data, index, row.SimdData());
 		}
 		
 		/**
@@ -475,7 +463,7 @@ namespace NuMath
 		 * 
 		 * @return true if the matrix is identity, false otherwise.
 		 */
-		[[nodiscard]] NU_FORCEINLINE bool IsIdentity(float epsilon = 1e-6f) const noexcept
+		[[nodiscard]] NU_FORCEINLINE bool IsIdentity(float epsilon = EPSILON) const noexcept
 		{
 			return MatrixAPI::IsIdentity(m_data, epsilon);
 		}

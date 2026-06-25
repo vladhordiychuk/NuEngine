@@ -206,8 +206,7 @@ namespace NuMath::Detail
 		// \copydoc NuMath::VectorAPI::Neg
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 Neg(NuVec4 v) noexcept
 		{
-			const NuVec4 sign_mask = _mm_set1_ps(-0.0f);
-			return _mm_xor_ps(v, sign_mask);
+			return _mm_xor_ps(v, _mm_set1_ps(-0.0f));
 		}
 
 		// \copydoc NuMath::VectorAPI::Min
@@ -247,7 +246,7 @@ namespace NuMath::Detail
 		}
 
 		// \copydoc NuMath::VectorAPI::NearEqual
-		[[nodiscard]] static NU_FORCEINLINE bool NearEqual(NuVec4 a, NuVec4 b, float epsilon = NuMath::EPSILON) noexcept
+		[[nodiscard]] static NU_FORCEINLINE bool NearEqual(NuVec4 a, NuVec4 b, float epsilon = EPSILON) noexcept
 		{
 			NuVec4 diff = _mm_sub_ps(a, b);
 			NuVec4 absDiff = Abs(diff);
@@ -538,7 +537,7 @@ namespace NuMath::Detail
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 QuatInverse(NuVec4 q) noexcept
 		{
 			NuVec4 conj = QuatConjugate(q);
-			float lensq = Length4(q);
+			float lensq = Dot4(q, q);;
 
 			if (lensq < EPSILON)
 			{
@@ -652,7 +651,7 @@ namespace NuMath::Detail
 			return NuTransform{
 				SetZero(),
 				QuatIdentity(),
-				Set(1.0f, 1.0f, 1.0f, 0.0f)
+				Set(1.0f, 1.0f, 1.0f, 1.0f)
 			};
 		}
 
@@ -871,16 +870,22 @@ namespace NuMath::Detail
 
 			auto compute_col = [&](const NuVec4& b_col) -> NuVec4
 				{
-				const NuVec4 x = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(0, 0, 0, 0));
-				const NuVec4 y = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(1, 1, 1, 1));
-				const NuVec4 z = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(2, 2, 2, 2));
-				const NuVec4 w = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(3, 3, 3, 3));
+					const NuVec4 x = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(0, 0, 0, 0));
+					const NuVec4 y = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(1, 1, 1, 1));
+					const NuVec4 z = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(2, 2, 2, 2));
+					const NuVec4 w = _mm_shuffle_ps(b_col, b_col, _MM_SHUFFLE(3, 3, 3, 3));
 
-				NuVec4 r = _mm_mul_ps(a.cols[0], x);
-				r = _mm_fmadd_ps(a.cols[1], y, r);
-				r = _mm_fmadd_ps(a.cols[2], z, r);
-				r = _mm_fmadd_ps(a.cols[3], w, r);
-				return r;
+					NuVec4 r = _mm_mul_ps(a.cols[0], x);
+#if defined(__FMA__)
+					r = _mm_fmadd_ps(a.cols[1], y, r);
+					r = _mm_fmadd_ps(a.cols[2], z, r);
+					r = _mm_fmadd_ps(a.cols[3], w, r);
+#else
+					r = _mm_add_ps(r, _mm_mul_ps(a.cols[1], y));
+					r = _mm_add_ps(r, _mm_mul_ps(a.cols[2], z));
+					r = _mm_add_ps(r, _mm_mul_ps(a.cols[3], w));
+#endif
+					return r;
 				};
 
 			result.cols[0] = compute_col(b.cols[0]);
@@ -934,116 +939,151 @@ namespace NuMath::Detail
 		}
 
 		// \copydoc NuMath::MatrixAPI::Determinant
-		[[nodiscard]] static NU_FORCEINLINE float Determinant(NuMat4 m) noexcept
+		[[nodiscard]] static NU_FORCEINLINE float Determinant(const NuMat4& m) noexcept
 		{
-			NuVec4 Vec0 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(1, 0, 3, 2));
-			NuVec4 Vec1 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(2, 1, 0, 3));
-			NuVec4 Vec2 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(2, 1, 0, 3));
-			NuVec4 Vec3 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(1, 0, 3, 2));
+			const NuVec4 c2 = m.cols[2];
+			const NuVec4 c3 = m.cols[3];
 
-			NuVec4 Fac0 = _mm_mul_ps(Vec0, Vec1);
-			NuVec4 Fac1 = _mm_mul_ps(Vec2, Vec3);
+			NuVec4 r0 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(1, 0, 0, 0));
+			NuVec4 r1 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(2, 3, 2, 1));
+			NuVec4 l0 = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(2, 3, 2, 1));
+			NuVec4 l1 = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(1, 0, 0, 0));
 
-			Fac0 = _mm_sub_ps(Fac0, _mm_mul_ps(Vec2, Vec1));
+			NuVec4 sub_ab = _mm_sub_ps(_mm_mul_ps(r0, l0), _mm_mul_ps(r1, l1));
 
-			NuVec4 Inv0 = _mm_mul_ps(m.cols[1], Fac0);
+			NuVec4 r2 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(2, 1, 3, 2));
+			NuVec4 l2 = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(3, 3, 1, 2));
+			NuVec4 r3 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 3, 2, 1)); 
+			NuVec4 l3 = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(2, 1, 3, 3));
 
-			NuVec4 SignA = _mm_set_ps(1.0f, -1.0f, 1.0f, -1.0f);
-			Inv0 = _mm_mul_ps(Inv0, SignA);
+			NuVec4 c2_y = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 c2_z = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 c2_w = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 3, 3, 3));
+			NuVec4 c3_y = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 c3_z = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 c3_w = _mm_shuffle_ps(c3, c3, _MM_SHUFFLE(3, 3, 3, 3));
 
-			NuVec4 Row0 = _mm_mul_ps(m.cols[0], Inv0);
+			NuVec4 d13 = _mm_sub_ps(_mm_mul_ps(c2_y, c3_w), _mm_mul_ps(c2_w, c3_y));
+			NuVec4 d23 = _mm_sub_ps(_mm_mul_ps(c2_z, c3_w), _mm_mul_ps(c2_w, c3_z));
 
-			NuVec4 Temp = _mm_hadd_ps(Row0, Row0);
-			Temp = _mm_hadd_ps(Temp, Temp);
+			const NuVec4 c1 = m.cols[1];
+			NuVec4 c1_x = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(0, 0, 0, 0));
+			NuVec4 c1_y = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 c1_z = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 c1_w = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(3, 3, 3, 3));
 
-			float determinant;
-			_mm_store_ss(&determinant, Temp);
+			NuVec4 d01 = _mm_shuffle_ps(sub_ab, sub_ab, _MM_SHUFFLE(0, 0, 0, 0));
+			NuVec4 d02 = _mm_shuffle_ps(sub_ab, sub_ab, _MM_SHUFFLE(1, 1, 1, 1));
+			NuVec4 d03 = _mm_shuffle_ps(sub_ab, sub_ab, _MM_SHUFFLE(2, 2, 2, 2));
+			NuVec4 d12 = _mm_shuffle_ps(sub_ab, sub_ab, _MM_SHUFFLE(3, 3, 3, 3));
 
-			return determinant;
+			NuVec4 t0 = _mm_sub_ps(_mm_mul_ps(c1_y, d23), _mm_mul_ps(c1_z, d13));
+			NuVec4 t1 = _mm_sub_ps(_mm_mul_ps(c1_z, d03), _mm_mul_ps(c1_x, d23));
+			NuVec4 t2 = _mm_sub_ps(_mm_mul_ps(c1_x, d13), _mm_mul_ps(c1_y, d03));
+			NuVec4 t3 = _mm_sub_ps(_mm_mul_ps(c1_y, d02), _mm_mul_ps(c1_x, d12));
+
+			NuVec4 cof0 = _mm_add_ps(t0, _mm_mul_ps(c1_w, d12));
+			NuVec4 cof1 = _mm_add_ps(t1, _mm_mul_ps(c1_w, d02));
+			NuVec4 cof2 = _mm_add_ps(t2, _mm_mul_ps(c1_w, d01));
+			NuVec4 cof3 = _mm_sub_ps(t3, _mm_mul_ps(c1_z, d01));
+
+			NuVec4 sign = _mm_set_ps(-0.0f, 0.0f, -0.0f, 0.0f);
+			NuVec4 cofs = _mm_unpacklo_ps(
+				_mm_unpacklo_ps(cof0, _mm_xor_ps(cof1, _mm_set1_ps(-0.0f))),
+				_mm_unpacklo_ps(cof2, _mm_xor_ps(cof3, _mm_set1_ps(-0.0f)))
+			);
+
+			const NuVec4 c0 = m.cols[0];
+			NuVec4 prod = _mm_mul_ps(c0, cofs);
+			return HorizontalAdd4(prod);
 		}
 
 		// \copydoc NuMath::MatrixAPI::Inverse
-		[[nodiscard]] static NU_FORCEINLINE NuMat4 Inverse(NuMat4 m) noexcept
+		[[nodiscard]] static NU_FORCEINLINE NuMat4 Inverse(const NuMat4& m) noexcept
 		{
-			NuVec4 Fac0, Fac1, Fac2, Fac3;
+			auto fmsub4 = [](NuVec4 a, NuVec4 d, NuVec4 b, NuVec4 c) -> NuVec4
+				{
+#if defined(__FMA__)
+					return _mm_fmsub_ps(a, d, _mm_mul_ps(b, c));
+#else
+					return _mm_sub_ps(_mm_mul_ps(a, d), _mm_mul_ps(b, c));
+#endif
+				};
 
-			NuVec4 Vec0 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(1, 0, 3, 2));
-			NuVec4 Vec1 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(2, 1, 0, 3));
-			NuVec4 Vec2 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(2, 1, 0, 3));
-			NuVec4 Vec3 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(1, 0, 3, 2));
+#define SWIZ(v, x,y,z,w) _mm_shuffle_ps(v, v, _MM_SHUFFLE(w,z,y,x))
 
-			Fac0 = _mm_mul_ps(Vec0, Vec1);
-			Fac1 = _mm_mul_ps(Vec2, Vec3);
+			NuVec4 A = m.cols[0], B = m.cols[1], C = m.cols[2], D = m.cols[3];
 
-			Vec0 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(0, 3, 2, 1));
-			Vec1 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(3, 2, 1, 0));
-			Vec2 = _mm_shuffle_ps(m.cols[2], m.cols[2], _MM_SHUFFLE(3, 2, 1, 0));
-			Vec3 = _mm_shuffle_ps(m.cols[3], m.cols[3], _MM_SHUFFLE(0, 3, 2, 1));
+			NuVec4 cd01 = fmsub4(SWIZ(C, 0, 0, 0, 1), SWIZ(D, 1, 2, 3, 2), SWIZ(C, 1, 2, 3, 2), SWIZ(D, 0, 0, 0, 1));
+			NuVec4 cd23 = fmsub4(SWIZ(C, 1, 2, 0, 0), SWIZ(D, 3, 3, 0, 0), SWIZ(C, 3, 3, 0, 0), SWIZ(D, 1, 2, 0, 0));
 
-			Fac0 = _mm_sub_ps(_mm_mul_ps(Vec0, Vec1), Fac0);
-			Fac1 = _mm_sub_ps(_mm_mul_ps(Vec2, Vec3), Fac1);
+			NuVec4 cd_01 = SWIZ(cd01, 0, 0, 0, 0);
+			NuVec4 cd_02 = SWIZ(cd01, 1, 1, 1, 1);
+			NuVec4 cd_03 = SWIZ(cd01, 2, 2, 2, 2);
+			NuVec4 cd_12 = SWIZ(cd01, 3, 3, 3, 3);
+			NuVec4 cd_13 = SWIZ(cd23, 0, 0, 0, 0);
+			NuVec4 cd_23 = SWIZ(cd23, 1, 1, 1, 1);
 
-			Vec0 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(1, 0, 3, 2));
-			Vec1 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(2, 1, 0, 3));
-			Vec2 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(2, 1, 0, 3));
-			Vec3 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(1, 0, 3, 2));
+			NuVec4 ab01 = fmsub4(SWIZ(A, 0, 0, 0, 1), SWIZ(B, 1, 2, 3, 2), SWIZ(A, 1, 2, 3, 2), SWIZ(B, 0, 0, 0, 1));
+			NuVec4 ab23 = fmsub4(SWIZ(A, 1, 2, 0, 0), SWIZ(B, 3, 3, 0, 0), SWIZ(A, 3, 3, 0, 0), SWIZ(B, 1, 2, 0, 0));
 
-			NuVec4 Inv0 = _mm_mul_ps(Vec0, Fac1);
-			NuVec4 Inv1 = _mm_mul_ps(Vec2, Fac0);
+			NuVec4 ab_01 = SWIZ(ab01, 0, 0, 0, 0);
+			NuVec4 ab_02 = SWIZ(ab01, 1, 1, 1, 1);
+			NuVec4 ab_03 = SWIZ(ab01, 2, 2, 2, 2);
+			NuVec4 ab_12 = SWIZ(ab01, 3, 3, 3, 3);
+			NuVec4 ab_13 = SWIZ(ab23, 0, 0, 0, 0);
+			NuVec4 ab_23 = SWIZ(ab23, 1, 1, 1, 1);
 
-			Vec0 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(0, 3, 2, 1));
-			Vec1 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(3, 2, 1, 0));
-			Vec2 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(3, 2, 1, 0));
-			Vec3 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(0, 3, 2, 1));
+			NuVec4 B_t1 = SWIZ(B, 0, 0, 0, 1);
+			NuVec4 B_t2 = SWIZ(B, 1, 1, 2, 2);
+			NuVec4 B_t3 = SWIZ(B, 2, 3, 3, 3);
+			NuVec4 d_t1 = _mm_unpacklo_ps(_mm_unpacklo_ps(cd_23, cd_23), _mm_unpacklo_ps(cd_13, cd_12));
+			NuVec4 d_t2 = _mm_unpacklo_ps(_mm_unpacklo_ps(cd_13, cd_03), _mm_unpacklo_ps(cd_03, cd_02));
+			NuVec4 d_t3 = _mm_unpacklo_ps(_mm_unpacklo_ps(cd_12, cd_02), _mm_unpacklo_ps(cd_01, cd_01));
 
-			Inv0 = _mm_sub_ps(Inv0, _mm_mul_ps(Vec0, Fac0));
-			Inv1 = _mm_sub_ps(Inv1, _mm_mul_ps(Vec2, Fac1));
+			NuVec4 A_t1 = SWIZ(A, 0, 0, 0, 1);
+			NuVec4 A_t2 = SWIZ(A, 1, 1, 2, 2);
+			NuVec4 A_t3 = SWIZ(A, 2, 3, 3, 3);
 
-			Vec0 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(2, 1, 0, 3));
-			Vec1 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(1, 0, 3, 2));
-			Vec2 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(1, 0, 3, 2));
-			Vec3 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(2, 1, 0, 3));
+			NuVec4 D_t1 = SWIZ(D, 0, 0, 0, 1);
+			NuVec4 D_t2 = SWIZ(D, 1, 1, 2, 2);
+			NuVec4 D_t3 = SWIZ(D, 2, 3, 3, 3);
+			NuVec4 ab_d_t1 = _mm_unpacklo_ps(_mm_unpacklo_ps(ab_23, ab_23), _mm_unpacklo_ps(ab_13, ab_12));
+			NuVec4 ab_d_t2 = _mm_unpacklo_ps(_mm_unpacklo_ps(ab_13, ab_03), _mm_unpacklo_ps(ab_03, ab_02));
+			NuVec4 ab_d_t3 = _mm_unpacklo_ps(_mm_unpacklo_ps(ab_12, ab_02), _mm_unpacklo_ps(ab_01, ab_01));
 
-			Fac0 = _mm_mul_ps(Vec0, m.cols[3]);
-			Fac1 = _mm_mul_ps(Vec1, m.cols[3]);
-			Fac2 = _mm_mul_ps(Vec2, m.cols[3]);
-			Fac3 = _mm_mul_ps(Vec3, m.cols[3]);
+			NuVec4 C_t1 = SWIZ(C, 0, 0, 0, 1);
+			NuVec4 C_t2 = SWIZ(C, 1, 1, 2, 2);
+			NuVec4 C_t3 = SWIZ(C, 2, 3, 3, 3);
 
-			Fac0 = _mm_sub_ps(Fac0, _mm_mul_ps(Vec1, m.cols[2]));
-			Fac1 = _mm_sub_ps(Fac1, _mm_mul_ps(Vec0, m.cols[2]));
-			Fac2 = _mm_sub_ps(Fac2, _mm_mul_ps(Vec3, m.cols[2]));
-			Fac3 = _mm_sub_ps(Fac3, _mm_mul_ps(Vec2, m.cols[2]));
+			const __m128 sign_mask_0 = _mm_castsi128_ps(_mm_set_epi32(0, 0x80000000, 0, 0x80000000));
+			const __m128 sign_mask_1 = _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0, 0x80000000, 0));
 
-			Vec0 = _mm_shuffle_ps(m.cols[0], m.cols[0], _MM_SHUFFLE(3, 2, 1, 0));
-			Vec1 = _mm_shuffle_ps(m.cols[1], m.cols[1], _MM_SHUFFLE(3, 2, 1, 0));
+			NuVec4 inv_c0_raw = _mm_add_ps(fmsub4(B_t1, d_t1, B_t2, d_t2), _mm_mul_ps(B_t3, d_t3));
+			NuVec4 inv_c0 = _mm_xor_ps(inv_c0_raw, sign_mask_0);
 
-			NuVec4 Inv2 = _mm_mul_ps(Vec0, Fac0);
-			NuVec4 Inv3 = _mm_mul_ps(Vec1, Fac2);
+			NuVec4 inv_c1_raw = _mm_add_ps(fmsub4(A_t1, d_t1, A_t2, d_t2), _mm_mul_ps(A_t3, d_t3));
+			NuVec4 inv_c1 = _mm_xor_ps(inv_c1_raw, sign_mask_1);
 
-			Inv2 = _mm_sub_ps(Inv2, _mm_mul_ps(Vec1, Fac1));
-			Inv3 = _mm_sub_ps(Inv3, _mm_mul_ps(Vec0, Fac3));
+			NuVec4 inv_c2_raw = _mm_add_ps(fmsub4(D_t1, ab_d_t1, D_t2, ab_d_t2), _mm_mul_ps(D_t3, ab_d_t3));
+			NuVec4 inv_c2 = _mm_xor_ps(inv_c2_raw, sign_mask_0);
 
-			NuVec4 SignA = _mm_set_ps(1.0f, -1.0f, 1.0f, -1.0f);
-			NuVec4 SignB = _mm_set_ps(-1.0f, 1.0f, -1.0f, 1.0f);
+			NuVec4 inv_c3_raw = _mm_add_ps(fmsub4(C_t1, ab_d_t1, C_t2, ab_d_t2), _mm_mul_ps(C_t3, ab_d_t3));
+			NuVec4 inv_c3 = _mm_xor_ps(inv_c3_raw, sign_mask_1);
 
-			Inv0 = _mm_mul_ps(Inv0, SignA);
-			Inv1 = _mm_mul_ps(Inv1, SignB);
-			Inv2 = _mm_mul_ps(Inv2, SignA);
-			Inv3 = _mm_mul_ps(Inv3, SignB);
+			NuVec4 det_vec = _mm_mul_ps(m.cols[0], inv_c0);
+			float det = HorizontalAdd4(det_vec);
+			NU_MATH_ASSERT(std::fabs(det) > 1e-8f, "Matrix is non-invertible!");
 
-			NuVec4 Row0 = _mm_mul_ps(m.cols[0], Inv0);
-			NuVec4 Dot0 = _mm_hadd_ps(Row0, Row0);
-			Dot0 = _mm_hadd_ps(Dot0, Dot0);
-
-			NuVec4 Det = Dot0;
-			NuVec4 RDet = _mm_div_ps(_mm_set1_ps(1.0f), Det);
+			NuVec4 rdet = _mm_set1_ps(1.0f / det);
 
 			NuMat4 result{};
-			result.cols[0] = _mm_mul_ps(Inv0, RDet);
-			result.cols[1] = _mm_mul_ps(Inv1, RDet);
-			result.cols[2] = _mm_mul_ps(Inv2, RDet);
-			result.cols[3] = _mm_mul_ps(Inv3, RDet);
+			result.cols[0] = _mm_mul_ps(inv_c0, rdet);
+			result.cols[1] = _mm_mul_ps(inv_c1, rdet);
+			result.cols[2] = _mm_mul_ps(inv_c2, rdet);
+			result.cols[3] = _mm_mul_ps(inv_c3, rdet);
 
+#undef SWIZ
 			return result;
 		}
 
@@ -1105,24 +1145,19 @@ namespace NuMath::Detail
 		// \copydoc NuMath::MatrixAPI::CreateLookAt
 		[[nodiscard]] static NU_FORCEINLINE NuMat4 CreateLookAt(const NuVec4& eye, const NuVec4& target, const NuVec4& up) noexcept
 		{
-			NuVec4 forward = Normalize4(Sub(eye, target));
-			NuVec4 right = Normalize4(Cross(up, forward));
+			NuVec4 forward = Normalize3(Sub(eye, target));
+			NuVec4 right = Normalize3(Cross(up, forward));
 			NuVec4 trueUp = Cross(forward, right);
 
-			NuMat4 result = SetIdentityMatrix();
-
-			result.cols[0] = _mm_setr_ps(GetX(right), GetX(trueUp), GetX(forward), 0.0f);
-			result.cols[1] = _mm_setr_ps(GetY(right), GetY(trueUp), GetY(forward), 0.0f);
-			result.cols[2] = _mm_setr_ps(GetZ(right), GetZ(trueUp), GetZ(forward), 0.0f);
-
-			result.cols[3] = _mm_setr_ps(
-				-_mm_cvtss_f32(_mm_dp_ps(right, eye, 0x71)),
-				-_mm_cvtss_f32(_mm_dp_ps(trueUp, eye, 0x71)),
-				-_mm_cvtss_f32(_mm_dp_ps(forward, eye, 0x71)),
-				1.0f
-			);
-
-			return result;
+			NuMat4 m = SetIdentityMatrix();
+			m.cols[0] = _mm_setr_ps(GetX(right), GetX(trueUp), GetX(forward), 0.0f);
+			m.cols[1] = _mm_setr_ps(GetY(right), GetY(trueUp), GetY(forward), 0.0f);
+			m.cols[2] = _mm_setr_ps(GetZ(right), GetZ(trueUp), GetZ(forward), 0.0f);
+			m.cols[3] = _mm_setr_ps(-Dot3(right, eye),
+				-Dot3(trueUp, eye),
+				-Dot3(forward, eye),
+				1.0f);
+			return m;
 		}
 
 		// \copydoc NuMath::MatrixAPI::CreatePerspective
@@ -1150,16 +1185,13 @@ namespace NuMath::Detail
 			float tb = 1.0f / (top - bottom);
 			float fn = 1.0f / (farZ - nearZ);
 
-			result.cols[0] = _mm_setr_ps(rl, 0.0f, 0.0f, 0.0f);
-			result.cols[1] = _mm_setr_ps(0.0f, tb, 0.0f, 0.0f);
+			result.cols[0] = _mm_setr_ps(2.0f * rl, 0.0f, 0.0f, 0.0f);
+			result.cols[1] = _mm_setr_ps(0.0f, 2.0f * tb, 0.0f, 0.0f);
 			result.cols[2] = _mm_setr_ps(0.0f, 0.0f, -2.0f * fn, 0.0f);
-			result.cols[3] = _mm_setr_ps(
-				-(right + left) * rl,
+			result.cols[3] = _mm_setr_ps(-(right + left) * rl,
 				-(top + bottom) * tb,
 				-(farZ + nearZ) * fn,
-				1.0f
-			);
-
+				1.0f);
 			return result;
 		}
 
@@ -1180,7 +1212,7 @@ namespace NuMath::Detail
 		}
 
 		// \copydoc NuMath::MatrixAPI::NearEqual
-		[[nodiscard]] static NU_FORCEINLINE bool NearEqual(const NuMat4& a, const NuMat4& b, float epsilon = NuMath::EPSILON) noexcept
+		[[nodiscard]] static NU_FORCEINLINE bool NearEqual(const NuMat4& a, const NuMat4& b, float epsilon = EPSILON) noexcept
 		{
 			return NearEqual(a.cols[0], b.cols[0], epsilon) &&
 				NearEqual(a.cols[1], b.cols[1], epsilon) &&
@@ -1199,9 +1231,11 @@ namespace NuMath::Detail
 		[[nodiscard]] static NU_FORCEINLINE NuVec4 GetRow(const NuMat4& m, int index) noexcept
 		{
 			NU_MATH_ASSERT(index >= 0 && index < 4, "Index out of bounds");
-
-			NuMat4 trasposedMatrix = Transpose(m);
-			return trasposedMatrix.cols[index];
+			return _mm_setr_ps(
+				Access(m, index, 0),
+				Access(m, index, 1),
+				Access(m, index, 2),
+				Access(m, index, 3));
 		}
 
 		// \copydoc NuMath::MatrixAPI::SetColumn
@@ -1265,18 +1299,18 @@ namespace NuMath::Detail
 		[[nodiscard]] static NU_FORCEINLINE bool IsIdentity(const NuMat4& m, float epsilon = NuMath::EPSILON) noexcept
 		{
 			NuMat4 identity = SetIdentityMatrix();
+			NuVec4 vEps = _mm_set1_ps(epsilon);
+
 			for (int i = 0; i < 4; ++i)
 			{
 				NuVec4 diff = _mm_sub_ps(m.cols[i], identity.cols[i]);
-
 				NuVec4 absDiff = Abs(diff);
 
-				alignas(16) float vals[4];
-				_mm_store_ps(vals, absDiff);
-				for (int j = 0; j < 4; ++j)
+				NuVec4 cmp = _mm_cmpgt_ps(absDiff, vEps);
+
+				if (_mm_movemask_ps(cmp) != 0)
 				{
-					if (vals[j] > epsilon)
-						return false;
+					return false;
 				}
 			}
 			return true;
@@ -1326,19 +1360,40 @@ namespace NuMath::Detail
 		[[nodiscard]] static NU_FORCEINLINE NuMat3 Mul(const NuMat3& a, const NuMat3& b) noexcept
 		{
 			NuMat3 result{};
+			result.cols[0] = Mul(a, b.cols[0]);
+			result.cols[1] = Mul(a, b.cols[1]);
+			result.cols[2] = Mul(a, b.cols[2]);
+			return result;
+		}
 
-			for (int i = 0; i < 3; ++i)
-			{
-				// TO DO
-			}
+		// \copydoc NuMath::MatrixAPI::Mul
+		[[nodiscard]] static NU_FORCEINLINE NuVec4 Mul(const NuMat3& m, NuVec4 v) noexcept
+		{
+			NuVec4 r = _mm_mul_ps(m.cols[0], _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0)));
+
+#if defined(__FMA__)
+			r = _mm_fmadd_ps(m.cols[1], _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1)), r);
+			r = _mm_fmadd_ps(m.cols[2], _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2)), r);
+#else
+			r = _mm_add_ps(r, _mm_mul_ps(m.cols[1], _mm_shuffle_ps(v, v, _MM_SHUFFLE(1, 1, 1, 1))));
+			r = _mm_add_ps(r, _mm_mul_ps(m.cols[2], _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 2, 2, 2))));
+#endif
+			return r;
 		}
 
 		// \copydoc NuMath::MatrixAPI::Transpose
 		[[nodiscard]] static NU_FORCEINLINE NuMat3 Transpose(const NuMat3& mat) noexcept
 		{
-			NuMat3 result;
-
-
+			NuVec4 c0 = mat.cols[0];
+			NuVec4 c1 = mat.cols[1];
+			NuVec4 c2 = mat.cols[2];
+			NuVec4 dummy = _mm_setzero_ps();
+			_MM_TRANSPOSE4_PS(c0, c1, c2, dummy);
+			NuMat3 result{};
+			result.cols[0] = c0;
+			result.cols[1] = c1;
+			result.cols[2] = c2;
+			return result;
 		}
 
 		// \copydoc NuMath::MatrixAPI::FromColumns

@@ -119,7 +119,7 @@ Time Savings:           39.8 μs per frame
 ## 🎯 Quick Start (30 seconds)
 
 ```cpp
-#include <Math/NuMath.hpp>
+#include <NuMath/NuMath.hpp>
 using namespace NuMath;
 
 int main() {
@@ -302,7 +302,7 @@ Batch::SoA::Add(positions, positions, velocities, 10000);
 - [x] 89 unit tests, benchmarks
 
 #### 🔄 v0.2 (Q1 2026) - Quaternions
-- [ ] Quaternion class
+- [x] Quaternion class
 - [ ] Slerp/Nlerp interpolation
 - [ ] Euler ↔️ Quaternion conversion
 - [ ] 50+ quaternion tests

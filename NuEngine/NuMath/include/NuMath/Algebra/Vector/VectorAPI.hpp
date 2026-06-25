@@ -366,7 +366,7 @@ namespace NuMath::VectorAPI
 	 *
 	 * @return true if all components differ by no more than epsilon.
 	 */
-	[[nodiscard]] NU_FORCEINLINE bool NearEqual(NuVec4 a, NuVec4 b, float epsilon) noexcept
+	[[nodiscard]] NU_FORCEINLINE bool NearEqual(NuVec4 a, NuVec4 b, float epsilon = EPSILON) noexcept
 	{
 		return Impl::NearEqual(a, b, epsilon);
 	}
