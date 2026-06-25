@@ -5,10 +5,11 @@
 #pragma once
 
 #include <NuMath/NuMath.hpp>
+#include <NuEngine/Core/API.hpp>
 
 namespace NuEngine::Renderer
 {
-	class Camera
+	class NU_API Camera
 	{
 	public:
 		Camera(float fovRadians, float aspectRatio, float nearClip, float farClip);

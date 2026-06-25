@@ -46,7 +46,6 @@ namespace NuEngine::Renderer
 
         float aspectRatio = (float)m_Width / (float)m_Height;
 
-        // ВИПРАВЛЕНО: Ручне переведення в радіани, якщо NuMath::ToRadians відсутній
         float fovRadians = 45.0f * (static_cast<float>(M_PI) / 180.0f);
         m_Camera = std::make_shared<Camera>(fovRadians, aspectRatio, 0.1f, 100.0f);
 
@@ -59,7 +58,7 @@ namespace NuEngine::Renderer
                  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
                 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
                 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-                // ... (решта вершин без змін) ...
+
                 -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
                  0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
                  0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
@@ -121,55 +120,45 @@ namespace NuEngine::Renderer
         m_QuadVAO->AddVertexBuffer(vbo);
     }
 
+    void ForwardPipeline::RenderCube(const NuMath::Transform& transform, bool withTexture) noexcept
+    {
+        if (!m_Shader || !m_Camera || !m_QuadVAO) return;
+
+        m_Shader->Bind();
+
+        NuMath::Matrix4x4 model = transform.GetMatrix();
+        NuMath::Matrix4x4 view = m_Camera->GetViewMatrix();
+        NuMath::Matrix4x4 projection = m_Camera->GetProjectionMatrix();
+
+        GLint modelLoc = glGetUniformLocation(m_Shader->GetID(), "model");
+        GLint viewLoc = glGetUniformLocation(m_Shader->GetID(), "view");
+        GLint projLoc = glGetUniformLocation(m_Shader->GetID(), "projection");
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model.Data());
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view.Data());
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, projection.Data());
+
+        if (withTexture && m_Texture)
+            m_Texture->Bind(0);
+        else
+            m_Texture->Unbind();
+
+        m_QuadVAO->Bind();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        m_QuadVAO->Unbind();
+
+        m_Shader->Unbind();
+    }
+
     Core::Result<void, Graphics::GraphicsError> ForwardPipeline::Render(bool present) noexcept
     {
-        if (!m_Device) return Core::Err(Graphics::GraphicsError(Graphics::GraphicsErrorCode::InvalidContext));
+        if (!m_Device) return Core::Err(Graphics::GraphicsError(
+            Graphics::GraphicsErrorCode::InvalidContext));
 
         glClearColor(m_ClearColor.R(), m_ClearColor.G(), m_ClearColor.B(), m_ClearColor.A());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (m_Shader && m_Camera)
-        {
-            m_Shader->Bind();
-
-            NuMath::Matrix4x4 projection = m_Camera->GetProjectionMatrix();
-            NuMath::Matrix4x4 view = m_Camera->GetViewMatrix();
-
-            float animSpeed = 0.5f;
-            float angle = Core::Time::GetTimeSinceStartup() * animSpeed;
-            NuMath::Quaternion currentRot = NuMath::Quaternion::FromAxisAngle(
-                NuMath::Vector3(0.5f, 1.0f, 0.0f).Normalize(),
-                angle
-            );
-
-            NuMath::Transform meshTransform;
-            meshTransform.SetPosition(NuMath::Vector3(0.0f, 0.0f, 0.0f));
-            meshTransform.SetRotation(currentRot);
-
-            NuMath::Matrix4x4 model = meshTransform.GetMatrix();
-
-            GLint modelLoc = glGetUniformLocation(m_Shader->GetID(), "model");
-            GLint viewLoc = glGetUniformLocation(m_Shader->GetID(), "view");
-            GLint projLoc = glGetUniformLocation(m_Shader->GetID(), "projection");
-
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, model.Data());
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, view.Data());
-            glUniformMatrix4fv(projLoc, 1, GL_FALSE, projection.Data());
-        }
-
-        if (m_Texture) m_Texture->Bind(0);
-
-        if (m_QuadVAO)
-        {
-            m_QuadVAO->Bind();
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            m_QuadVAO->Unbind();
-        }
-
-        m_Shader->Unbind();
-
         if (present) return m_Device->Present();
-
         return Core::Ok();
     }
 

@@ -8,6 +8,7 @@
 #include <Renderer/Camera.hpp>
 #include <Core/Timer/Time.hpp>
 #include <Core/Input/Input.hpp>
+#include <Physics/Core/PhysicsEngine.hpp>
 
 #include <iostream>
 #include <glad/glad.h>
@@ -22,7 +23,8 @@ namespace NuEngine::Runtime
 		, m_isRunning(false)
 	{
 		std::filesystem::path logDir("logs");
-		if (!std::filesystem::exists(logDir)) {
+		if (!std::filesystem::exists(logDir)) 
+		{
 			std::filesystem::create_directories(logDir);
 		}
 		Core::Logger::Init("logs/nuengine.logs")
@@ -101,6 +103,12 @@ namespace NuEngine::Runtime
 
 		Core::Time::Initialize();
 
+		auto physRes = Physics::PhysicsEngine::Initialize();
+		if (physRes.IsError())
+		{
+			LOG_ERROR("Failed to initialize Physics Engine!");
+		}
+
 		m_isRunning = true;
 		m_state = AppState::Running;
 
@@ -113,9 +121,14 @@ namespace NuEngine::Runtime
 	{
 		NU_CHECK(Initialize());
 
+		OnInit();
+
 		LOG_INFO("Entering main loop...");
 
-		if (!m_specification.Windowed) return Core::Ok();
+		if (!m_specification.Windowed)
+		{
+			return Core::Ok();
+		}
 
 		while (m_isRunning)
 		{
@@ -128,15 +141,18 @@ namespace NuEngine::Runtime
 			}
 		}
 
-		return Shutdown();
+		return Core::Ok();
 	}
 
 	Core::Result<void, EngineError> Application::Shutdown() noexcept
 	{
 		if (m_state == AppState::ShuttingDown || m_state == AppState::Terminated)
+		{
 			return Core::Ok();
+		}
 
 		m_state = AppState::ShuttingDown;
+		Physics::PhysicsEngine::Shutdown();
 		m_pipeline.reset();
 		m_renderDevice.reset();
 		m_window.reset();
@@ -148,7 +164,11 @@ namespace NuEngine::Runtime
 
 	Core::Result<void, EngineError> Application::PollEvents() noexcept
 	{
-		if (m_window) NU_CHECK(m_window->ProcessEvents());
+		if (m_window)
+		{
+			NU_CHECK(m_window->ProcessEvents());
+		}
+
 		return Core::Ok();
 	}
 
@@ -156,42 +176,46 @@ namespace NuEngine::Runtime
 	{
 		switch (event.GetType())
 		{
-		case Platform::EventType::WindowClose:
-			OnWindowClose(static_cast<Platform::WindowClosedEvent&>(event));
-			break;
-		case Platform::EventType::WindowResize:
-			OnWindowResize(static_cast<Platform::WindowResizedEvent&>(event));
-			break;
-		case Platform::EventType::KeyPressed:
-		{
-			auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
-			Core::Input::TransitionPressed(static_cast<Core::KeyCode>(keyEvent.key));
-			break;
-		}
-		case Platform::EventType::KeyReleased:
-		{
-			auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
-			Core::Input::TransitionReleased(static_cast<Core::KeyCode>(keyEvent.key));
-			break;
-		}
-		case Platform::EventType::MouseButtonPressed:
-		{
-			auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
-			Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), true);
-			break;
-		}
-		case Platform::EventType::MouseButtonReleased:
-		{
-			auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
-			Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), false);
-			break;
-		}
-		case Platform::EventType::MouseMoved:
-		{
-			auto& mouseEvent = static_cast<Platform::MouseMoveEvent&>(event);
-			Core::Input::UpdateMouse((float)mouseEvent.x, (float)mouseEvent.y);
-			break;
-		}
+			case Platform::EventType::WindowClose:
+			{
+				OnWindowClose(static_cast<Platform::WindowClosedEvent&>(event));
+				break;
+			}
+			case Platform::EventType::WindowResize:
+			{
+				OnWindowResize(static_cast<Platform::WindowResizedEvent&>(event));
+				break;
+			}
+			case Platform::EventType::KeyPressed:
+			{
+				auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
+				Core::Input::TransitionPressed(static_cast<Core::KeyCode>(keyEvent.key));
+				break;
+			}
+			case Platform::EventType::KeyReleased:
+			{
+				auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
+				Core::Input::TransitionReleased(static_cast<Core::KeyCode>(keyEvent.key));
+				break;
+			}
+			case Platform::EventType::MouseButtonPressed:
+			{
+				auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
+				Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), true);
+				break;
+			}
+			case Platform::EventType::MouseButtonReleased:
+			{
+				auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
+				Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), false);
+				break;
+			}
+			case Platform::EventType::MouseMoved:
+			{
+				auto& mouseEvent = static_cast<Platform::MouseMoveEvent&>(event);
+				Core::Input::UpdateMouse((float)mouseEvent.x, (float)mouseEvent.y);
+				break;
+			}
 		}
 	}
 
@@ -203,8 +227,16 @@ namespace NuEngine::Runtime
 
 	bool Application::OnWindowResize(Platform::WindowResizedEvent& event) noexcept
 	{
-		if (event.width == 0 || event.height == 0) return false;
-		if (m_pipeline) m_pipeline->SetViewport(0, 0, event.width, event.height);
+		if (event.width == 0 || event.height == 0)
+		{
+			return false;
+		}
+
+		if (m_pipeline)
+		{
+			m_pipeline->SetViewport(0, 0, event.width, event.height);
+		}
+
 		return false;
 	}
 
@@ -216,7 +248,10 @@ namespace NuEngine::Runtime
 
 	void Application::OnUpdate(float deltaTime)
 	{
-		if (!m_pipeline) return;
+		if (!m_pipeline)
+		{
+			return;
+		}
 
 		auto camera = m_pipeline->GetCamera();
 		if (camera)
@@ -235,7 +270,7 @@ namespace NuEngine::Runtime
 			if (Core::Input::IsKeyPressed(Core::Key::D)) moveX += 1.0f;
 
 			if (Core::Input::IsKeyPressed(Core::Key::Space)) moveY += 1.0f;
-			if (Core::Input::IsKeyPressed(Core::Key::LeftControl) || Core::Input::IsKeyPressed(17)) moveY -= 1.0f;
+			if (Core::Input::IsKeyPressed(Core::Key::LeftControl) || Core::Input::IsKeyPressed(Core::Key::RightControl)) moveY -= 1.0f;
 
 			if (moveX != 0.0f || moveY != 0.0f || moveZ != 0.0f)
 			{
@@ -262,7 +297,11 @@ namespace NuEngine::Runtime
 
 	Core::Result<void, EngineError> Application::Render() noexcept
 	{
-		if (m_pipeline) NU_CHECK(m_pipeline->Render(true));
+		if (m_pipeline)
+		{
+			NU_CHECK(m_pipeline->Render(false));
+		}
+
 		return Core::Ok();
 	}
 
@@ -270,33 +309,75 @@ namespace NuEngine::Runtime
 	{
 		Core::Time::Update();
 		NU_CHECK(PollEvents());
+
 		NU_CHECK(Update());
-		NU_CHECK(Render());
+
+		if (m_pipeline)
+		{
+			NU_CHECK(m_pipeline->Render(false));
+		}
+
+		OnRender();
+
+		if (m_renderDevice)
+		{
+			auto presentResult = m_renderDevice->Present();
+			if (presentResult.IsError())
+			{
+				LOG_ERROR("Present failed: {}", presentResult.UnwrapError().ToString());
+				return Core::Err(EngineError(presentResult.UnwrapError()));
+			}
+		}
+
 		return Core::Ok();
 	}
 
 	void Application::RenderFrame()
 	{
-		if (m_pipeline) m_pipeline->Render(false);
+		if (m_pipeline)
+		{
+			m_pipeline->Render(false);
+		}
+		
 		OnRender();
+
+		if (m_renderDevice) m_renderDevice->Present();
 	}
 
 	void Application::UpdateFrame(float deltaTime)
 	{
-		if (m_window) m_window->ProcessEvents();
+		if (m_window)
+		{
+			m_window->ProcessEvents();
+		}
 		OnUpdate(deltaTime);
 	}
 
 	void Application::InitializeGraphicsForEditor()
 	{
 		LOG_INFO("Initializing Graphics for Editor Mode...");
-		if (!gladLoadGL()) return;
+		if (!gladLoadGL())
+		{
+			return;
+		}
 
 		auto deviceResult = CreateRenderDevice(nullptr);
-		if (deviceResult.IsOk()) {
+		if (deviceResult.IsOk())
+		{
 			m_renderDevice = std::move(deviceResult.Unwrap());
 			m_pipeline = std::make_unique<Renderer::ForwardPipeline>(m_renderDevice.get());
 			m_pipeline->SetViewport(0, 0, 800, 600);
 		}
+
+		Core::Time::Initialize();
+
+		auto physRes = Physics::PhysicsEngine::Initialize();
+		if (physRes.IsError())
+		{
+			LOG_ERROR("Failed to initialize Physics Engine!");
+		}
+
+		m_state = AppState::Running;
+		m_isRunning = true;
 	}
 }

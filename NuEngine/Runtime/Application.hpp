@@ -11,6 +11,7 @@
 #include <Renderer/Pipelines/Forward/ForwardPipeline.hpp>
 #include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Platform/IWindow.hpp>
+#include <NuEngine/Core/API.hpp>
 
 #include <NuMath/NuMath.hpp>
 
@@ -19,7 +20,7 @@
 
 namespace NuEngine::Runtime 
 {
-    struct ApplicationSpecification
+    struct NU_API ApplicationSpecification
     {
         std::string Name = "NuEngine App";
         bool Windowed = true;
@@ -30,7 +31,7 @@ namespace NuEngine::Runtime
      *
      * Responsible for initialization, the main loop, and termination of operation.
      */
-    class Application
+    class NU_API Application
     {
     public:
         /**
@@ -39,7 +40,6 @@ namespace NuEngine::Runtime
         enum class AppState
         {
             Created,
-            Initialized,
             Running,
             ShuttingDown,
             Terminated
@@ -81,20 +81,39 @@ namespace NuEngine::Runtime
          * @return Result with void (success) or EngineError.
          */
         [[nodiscard]] Core::Result<void, EngineError> Run() noexcept;
-
+        
+        /**
+         * @brief 
+         */
         void RenderFrame();
 
+        /**
+         * @brief
+         */
         void UpdateFrame(float deltaTime);
 
+        /**
+         * @brief
+         */
         Platform::IWindow* GetWindow() const { return m_window.get(); }
 
+        /**
+         * @brief
+         */
         void InitializeGraphicsForEditor();
 
-        void OnWindowResize(int width, int height) {
-            if (m_pipeline) {
+        /**
+         * @brief
+         */
+        void ResizeViewport(int width, int height) noexcept
+        {
+            if (m_pipeline) 
+            {
                 m_pipeline->SetViewport(0, 0, width, height);
             }
         }
+
+        Renderer::ForwardPipeline* GetPipeline() const { return m_pipeline.get(); }
 
         void SetClearColor(float r, float g, float b, float a) {
             if (m_pipeline) {
@@ -102,9 +121,22 @@ namespace NuEngine::Runtime
             }
         }
 
+        virtual void OnInit() {}
+
     protected:
+        /**
+         * @brief
+         */
         virtual void OnUpdate(float deltaTime);
+
+        /**
+         * @brief
+         */
         virtual void OnRender() {}
+
+        /**
+         * @brief
+         */
         virtual void OnEvent(Platform::WindowEvent& event) noexcept;
 
     private:
@@ -139,8 +171,14 @@ namespace NuEngine::Runtime
          */
         [[nodiscard]] Core::Result<void, EngineError> PollEvents() noexcept;
 
+        /**
+         * @brief
+         */
         [[nodiscard]] bool OnWindowClose(Platform::WindowClosedEvent& event) noexcept;
 
+        /**
+         * @brief
+         */
         [[nodiscard]] bool OnWindowResize(Platform::WindowResizedEvent& event) noexcept;
 
         /**
@@ -160,8 +198,8 @@ namespace NuEngine::Runtime
         std::unique_ptr<Renderer::ForwardPipeline> m_pipeline;
         std::unique_ptr<Graphics::IRenderDevice> m_renderDevice;
         Core::FileSystem m_fileSystem;
-        float m_fpsTimer = 0.0f;    // Накопичувач часу (секунди)
-        uint32_t m_frameCount = 0;  // Лічильник кадрів за цей проміжок
+        float m_fpsTimer = 0.0f;
+        uint32_t m_frameCount = 0;
         uint32_t m_lastFPS = 0;
     };
 

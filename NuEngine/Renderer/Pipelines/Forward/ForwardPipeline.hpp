@@ -10,13 +10,14 @@
 #include <Core/Types/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 #include <Renderer/Camera.hpp>
+#include <NuEngine/Core/API.hpp>
 
 namespace NuEngine::Renderer
 {
 	/*
 	* 
 	*/
-	class ForwardPipeline
+	class NU_API ForwardPipeline
 	{
 	public:
 		/*
@@ -35,7 +36,11 @@ namespace NuEngine::Renderer
 
 		void SetClearColor(const NuMath::Color& color) { m_ClearColor = color; }
 
+		void SetModelTransform(const NuMath::Transform& transform) { m_ModelTransform = transform; }
+
 		std::shared_ptr<Camera> GetCamera() const { return m_Camera; }
+
+		void RenderCube(const NuMath::Transform& transform, bool withTexture = false) noexcept;
 
 	private:
 		Graphics::IRenderDevice* m_Device;
@@ -44,7 +49,8 @@ namespace NuEngine::Renderer
 		std::shared_ptr<Graphics::IVertexArray> m_QuadVAO;
 		std::shared_ptr<Graphics::ITexture> m_Texture;
 		std::shared_ptr<Camera> m_Camera;
-		NuMath::Color m_ClearColor = NuMath::Colors::Linear::Black;
+		NuMath::Color m_ClearColor = NuMath::Colors::Linear::White;
+		NuMath::Transform m_ModelTransform;
 
 		float m_RotationAngle = 0.0f;
 		int m_Width;
