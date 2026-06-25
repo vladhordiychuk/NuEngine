@@ -6,7 +6,8 @@ file(GLOB_RECURSE ENGINE_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/glad/src/*.c" 
 )
 
-add_library(NuEngine STATIC ${ENGINE_SRC})
+add_library(NuEngine SHARED ${ENGINE_SRC})
+target_compile_definitions(NuEngine PRIVATE NUENGINE_BUILD_DLL)
 
 target_compile_features(NuEngine PUBLIC cxx_std_20)
 
@@ -27,7 +28,17 @@ target_link_libraries(NuEngine
         glm::glm
         OpenGL::GL
         stb
+        Jolt
+        entt
 )
+
+option(NU_ENABLE_PROFILING "Enable Tracy profiler" OFF)
+
+if(NU_ENABLE_PROFILING)
+    add_subdirectory(ThirdParty/tracy)
+    target_link_libraries(NuEngine PUBLIC Tracy::TracyClient)
+    target_compile_definitions(NuEngine PUBLIC NU_PROFILING_ENABLED)
+endif()
 
 file(TO_CMAKE_PATH "${CMAKE_SOURCE_DIR}" PROJECT_ROOT_DIR)
 

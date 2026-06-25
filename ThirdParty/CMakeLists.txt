@@ -11,6 +11,16 @@ add_library(stb INTERFACE)
 
 target_include_directories(stb INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 
+add_library(entt INTERFACE)
+target_include_directories(entt INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/entt")
+
+set(TARGET_UNIT_TESTS OFF CACHE BOOL "Turn off Jolt tests" FORCE)
+set(TARGET_HELLO_WORLD OFF CACHE BOOL "Turn off Jolt examples" FORCE)
+set(TARGET_PERFORMANCE_TEST OFF CACHE BOOL "Turn off Jolt perf tests" FORCE)
+set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "Use dynamic runtime for Jolt" FORCE)
+
+add_subdirectory(JoltPhysics/Build)
+
 if (NU_BUILD_TESTS)
     set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
     

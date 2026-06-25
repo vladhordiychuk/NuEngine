@@ -1,9 +1,12 @@
 project(Game)
 
-add_executable(Game 
-    main.cpp
+add_library(Game SHARED
+    source/SandboxApp.cpp
 )
-
-target_compile_features(Game PRIVATE cxx_std_20)
-
 target_link_libraries(Game PRIVATE NuEngine)
+target_compile_definitions(Game PRIVATE NU_EDITOR_MODE)
+
+add_executable(GameStandalone
+    source/SandboxApp.cpp
+)
+target_link_libraries(GameStandalone PRIVATE NuEngine)

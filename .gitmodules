@@ -13,3 +13,9 @@
 [submodule "NBT/thirdparty/toml11"]
 	path = NBT/thirdparty/toml11
 	url = https://github.com/ToruNiina/toml11
+[submodule "ThirdParty/JoltPhysics"]
+	path = ThirdParty/JoltPhysics
+	url = https://github.com/jrouwe/JoltPhysics.git
+[submodule "ThirdParty/tracy"]
+	path = ThirdParty/tracy
+	url = https://github.com/wolfpld/tracy
