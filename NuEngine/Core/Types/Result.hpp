@@ -117,7 +117,7 @@ namespace NuEngine::Core
         // -------------------------------------------------
 
         template <typename F>
-        constexpr auto Map(F&& func) const& -> Result<std::invoke_result_t<F, const T&>, E>
+        constexpr auto Map(F&& func) const & -> Result<std::invoke_result_t<F, const T&>, E>
         {
             static_assert(std::is_copy_constructible_v<E>,
                 "Map(const&) requires Error to be copy-constructible");
@@ -158,7 +158,7 @@ namespace NuEngine::Core
         }
 
         template <typename F>
-        constexpr auto MapError(F&& func) const& -> Result<T, std::invoke_result_t<F, const E&>>
+        constexpr auto MapError(F&& func) const & -> Result<T, std::invoke_result_t<F, const E&>>
         {
             static_assert(std::is_copy_constructible_v<T>,
                 "MapError(const&) requires Value to be copy-constructible");
@@ -183,7 +183,7 @@ namespace NuEngine::Core
         }
 
         template <typename F>
-        constexpr auto AndThen(F&& func) const& -> std::invoke_result_t<F, const T&>
+        constexpr auto AndThen(F&& func) const & -> std::invoke_result_t<F, const T&>
         {
             using FuncResult = std::invoke_result_t<F, const T&>;
             static_assert(std::is_same_v<typename FuncResult::error_type, E>,
@@ -213,7 +213,7 @@ namespace NuEngine::Core
         }
 
         template <typename OkFunc, typename ErrFunc>
-        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) const&
+        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) const &
         {
             using OkResult = std::invoke_result_t<OkFunc, const T&>;
             using ErrResult = std::invoke_result_t<ErrFunc, const E&>;
@@ -228,7 +228,7 @@ namespace NuEngine::Core
         }
 
         template <typename OkFunc, typename ErrFunc>
-        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc)&&
+        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) &&
         {
             using OkResult = std::invoke_result_t<OkFunc, T&&>;
             using ErrResult = std::invoke_result_t<ErrFunc, E&&>;
@@ -314,17 +314,17 @@ namespace NuEngine::Core
             return TryUnwrap();
         }
 
-        [[nodiscard]] constexpr const T& operator*() const& 
+        [[nodiscard]] constexpr const T& operator*() const & 
         {
             return Unwrap();
         }
 
-        [[nodiscard]] constexpr T& operator*()& 
+        [[nodiscard]] constexpr T& operator*() & 
         {
             return Unwrap();
         }
 
-        [[nodiscard]] constexpr T&& operator*()&& 
+        [[nodiscard]] constexpr T&& operator*() && 
         {
             return std::move(Unwrap());
         }
@@ -333,7 +333,7 @@ namespace NuEngine::Core
         // Unsafe accessors (throw on error)
         // -------------------------------------------------
 
-        [[nodiscard]] constexpr T& Unwrap()&
+        [[nodiscard]] constexpr T& Unwrap() &
         {
             if (IsError()) [[unlikely]]
             {
@@ -343,7 +343,7 @@ namespace NuEngine::Core
             return std::get<0>(m_data);
         }
 
-        [[nodiscard]] constexpr const T& Unwrap() const&
+        [[nodiscard]] constexpr const T& Unwrap() const &
         {
             if (IsError()) [[unlikely]]
             {
@@ -353,7 +353,7 @@ namespace NuEngine::Core
             return std::get<0>(m_data);
         }
 
-        [[nodiscard]] constexpr T&& Unwrap()&&
+        [[nodiscard]] constexpr T&& Unwrap() &&
         {
             if (IsError()) [[unlikely]]
             {
@@ -363,7 +363,7 @@ namespace NuEngine::Core
             return std::move(std::get<0>(m_data));
         }
 
-        [[nodiscard]] constexpr E& UnwrapError()&
+        [[nodiscard]] constexpr E& UnwrapError() &
         {
             if (IsOk())
             {
@@ -373,7 +373,7 @@ namespace NuEngine::Core
             return std::get<1>(m_data);
         }
 
-        [[nodiscard]] constexpr const E& UnwrapError() const&
+        [[nodiscard]] constexpr const E& UnwrapError() const &
         {
             if (IsOk())
             {
@@ -383,7 +383,7 @@ namespace NuEngine::Core
             return std::get<1>(m_data);
         }
 
-        [[nodiscard]] constexpr E&& UnwrapError()&&
+        [[nodiscard]] constexpr E&& UnwrapError() &&
         {
             if (IsOk())
             {
@@ -398,7 +398,7 @@ namespace NuEngine::Core
         // -------------------------------------------------
 
         template <typename Msg>
-        [[nodiscard]] constexpr T& Expect(Msg&& msg)&
+        [[nodiscard]] constexpr T& Expect(Msg&& msg) &
         {
             if (IsError()) [[unlikely]]
             {
@@ -409,7 +409,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr const T& Expect(Msg&& msg) const&
+        [[nodiscard]] constexpr const T& Expect(Msg&& msg) const &
         {
             if (IsError()) [[unlikely]]
             {
@@ -420,7 +420,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr T&& Expect(Msg&& msg)&&
+        [[nodiscard]] constexpr T&& Expect(Msg&& msg) &&
         {
             if (IsError()) [[unlikely]]
             {
@@ -442,7 +442,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr const E& ExpectError(Msg&& msg) const&
+        [[nodiscard]] constexpr const E& ExpectError(Msg&& msg) const &
         {
             if (IsOk())
             {
@@ -453,7 +453,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr E&& ExpectError(Msg&& msg)&&
+        [[nodiscard]] constexpr E&& ExpectError(Msg&& msg) &&
         {
             if (IsOk())
             {
@@ -492,19 +492,19 @@ namespace NuEngine::Core
         // -------------------------------------------------
 
         template <typename U = T>
-        [[nodiscard]] constexpr T ValueOr(U&& defaultValue) const&
+        [[nodiscard]] constexpr T ValueOr(U&& defaultValue) const &
         {
             return IsOk() ? std::get<0>(m_data) : static_cast<T>(std::forward<U>(defaultValue));
         }
 
         template <typename U = T>
-        [[nodiscard]] constexpr T ValueOr(U&& defaultValue)&&
+        [[nodiscard]] constexpr T ValueOr(U&& defaultValue) &&
         {
             return IsOk() ? std::move(std::get<0>(m_data)) : static_cast<T>(std::forward<U>(defaultValue));
         }
 
         template <typename U = E>
-        [[nodiscard]] constexpr E ErrorOr(U&& defaultError) const&
+        [[nodiscard]] constexpr E ErrorOr(U&& defaultError) const &
         {
             return IsError() ? std::get<1>(m_data) : static_cast<E>(std::forward<U>(defaultError));
         }
@@ -519,7 +519,7 @@ namespace NuEngine::Core
         // Optional conversions
         // -------------------------------------------------
 
-        [[nodiscard]] constexpr std::optional<T> ToOptional() const&
+        [[nodiscard]] constexpr std::optional<T> ToOptional() const &
         {
             return IsOk() ? std::make_optional(std::get<0>(m_data)) : std::nullopt;
         }
@@ -529,7 +529,7 @@ namespace NuEngine::Core
             return IsOk() ? std::make_optional(std::move(std::get<0>(m_data))) : std::nullopt;
         }
 
-        [[nodiscard]] constexpr std::optional<E> ToErrorOptional() const&
+        [[nodiscard]] constexpr std::optional<E> ToErrorOptional() const &
         {
             return IsError() ? std::make_optional(std::get<1>(m_data)) : std::nullopt;
         }
@@ -544,7 +544,7 @@ namespace NuEngine::Core
         // -------------------------------------------------
 
         template <typename U>
-        [[nodiscard]] constexpr Result<U, E> Cast() const&
+        [[nodiscard]] constexpr Result<U, E> Cast() const &
         {
             static_assert(std::is_convertible_v<const T&, U>,
                 "Cast() requires convertible types");
@@ -557,7 +557,7 @@ namespace NuEngine::Core
         }
 
         template <typename U>
-        [[nodiscard]] constexpr Result<U, E> Cast()&&
+        [[nodiscard]] constexpr Result<U, E> Cast() &&
         {
             static_assert(std::is_convertible_v<T&&, U>,
                 "Cast() requires convertible types");
@@ -587,7 +587,6 @@ namespace NuEngine::Core
         using value_type = void;
         using error_type = E;
 
-        // Constructors from wrappers ONLY (consistent with general case)
         constexpr Result() noexcept : m_error(std::nullopt) {}
         constexpr Result(OkWrapper<void>) noexcept : m_error(std::nullopt) {}
         constexpr Result(ErrWrapper<E> w) noexcept(std::is_nothrow_move_constructible_v<E>)
@@ -595,14 +594,12 @@ namespace NuEngine::Core
         {
         }
 
-        // Rule of 5
         constexpr Result(Result&&) noexcept = default;
         constexpr Result(const Result&) noexcept = default;
         constexpr Result& operator=(Result&&) noexcept = default;
         constexpr Result& operator=(const Result&) noexcept = default;
         ~Result() = default;
 
-        // Deleted dangerous constructor
         template <typename U = E>
         Result(U&& error) = delete;
 
@@ -666,7 +663,7 @@ namespace NuEngine::Core
         }
 
         template <typename OkFunc, typename ErrFunc>
-        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) const&
+        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) const &
         {
             using OkResult = std::invoke_result_t<OkFunc>;
             using ErrResult = std::invoke_result_t<ErrFunc, const E&>;
@@ -681,7 +678,7 @@ namespace NuEngine::Core
         }
 
         template <typename OkFunc, typename ErrFunc>
-        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc)&&
+        constexpr auto Match(OkFunc&& okFunc, ErrFunc&& errFunc) &&
         {
             using OkResult = std::invoke_result_t<OkFunc>;
             using ErrResult = std::invoke_result_t<ErrFunc, E&&>;
@@ -758,7 +755,7 @@ namespace NuEngine::Core
             }
         }
 
-        [[nodiscard]] constexpr E& UnwrapError()&
+        [[nodiscard]] constexpr E& UnwrapError() &
         {
             if (IsOk())
             {
@@ -768,7 +765,7 @@ namespace NuEngine::Core
             return *m_error;
         }
 
-        [[nodiscard]] constexpr const E& UnwrapError() const&
+        [[nodiscard]] constexpr const E& UnwrapError() const &
         {
             if (IsOk())
             {
@@ -778,7 +775,7 @@ namespace NuEngine::Core
             return *m_error;
         }
 
-        [[nodiscard]] constexpr E&& UnwrapError()&&
+        [[nodiscard]] constexpr E&& UnwrapError() &&
         {
             if (IsOk())
             {
@@ -803,7 +800,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr E& ExpectError(Msg&& msg)&
+        [[nodiscard]] constexpr E& ExpectError(Msg&& msg) &
         {
             if (IsOk())
             {
@@ -814,7 +811,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr const E& ExpectError(Msg&& msg) const&
+        [[nodiscard]] constexpr const E& ExpectError(Msg&& msg) const &
         {
             if (IsOk())
             {
@@ -825,7 +822,7 @@ namespace NuEngine::Core
         }
 
         template <typename Msg>
-        [[nodiscard]] constexpr E&& ExpectError(Msg&& msg)&&
+        [[nodiscard]] constexpr E&& ExpectError(Msg&& msg) &&
         {
             if (IsOk())
             {
@@ -854,13 +851,13 @@ namespace NuEngine::Core
         // -------------------------------------------------
 
         template <typename U = E>
-        [[nodiscard]] constexpr E ErrorOr(U&& defaultError) const&
+        [[nodiscard]] constexpr E ErrorOr(U&& defaultError) const &
         {
             return m_error ? *m_error : static_cast<E>(std::forward<U>(defaultError));
         }
 
         template <typename U = E>
-        [[nodiscard]] constexpr E ErrorOr(U&& defaultError)&&
+        [[nodiscard]] constexpr E ErrorOr(U&& defaultError) &&
         {
             return m_error ? std::move(*m_error) : static_cast<E>(std::forward<U>(defaultError));
         }
@@ -869,12 +866,12 @@ namespace NuEngine::Core
         // Optional conversion
         // -------------------------------------------------
 
-        [[nodiscard]] constexpr std::optional<E> ToErrorOptional() const&
+        [[nodiscard]] constexpr std::optional<E> ToErrorOptional() const &
         {
             return m_error;
         }
 
-        [[nodiscard]] constexpr std::optional<E> ToErrorOptional()&&
+        [[nodiscard]] constexpr std::optional<E> ToErrorOptional() &&
         {
             return std::move(m_error);
         }

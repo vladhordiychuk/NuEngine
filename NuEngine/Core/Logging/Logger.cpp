@@ -19,7 +19,8 @@
 #define WHITE   "\033[37m"
 #endif
 
-namespace NuEngine::Core {
+namespace NuEngine::Core 
+{
 
     Logger::LoggerState& Logger::GetState() noexcept
     {
@@ -27,7 +28,6 @@ namespace NuEngine::Core {
         return state;
     }
 
-    // Публічний Init - блокує м'ютекс і викликає Internal
     Result<void, FileSystemError> Logger::Init(const std::string& path) noexcept
     {
         auto& state = GetState();
@@ -35,10 +35,10 @@ namespace NuEngine::Core {
         return InitInternal(state, path);
     }
 
-    // Приватний Init - виконує роботу без блокування (оскільки викликається під замком)
     Result<void, FileSystemError> Logger::InitInternal(LoggerState& state, const std::string& path) noexcept
     {
-        if (state.initialized) {
+        if (state.initialized) 
+        {
             return Ok();
         }
 
@@ -48,7 +48,8 @@ namespace NuEngine::Core {
         if (dirRes.IsError()) return dirRes;
 
         state.logFile.open(state.logPath, std::ios::out | std::ios::app);
-        if (!state.logFile.is_open()) {
+        if (!state.logFile.is_open()) 
+        {
             return Err(FileSystemError(
                 FileSystemErrorCode::WriteFailed,
                 state.logPath,
@@ -62,12 +63,11 @@ namespace NuEngine::Core {
 
     void Logger::EnsureInitialized(LoggerState& state) noexcept
     {
-        // Цей метод викликається тільки всередині функцій, які ВЖЕ тримають mutex
         if (state.initialized) return;
 
-        // Спробуємо ініціалізувати
         auto result = InitInternal(state, state.logPath);
-        if (result.IsError()) {
+        if (result.IsError())
+        {
             std::cerr << "[Logger Panic] Auto-init failed: " << result.UnwrapError().ToString() << std::endl;
         }
     }
@@ -82,7 +82,8 @@ namespace NuEngine::Core {
 
         if (std::filesystem::exists(parent, ec)) return Ok();
 
-        if (!std::filesystem::create_directories(parent, ec)) {
+        if (!std::filesystem::create_directories(parent, ec)) 
+        {
             return Err(FileSystemError(FileSystemErrorCode::DirectoryCreationFailed, parent.string(), ec.message()));
         }
         return Ok();
@@ -114,7 +115,8 @@ namespace NuEngine::Core {
         auto& state = GetState();
         std::lock_guard<std::mutex> lock(state.mutex);
 
-        if (state.logFile.is_open()) {
+        if (state.logFile.is_open()) 
+        {
             state.logFile.flush();
             state.logFile.close();
         }
@@ -125,14 +127,12 @@ namespace NuEngine::Core {
     {
         auto& state = GetState();
 
-        // КРИТИЧНО: Блокуємо mutex один раз на весь виклик
         std::lock_guard<std::mutex> lock(state.mutex);
 
         if (level < state.minLevel) return;
 
-        EnsureInitialized(state); // Безпечно, бо ми вже під замком
+        EnsureInitialized(state);
 
-        // 1. Форматування часу
         auto now = std::chrono::system_clock::now();
         auto timeT = std::chrono::system_clock::to_time_t(now);
         std::tm localTime{};
@@ -146,18 +146,21 @@ namespace NuEngine::Core {
         std::ostringstream timeStream;
         timeStream << std::put_time(&localTime, "%H:%M:%S") << "." << std::setw(3) << std::setfill('0') << ms.count();
 
-        // 2. Отримання імені файлу
         std::string_view file = location.file_name();
         if (auto lastSlash = file.find_last_of("/\\"); lastSlash != std::string_view::npos)
             file = file.substr(lastSlash + 1);
 
-        // 3. Форматування повідомлення
         std::string formatted = std::format("[{}] [{}] {} ({}:{})",
             timeStream.str(), GetLevelString(level), message, file, location.line());
 
-        // 4. Вивід у консоль
+        if (state.editorCallback)
+        {
+            state.editorCallback(level, message, timeStream.str());
+        }
+
 #ifdef _WIN32
-        if (state.colorsEnabled) {
+        if (state.colorsEnabled) 
+        {
             HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
             CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
             GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
@@ -176,47 +179,87 @@ namespace NuEngine::Core {
             std::cout << formatted << std::endl;
 #endif
 
-        if (state.logFile.is_open()) {
+        if (state.logFile.is_open()) 
+        {
             state.logFile << formatted << std::endl;
         }
     }
 
     const char* Logger::GetLevelString(LogLevel level) noexcept
     {
-        switch (level) {
-        case LogLevel::Trace:    return "TRACE";
-        case LogLevel::Debug:    return "DEBUG";
-        case LogLevel::Info:     return "INFO ";
-        case LogLevel::Warning:  return "WARN ";
-        case LogLevel::Error:    return "ERROR";
-        case LogLevel::Critical: return "FATAL";
-        default: return "UNK  ";
+        switch (level) 
+        {
+            case LogLevel::Trace:    
+                return "TRACE";
+            case LogLevel::Debug:    
+                return "DEBUG";
+            case LogLevel::Info:     
+                return "INFO ";
+            case LogLevel::Warning:  
+                return "WARN ";
+            case LogLevel::Error:    
+                return "ERROR";
+            case LogLevel::Critical: 
+                return "FATAL";
+            default: 
+                return "UNK  ";
         }
     }
 
+    void Logger::SetEditorCallback(LogCallback callback) noexcept
+    {
+        auto& state = GetState();
+        std::lock_guard<std::mutex> lock(state.mutex);
+        state.editorCallback = std::move(callback);
+    }
+
+    void Logger::ClearEditorCallback() noexcept
+    {
+        auto& state = GetState();
+        std::lock_guard<std::mutex> lock(state.mutex);
+        state.editorCallback = nullptr;
+    }
+
 #ifdef _WIN32
-    unsigned short Logger::GetWinColor(LogLevel level) noexcept {
-        switch (level) {
-        case LogLevel::Trace:    return 8;
-        case LogLevel::Debug:    return FOREGROUND_BLUE | FOREGROUND_GREEN;
-        case LogLevel::Info:     return FOREGROUND_GREEN;
-        case LogLevel::Warning:  return FOREGROUND_RED | FOREGROUND_GREEN;
-        case LogLevel::Error:    return FOREGROUND_RED;
-        case LogLevel::Critical:
-            return BACKGROUND_RED | (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-        default: return 7;
+    unsigned short Logger::GetWinColor(LogLevel level) noexcept 
+    {
+        switch (level) 
+        {
+            case LogLevel::Trace:    
+                return 8;
+            case LogLevel::Debug:    
+                return FOREGROUND_BLUE | FOREGROUND_GREEN;
+            case LogLevel::Info:     
+                return FOREGROUND_GREEN;
+            case LogLevel::Warning:  
+                return FOREGROUND_RED | FOREGROUND_GREEN;
+            case LogLevel::Error:    
+                return FOREGROUND_RED;
+            case LogLevel::Critical:
+                return BACKGROUND_RED | (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+            default: 
+                return 7;
         }
     }
 #else
-    const char* Logger::GetAnsiColor(LogLevel level) noexcept {
-        switch (level) {
-        case LogLevel::Trace:    return WHITE;
-        case LogLevel::Debug:    return CYAN;
-        case LogLevel::Info:     return GREEN;
-        case LogLevel::Warning:  return YELLOW;
-        case LogLevel::Error:    return RED;
-        case LogLevel::Critical: return MAGENTA;
-        default: return RESET;
+    const char* Logger::GetAnsiColor(LogLevel level) noexcept 
+    {
+        switch (level) 
+        {
+            case LogLevel::Trace:   
+                return WHITE;
+            case LogLevel::Debug:    
+                return CYAN;
+            case LogLevel::Info:     
+                return GREEN;
+            case LogLevel::Warning:  
+                return YELLOW;
+            case LogLevel::Error:    
+                return RED;
+            case LogLevel::Critical: 
+                return MAGENTA;
+            default:   
+                return RESET;
         }
     }
 #endif

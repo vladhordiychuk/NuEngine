@@ -11,7 +11,7 @@ namespace NuEngine::Core
 		float MouseY = 0.0f;
 	};
 
-	static InputState s_InputState;
+	InputState s_InputState;
 
 	bool Input::IsKeyPressed(KeyCode key) noexcept
 	{

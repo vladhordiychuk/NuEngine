@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <NuEngine/Core/API.hpp>
+
 #include <chrono>
 
 namespace NuEngine::Core
 {
-	class Time
+	class NU_API Time
 	{
 	public:
 		[[nodiscard]] static float GetDeltaTime();

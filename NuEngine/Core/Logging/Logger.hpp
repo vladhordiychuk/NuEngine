@@ -6,12 +6,15 @@
 
 #include <string>
 #include <fstream>
+#include <functional>
 #include <source_location>
 #include <format>
 #include <mutex>
 #include <memory>
+
 #include <Core/Types/Result.hpp>
 #include <Core/Errors/FileSystemError.hpp>
+#include <NuEngine/Core/API.hpp>
 
 namespace NuEngine::Core
 {
@@ -28,13 +31,18 @@ namespace NuEngine::Core
     /**
      * @brief Thread-safe logger.
      */
-    class Logger
+    class NU_API Logger
     {
     public:
         static Result<void, FileSystemError> Init(const std::string& path) noexcept;
 
         static void Log(LogLevel level, const std::string& message,
             const std::source_location& location = std::source_location::current()) noexcept;
+
+        using LogCallback = std::function<void(LogLevel, const std::string&, const std::string&)>;
+
+        static void SetEditorCallback(LogCallback callback) noexcept;
+        static void ClearEditorCallback() noexcept;
 
         static void SetLogFile(const std::string& path) noexcept;
         static void SetMinimumLevel(LogLevel level) noexcept;
@@ -50,6 +58,7 @@ namespace NuEngine::Core
             bool colorsEnabled = true;
             bool initialized = false;
             std::mutex mutex;
+            LogCallback editorCallback = nullptr;
         };
 
         static LoggerState& GetState() noexcept;
