@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-test:
     runs-on: windows-latest
+
     strategy:
       matrix:
         build_type: [Release]
@@ -20,12 +21,14 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_BENCHMARKS=OFF -DBUILD_TESTS=ON
+        run: cmake -B build ^
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
+          -DBUILD_BENCHMARKS=OFF ^
+          -DBUILD_TESTS=ON ^
+          -DBUILD_EDITOR=OFF
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }} --target ALL_BUILD
 
       - name: Run tests
-        run: cd build && ctest -C ${{ matrix.build_type }} --output-on-failure --timeout 300
-
-
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure --timeout 300
