@@ -1,4 +1,4 @@
-name: Math Unit Tests
+name: NuEngine CI
 
 on:
   push:
@@ -21,11 +21,12 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B build ^
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
-          -DBUILD_BENCHMARKS=OFF ^
-          -DBUILD_TESTS=ON ^
-          -DBUILD_EDITOR=OFF
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DNU_BUILD_TESTS=ON
+          -DNU_BUILD_EDITOR=OFF
+          -DNU_BUILD_BENCHMARKS=OFF
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }} --target ALL_BUILD

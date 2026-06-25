@@ -4,7 +4,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(NuEngineWorkspace) 
+project(NuEngineWorkspace)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,25 +15,26 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(NU_BUILD_TESTS "Build unit tests" ON)
+option(NU_BUILD_EDITOR "Build NuEditor (Qt-based editor)" OFF)
+option(NU_BUILD_BENCHMARKS "Build benchmarks" OFF)
 
-if (MSVC)
+if(MSVC)
     add_compile_options(/W4 /permissive- /MP)
     add_compile_definitions(UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
 else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-add_subdirectory(ThirdParty) 
-
-add_subdirectory(NuEngine) 
-
+add_subdirectory(ThirdParty)
+add_subdirectory(NuEngine)
 add_subdirectory(NuEngine/NuMath)
-
 add_subdirectory(Game)
 
-add_subdirectory(NuEditor)
+if(NU_BUILD_EDITOR)
+    add_subdirectory(NuEditor)
+endif()
 
-if (NU_BUILD_TESTS)
+if(NU_BUILD_TESTS)
     enable_testing()
     add_subdirectory(Tests)
 endif()
