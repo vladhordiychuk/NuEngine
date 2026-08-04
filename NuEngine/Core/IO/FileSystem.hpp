@@ -9,7 +9,7 @@
 #include <mutex>
 #include <filesystem>
 
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Core/Errors/FileSystemError.hpp>
 
 namespace NuEngine::Core
@@ -51,6 +51,9 @@ namespace NuEngine::Core
         */
         [[nodiscard]] Result<void, FileSystemError> WriteFile(const std::string& path, const std::vector<char>& data);
 
+        /*
+        * @brief
+        */
         [[nodiscard]] Result<std::string, FileSystemError> ReadTextFile(const std::string& path) const;
 
         /*

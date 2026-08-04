@@ -1,27 +1,34 @@
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <chrono>
-#include <filesystem>
+// Copyright (c) 2025 Vladyslav Hordiychuk
+// All rights reserved.
+// Unauthorized copying or use of this file is strictly prohibited.
 
 #include <Core/Logging/Logger.hpp>
 
+#include <iostream>
+#include <chrono>
+#include <ctime>
+#include <filesystem>
+
 #ifdef _WIN32
-#include <windows.h>
-#else
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define WHITE   "\033[37m"
+    #include <windows.h>
 #endif
 
-namespace NuEngine::Core 
+namespace
 {
+#ifndef _WIN32
+    constexpr const char* AnsiReset = "\033[0m";
+    constexpr const char* AnsiRed = "\033[31m";
+    constexpr const char* AnsiGreen = "\033[32m";
+    constexpr const char* AnsiYellow = "\033[33m";
+    constexpr const char* AnsiMagenta = "\033[35m";
+    constexpr const char* AnsiCyan = "\033[36m";
+    constexpr const char* AnsiWhite = "\033[37m";
+    constexpr const char* AnsiBoldRed = "\033[1;31m";
+#endif
+}
 
+namespace NuEngine::Core
+{
     Logger::LoggerState& Logger::GetState() noexcept
     {
         static LoggerState state;
@@ -32,12 +39,13 @@ namespace NuEngine::Core
     {
         auto& state = GetState();
         std::lock_guard<std::mutex> lock(state.mutex);
+        state.shuttingDown = false;
         return InitInternal(state, path);
     }
 
     Result<void, FileSystemError> Logger::InitInternal(LoggerState& state, const std::string& path) noexcept
     {
-        if (state.initialized) 
+        if (state.initialized)
         {
             return Ok();
         }
@@ -45,16 +53,19 @@ namespace NuEngine::Core
         state.logPath = path;
 
         auto dirRes = CreateLogDirectory(state.logPath);
-        if (dirRes.IsError()) return dirRes;
+        if (dirRes.IsError()) 
+        {
+            return dirRes;
+        }
 
         state.logFile.open(state.logPath, std::ios::out | std::ios::app);
-        if (!state.logFile.is_open()) 
+        if (!state.logFile.is_open())
         {
-            return Err(FileSystemError(
+            return Err(FileSystemError{
                 FileSystemErrorCode::WriteFailed,
-                state.logPath,
-                "Failed to open log file"
-            ));
+                "Failed to open log file",
+                state.logPath
+                });
         }
 
         state.initialized = true;
@@ -63,29 +74,44 @@ namespace NuEngine::Core
 
     void Logger::EnsureInitialized(LoggerState& state) noexcept
     {
-        if (state.initialized) return;
+        if (state.initialized) 
+        {
+            return;
+        }
 
         auto result = InitInternal(state, state.logPath);
         if (result.IsError())
         {
-            std::cerr << "[Logger Panic] Auto-init failed: " << result.UnwrapError().ToString() << std::endl;
+            std::cerr << "[Logger Panic] Auto-init failed: "
+                << result.UnwrapError() << "\n";
         }
     }
 
     Result<void, FileSystemError> Logger::CreateLogDirectory(const std::string& logPath) noexcept
     {
         std::filesystem::path path(logPath);
-        if (!path.has_parent_path()) return Ok();
+        if (!path.has_parent_path()) 
+        {
+            return Ok();
+        }
 
         std::error_code ec;
         auto parent = path.parent_path();
 
-        if (std::filesystem::exists(parent, ec)) return Ok();
-
-        if (!std::filesystem::create_directories(parent, ec)) 
+        if (std::filesystem::exists(parent, ec)) 
         {
-            return Err(FileSystemError(FileSystemErrorCode::DirectoryCreationFailed, parent.string(), ec.message()));
+            return Ok();
         }
+
+        if (!std::filesystem::create_directories(parent, ec))
+        {
+            return Err(FileSystemError{
+                FileSystemErrorCode::DirectoryCreationFailed,
+                ec.message(),
+                parent.string()
+                });
+        }
+
         return Ok();
     }
 
@@ -113,81 +139,135 @@ namespace NuEngine::Core
     void Logger::Shutdown() noexcept
     {
         auto& state = GetState();
+
         std::lock_guard<std::mutex> lock(state.mutex);
 
-        if (state.logFile.is_open()) 
+        state.shuttingDown = true;
+
+        if (state.logFile.is_open())
         {
             state.logFile.flush();
             state.logFile.close();
         }
+
         state.initialized = false;
+        state.editorCallback = nullptr;
     }
 
     void Logger::Log(LogLevel level, const std::string& message, const std::source_location& location) noexcept
     {
         auto& state = GetState();
 
-        std::lock_guard<std::mutex> lock(state.mutex);
+        LogCallback callbackCopy;
+        bool colorsEnabled = false;
 
-        if (level < state.minLevel) return;
+        {
+            std::lock_guard<std::mutex> lock(state.mutex);
 
-        EnsureInitialized(state);
+            if (state.shuttingDown)
+            {
+                return;
+            }
+
+            if (level < state.minLevel)
+            {
+                return;
+            }
+
+            EnsureInitialized(state);
+
+            callbackCopy = state.editorCallback;
+            colorsEnabled = state.colorsEnabled;
+        }
 
         auto now = std::chrono::system_clock::now();
         auto timeT = std::chrono::system_clock::to_time_t(now);
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now.time_since_epoch()) % 1000;
+
         std::tm localTime{};
 #ifdef _WIN32
         localtime_s(&localTime, &timeT);
 #else
         localtime_r(&timeT, &localTime);
 #endif
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 
-        std::ostringstream timeStream;
-        timeStream << std::put_time(&localTime, "%H:%M:%S") << "." << std::setw(3) << std::setfill('0') << ms.count();
+        char timeBuf[16]{};
+        std::strftime(timeBuf, sizeof(timeBuf), "%H:%M:%S", &localTime);
 
         std::string_view file = location.file_name();
-        if (auto lastSlash = file.find_last_of("/\\"); lastSlash != std::string_view::npos)
-            file = file.substr(lastSlash + 1);
-
-        std::string formatted = std::format("[{}] [{}] {} ({}:{})",
-            timeStream.str(), GetLevelString(level), message, file, location.line());
-
-        if (state.editorCallback)
+        if (auto pos = file.find_last_of("/\\"); pos != std::string_view::npos)
         {
-            state.editorCallback(level, message, timeStream.str());
+            file = file.substr(pos + 1);
+        }
+
+        std::string formatted = std::format(
+            "[{}.{:03d}] [{}] {} ({}:{})",
+            timeBuf,
+            static_cast<int>(ms.count()),
+            GetLevelString(level),
+            message,
+            file,
+            location.line());
+
+        std::string timeString(timeBuf);
+
+        if (callbackCopy)
+        {
+            callbackCopy(level, message, timeString);
         }
 
 #ifdef _WIN32
-        if (state.colorsEnabled) 
+        if (colorsEnabled)
         {
             HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-            CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-            GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-            WORD originalAttrs = consoleInfo.wAttributes;
+
+            CONSOLE_SCREEN_BUFFER_INFO info;
+            GetConsoleScreenBufferInfo(hConsole, &info);
+
+            WORD original = info.wAttributes;
             SetConsoleTextAttribute(hConsole, GetWinColor(level));
-            std::cout << formatted << std::endl;
-            SetConsoleTextAttribute(hConsole, originalAttrs);
+
+            std::cout << formatted << '\n';
+
+            SetConsoleTextAttribute(hConsole, original);
         }
-        else {
-            std::cout << formatted << std::endl;
+        else
+        {
+            std::cout << formatted << '\n';
         }
 #else
-        if (state.colorsEnabled)
-            std::cout << GetAnsiColor(level) << formatted << RESET << std::endl;
+        if (colorsEnabled)
+        {
+            std::cout << GetAnsiColor(level)
+                << formatted
+                << AnsiReset
+                << '\n';
+        }
         else
-            std::cout << formatted << std::endl;
+        {
+            std::cout << formatted << '\n';
+        }
 #endif
 
-        if (state.logFile.is_open()) 
         {
-            state.logFile << formatted << std::endl;
+            std::lock_guard<std::mutex> lock(state.mutex);
+
+            if (state.logFile.is_open())
+            {
+                state.logFile << formatted << '\n';
+
+                if (level == LogLevel::Fatal)
+                {
+                    state.logFile.flush();
+                }
+            }
         }
     }
 
     const char* Logger::GetLevelString(LogLevel level) noexcept
     {
-        switch (level) 
+        switch (level)
         {
             case LogLevel::Trace:    
                 return "TRACE";
@@ -200,8 +280,10 @@ namespace NuEngine::Core
             case LogLevel::Error:    
                 return "ERROR";
             case LogLevel::Critical: 
+                return "CRIT ";
+            case LogLevel::Fatal:    
                 return "FATAL";
-            default: 
+            default:                 
                 return "UNK  ";
         }
     }
@@ -221,9 +303,9 @@ namespace NuEngine::Core
     }
 
 #ifdef _WIN32
-    unsigned short Logger::GetWinColor(LogLevel level) noexcept 
+    unsigned short Logger::GetWinColor(LogLevel level) noexcept
     {
-        switch (level) 
+        switch (level)
         {
             case LogLevel::Trace:    
                 return 8;
@@ -235,31 +317,35 @@ namespace NuEngine::Core
                 return FOREGROUND_RED | FOREGROUND_GREEN;
             case LogLevel::Error:    
                 return FOREGROUND_RED;
-            case LogLevel::Critical:
-                return BACKGROUND_RED | (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-            default: 
+            case LogLevel::Critical: 
+                return FOREGROUND_RED | FOREGROUND_INTENSITY;
+            case LogLevel::Fatal:    
+                return BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+            default:                 
                 return 7;
         }
     }
 #else
-    const char* Logger::GetAnsiColor(LogLevel level) noexcept 
+    const char* Logger::GetAnsiColor(LogLevel level) noexcept
     {
-        switch (level) 
+        switch (level)
         {
-            case LogLevel::Trace:   
-                return WHITE;
+            case LogLevel::Trace:    
+                return AnsiWhite;
             case LogLevel::Debug:    
-                return CYAN;
+                return AnsiCyan;
             case LogLevel::Info:     
-                return GREEN;
+                return AnsiGreen;
             case LogLevel::Warning:  
-                return YELLOW;
+                return AnsiYellow;
             case LogLevel::Error:    
-                return RED;
+                return AnsiRed;
             case LogLevel::Critical: 
-                return MAGENTA;
-            default:   
-                return RESET;
+                return AnsiMagenta;
+            case LogLevel::Fatal:    
+                return AnsiBoldRed;
+            default:                 
+                return AnsiReset;
         }
     }
 #endif

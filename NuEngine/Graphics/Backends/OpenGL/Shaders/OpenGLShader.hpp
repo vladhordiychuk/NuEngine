@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Graphics/Abstractions/Shaders/IShader.hpp>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 #include <NuMath/NuMath.hpp>
 

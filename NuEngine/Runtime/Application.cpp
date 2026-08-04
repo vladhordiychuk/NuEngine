@@ -16,20 +16,22 @@
 namespace NuEngine::Runtime
 {
 	Application::Application(const ApplicationSpecification& spec) noexcept
-		: m_specification(spec)
-		, m_fileSystem("res/")
+		: m_isRunning(false)
+		, m_state(AppState::Created)
+		, m_specification(spec)
 		, m_window(nullptr)
 		, m_pipeline(nullptr)
-		, m_isRunning(false)
+		, m_renderDevice(nullptr)
+		, m_fileSystem("res/")
 	{
 		std::filesystem::path logDir("logs");
-		if (!std::filesystem::exists(logDir)) 
+		if (!std::filesystem::exists(logDir))
 		{
 			std::filesystem::create_directories(logDir);
 		}
 		Core::Logger::Init("logs/nuengine.logs")
 			.MapError([](auto&& err) {
-			std::cerr << "[FATAL] Logger Init Failed: " << ToString(err) << std::endl;
+			std::cerr << "[FATAL] Logger Init Failed: " << err << std::endl;
 			std::abort();
 			return err;
 				})
@@ -42,14 +44,16 @@ namespace NuEngine::Runtime
 	{
 		Shutdown().Match(
 			[]() { LOG_INFO("NuEngine Shutdown Cleanly."); },
-			[](const auto& err) { LOG_ERROR("Shutdown error: {}", ToString(err)); }
+			[](const auto& err) { LOG_ERROR("Shutdown error: {}", err); }
 		);
 		Core::Logger::Shutdown();
 	}
 
-	Core::Result<std::unique_ptr<Platform::IWindow>, EngineError> Application::CreateAppWindow() noexcept
+	Core::Result<std::unique_ptr<Platform::IWindow>, RuntimeError> Application::CreateAppWindow() noexcept
 	{
-		NU_UNWRAP(window, Platform::CreatePlatformWindow());
+		NU_TRY(window, Platform::CreatePlatformWindow().MapError([](const auto&) {
+			return RuntimeError(RuntimeErrorCode::InitializationFailed, "Failed to create platform window");
+			}));
 
 		Platform::WindowConfig config;
 		config.SetTitle("NuEngine");
@@ -57,38 +61,45 @@ namespace NuEngine::Runtime
 		config.SetResizable(true);
 		config.SetDecorated(true);
 
-		NU_CHECK(window->Initialize(config));
+		NU_TRY_VOID(window->Initialize(config).MapError([](const auto&) {
+			return RuntimeError(RuntimeErrorCode::InitializationFailed, "Failed to initialize platform window");
+			}));
 
 		window->SetEventCallback([this](Platform::WindowEvent& event) {
 			this->OnEvent(event);
 			});
 
-		NU_CHECK(window->Show());
+		NU_TRY_VOID(window->Show().MapError([](const auto&) {
+			return RuntimeError(RuntimeErrorCode::InitializationFailed, "Failed to show platform window");
+			}));
 
 		return Core::Ok(std::move(window));
 	}
 
-	Core::Result<std::unique_ptr<Graphics::IRenderDevice>, EngineError> Application::CreateRenderDevice(Platform::IWindow* window) noexcept
+	Core::Result<std::unique_ptr<Graphics::IRenderDevice>, RuntimeError> Application::CreateRenderDevice(Platform::IWindow* window) noexcept
 	{
-		NU_UNWRAP(device, Graphics::GraphicsFactory::CreateDevice(Graphics::GraphicsAPI::OpenGL, window));
+		NU_TRY(device, Graphics::GraphicsFactory::CreateDevice(Graphics::GraphicsAPI::OpenGL, window).MapError([](const auto& err) {
+			return RuntimeError(RuntimeErrorCode::InitializationFailed, "Failed to create render device");
+			}));
 		return Core::Ok(std::move(device));
 	}
 
-	Core::Result<void, EngineError> Application::Initialize() noexcept
+	Core::Result<void, RuntimeError> Application::Initialize() noexcept
 	{
 		if (m_state != AppState::Created)
 		{
-			return Core::Err(EngineError("Application cannot be initialized in current state", std::source_location::current()));
+			return Core::Err(RuntimeError(RuntimeErrorCode::InvalidApplicationState,
+				"Application cannot be initialized in current state"));
 		}
 
 		LOG_INFO("Initializing Subsystems...");
 
 		if (m_specification.Windowed)
 		{
-			NU_UNWRAP(window, CreateAppWindow());
+			NU_TRY(window, CreateAppWindow());
 			m_window = std::move(window);
 
-			NU_UNWRAP(device, CreateRenderDevice(m_window.get()));
+			NU_TRY(device, CreateRenderDevice(m_window.get()));
 			m_renderDevice = std::move(device);
 		}
 		else
@@ -106,7 +117,7 @@ namespace NuEngine::Runtime
 		auto physRes = Physics::PhysicsEngine::Initialize();
 		if (physRes.IsError())
 		{
-			LOG_ERROR("Failed to initialize Physics Engine!");
+			return Core::Err(RuntimeError(RuntimeErrorCode::InitializationFailed, "Failed to initialize Physics Engine"));
 		}
 
 		m_isRunning = true;
@@ -117,25 +128,25 @@ namespace NuEngine::Runtime
 		return Core::Ok();
 	}
 
-	Core::Result<void, EngineError> Application::Run() noexcept
+	Core::Result<void, RuntimeError> Application::Run() noexcept
 	{
-		NU_CHECK(Initialize());
+		NU_TRY_VOID(Initialize());
 
 		OnInit();
-
-		LOG_INFO("Entering main loop...");
 
 		if (!m_specification.Windowed)
 		{
 			return Core::Ok();
 		}
 
+		LOG_INFO("Entering main loop...");
+
 		while (m_isRunning)
 		{
 			auto loopResult = MainLoop();
 			if (loopResult.IsError())
 			{
-				LOG_CRITICAL("Main Loop Failure: {}", loopResult.UnwrapError().ToString());
+				LOG_CRITICAL("Main Loop Failure: {}", loopResult.UnwrapError());
 				m_isRunning = false;
 				return loopResult;
 			}
@@ -144,12 +155,14 @@ namespace NuEngine::Runtime
 		return Core::Ok();
 	}
 
-	Core::Result<void, EngineError> Application::Shutdown() noexcept
+	Core::Result<void, RuntimeError> Application::Shutdown() noexcept
 	{
 		if (m_state == AppState::ShuttingDown || m_state == AppState::Terminated)
 		{
 			return Core::Ok();
 		}
+
+		OnShutdown();
 
 		m_state = AppState::ShuttingDown;
 		Physics::PhysicsEngine::Shutdown();
@@ -162,11 +175,13 @@ namespace NuEngine::Runtime
 		return Core::Ok();
 	}
 
-	Core::Result<void, EngineError> Application::PollEvents() noexcept
+	Core::Result<void, RuntimeError> Application::PollEvents() noexcept
 	{
 		if (m_window)
 		{
-			NU_CHECK(m_window->ProcessEvents());
+			NU_TRY_VOID(m_window->ProcessEvents().MapError([](const auto&) {
+				return RuntimeError(RuntimeErrorCode::UpdateFailed, "Failed to process window events");
+				}));
 		}
 
 		return Core::Ok();
@@ -176,46 +191,46 @@ namespace NuEngine::Runtime
 	{
 		switch (event.GetType())
 		{
-			case Platform::EventType::WindowClose:
-			{
-				OnWindowClose(static_cast<Platform::WindowClosedEvent&>(event));
-				break;
-			}
-			case Platform::EventType::WindowResize:
-			{
-				OnWindowResize(static_cast<Platform::WindowResizedEvent&>(event));
-				break;
-			}
-			case Platform::EventType::KeyPressed:
-			{
-				auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
-				Core::Input::TransitionPressed(static_cast<Core::KeyCode>(keyEvent.key));
-				break;
-			}
-			case Platform::EventType::KeyReleased:
-			{
-				auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
-				Core::Input::TransitionReleased(static_cast<Core::KeyCode>(keyEvent.key));
-				break;
-			}
-			case Platform::EventType::MouseButtonPressed:
-			{
-				auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
-				Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), true);
-				break;
-			}
-			case Platform::EventType::MouseButtonReleased:
-			{
-				auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
-				Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), false);
-				break;
-			}
-			case Platform::EventType::MouseMoved:
-			{
-				auto& mouseEvent = static_cast<Platform::MouseMoveEvent&>(event);
-				Core::Input::UpdateMouse((float)mouseEvent.x, (float)mouseEvent.y);
-				break;
-			}
+		case Platform::EventType::WindowClose:
+		{
+			OnWindowClose(static_cast<Platform::WindowClosedEvent&>(event));
+			break;
+		}
+		case Platform::EventType::WindowResize:
+		{
+			OnWindowResize(static_cast<Platform::WindowResizedEvent&>(event));
+			break;
+		}
+		case Platform::EventType::KeyPressed:
+		{
+			auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
+			Core::Input::TransitionPressed(static_cast<Core::KeyCode>(keyEvent.key));
+			break;
+		}
+		case Platform::EventType::KeyReleased:
+		{
+			auto& keyEvent = static_cast<Platform::KeyEvent&>(event);
+			Core::Input::TransitionReleased(static_cast<Core::KeyCode>(keyEvent.key));
+			break;
+		}
+		case Platform::EventType::MouseButtonPressed:
+		{
+			auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
+			Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), true);
+			break;
+		}
+		case Platform::EventType::MouseButtonReleased:
+		{
+			auto& mouseEvent = static_cast<Platform::MouseButtonEvent&>(event);
+			Core::Input::UpdateMouseButton(static_cast<Core::KeyCode>(mouseEvent.button), false);
+			break;
+		}
+		case Platform::EventType::MouseMoved:
+		{
+			auto& mouseEvent = static_cast<Platform::MouseMoveEvent&>(event);
+			Core::Input::UpdateMouse((float)mouseEvent.x, (float)mouseEvent.y);
+			break;
+		}
 		}
 	}
 
@@ -240,7 +255,7 @@ namespace NuEngine::Runtime
 		return false;
 	}
 
-	Core::Result<void, EngineError> Application::Update() noexcept
+	Core::Result<void, RuntimeError> Application::Update() noexcept
 	{
 		OnUpdate(Core::Time::GetDeltaTime());
 		return Core::Ok();
@@ -295,37 +310,36 @@ namespace NuEngine::Runtime
 		}
 	}
 
-	Core::Result<void, EngineError> Application::Render() noexcept
+	Core::Result<void, RuntimeError> Application::Render() noexcept
 	{
 		if (m_pipeline)
 		{
-			NU_CHECK(m_pipeline->Render(false));
+			NU_TRY_VOID(m_pipeline->Render(false).MapError([](const auto&) {
+				return RuntimeError(RuntimeErrorCode::RenderFailed, "Pipeline render failed");
+				}));
 		}
+
+		OnRender();
 
 		return Core::Ok();
 	}
 
-	Core::Result<void, EngineError> Application::MainLoop() noexcept
+	Core::Result<void, RuntimeError> Application::MainLoop() noexcept
 	{
 		Core::Time::Update();
-		NU_CHECK(PollEvents());
+		NU_TRY_VOID(PollEvents());
 
-		NU_CHECK(Update());
+		NU_TRY_VOID(Update());
 
-		if (m_pipeline)
-		{
-			NU_CHECK(m_pipeline->Render(false));
-		}
-
-		OnRender();
+		NU_TRY_VOID(Render());
 
 		if (m_renderDevice)
 		{
 			auto presentResult = m_renderDevice->Present();
 			if (presentResult.IsError())
 			{
-				LOG_ERROR("Present failed: {}", presentResult.UnwrapError().ToString());
-				return Core::Err(EngineError(presentResult.UnwrapError()));
+				LOG_ERROR("Present failed: {}", presentResult.UnwrapError());
+				return Core::Err(RuntimeError(RuntimeErrorCode::RenderFailed, "Present failed"));
 			}
 		}
 
@@ -338,7 +352,7 @@ namespace NuEngine::Runtime
 		{
 			m_pipeline->Render(false);
 		}
-		
+
 		OnRender();
 
 		if (m_renderDevice) m_renderDevice->Present();
@@ -358,6 +372,7 @@ namespace NuEngine::Runtime
 		LOG_INFO("Initializing Graphics for Editor Mode...");
 		if (!gladLoadGL())
 		{
+			LOG_ERROR("Failed to load OpenGL functions via GLAD. Editor graphics unavailable.");
 			return;
 		}
 
@@ -367,6 +382,10 @@ namespace NuEngine::Runtime
 			m_renderDevice = std::move(deviceResult.Unwrap());
 			m_pipeline = std::make_unique<Renderer::ForwardPipeline>(m_renderDevice.get());
 			m_pipeline->SetViewport(0, 0, 800, 600);
+		}
+		else
+		{
+			LOG_ERROR("Failed to create render device for editor: {}", deviceResult.UnwrapError());
 		}
 
 		Core::Time::Initialize();

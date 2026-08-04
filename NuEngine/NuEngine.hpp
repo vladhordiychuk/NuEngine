@@ -5,11 +5,11 @@
 #pragma once
 
 #include <NuEngine/Core/Logging/Logger.hpp>
-#include <NuEngine/Core/Types/Result.hpp>
+#include <NuEngine/Core/Types/Result/Result.hpp>
 #include <NuEngine/Core/Types/Types.hpp>
 #include <NuEngine/Core/Memory/AlignedAllocator.hpp>
 
 #include <NuMath/NuMath.hpp>
 
 #include <NuEngine/Runtime/Application.hpp>
-#include <NuEngine/Runtime/Errors/EngineError.hpp>
+#include <NuEngine/Runtime/Errors/RuntimeError.hpp>

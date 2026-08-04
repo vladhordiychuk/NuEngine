@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Platform/Errors/WindowError.hpp>
 #include <Platform/Common/WindowConfig.hpp>
 #include <Platform/Common/WindowEvents.hpp>

@@ -41,9 +41,9 @@ namespace NBT
     bool BuildSystem::LoadProject(const std::string& project_path)
     {
         std::filesystem::path projectFilePath = std::filesystem::absolute(project_path);
-        m_projectFileDir = projectFilePath.parent_path();                    // Game/
-        m_projectRoot = m_projectFileDir.parent_path();                      // ../
-        m_outputDir = m_projectRoot / "build";                               // ../build
+        m_projectFileDir = projectFilePath.parent_path();
+        m_projectRoot = m_projectFileDir.parent_path();
+        m_outputDir = m_projectRoot / "build";
         std::filesystem::create_directories(m_outputDir);
 
         try

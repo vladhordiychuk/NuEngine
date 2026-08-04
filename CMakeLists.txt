@@ -15,7 +15,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(NU_BUILD_TESTS "Build unit tests" ON)
-option(NU_BUILD_EDITOR "Build NuEditor (Qt-based editor)" OFF)
+option(NU_BUILD_EDITOR "Build NuEditor (Qt-based editor)" ON)
 option(NU_BUILD_BENCHMARKS "Build benchmarks" OFF)
 
 if(MSVC)
@@ -38,3 +38,12 @@ if(NU_BUILD_TESTS)
     enable_testing()
     add_subdirectory(Tests)
 endif()
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/Resources/ 
+        DESTINATION Resources)
+
+set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
+include(InstallRequiredSystemLibraries)
+
+install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} 
+        DESTINATION .)

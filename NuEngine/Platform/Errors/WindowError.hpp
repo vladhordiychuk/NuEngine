@@ -4,128 +4,81 @@
 
 #pragma once
 
-#include <array>
-#include <string>
-#include <string_view>
-#include <format>
-#include <ostream>
-
-#include <Core/Types/Types.hpp>
-#include <Core/Types/ErrorContext.hpp>
+#include <Core/Types/ErrorTraits.hpp>
+#include <Core/Types/BasicError.hpp>
 
 namespace NuEngine::Platform
 {
 	/**
 	 * @brief Error codes for window operations.
 	 */
-	enum class WindowErrorCode
+	enum class WindowErrorCode : uint8_t
 	{
-		Success,                // Operation completed successfully.
-		InvalidConfig,          // Invalid configuration parameters.
-		PlatformFailure,        // Platform-specific API failure.
-		OutOfMemory,            // Memory allocation failed.
-		AlreadyInitialized,     // Window already initialized.
-		GLContextFailed,        // OpenGL context creation failed.
-		VulkanSurfaceFailed,    // Vulkan surface creation failed.
-		CreationFailed,         // Window creation failed
-		ContextLost             // Graphics context lost
+		Success,               ///> Operation completed successfully.
+		InvalidConfig,         ///> Invalid window configuration parameters.
+		PlatformFailure,       ///> Platform-specific API returned an error.
+		OutOfMemory,           ///> Memory allocation failed.
+		AlreadyInitialized,    ///> Window system has already been initialized.
+		GLContextFailed,       ///> Failed to create the OpenGL context.
+		VulkanSurfaceFailed,   ///> Failed to create the Vulkan surface.
+		CreationFailed,        ///> Failed to create the window.
+		ContextLost            ///> Graphics context was lost.
 	};
+} // namespace NuEngine::Platform
 
-	[[nodiscard]] constexpr std::string_view ToErrorString(WindowErrorCode code) noexcept
+namespace NuEngine::Core
+{
+	using WindowErrorCode = NuEngine::Platform::WindowErrorCode;
+
+	/**
+	 * @brief Error trait specialization for window errors.
+	 *
+	 * Provides the error category name and conversion of
+	 * error codes to human-readable strings.
+	 */
+	template <>
+	struct ErrorTraits<WindowErrorCode>
 	{
-		switch (code)
+		static constexpr std::string_view Category = "WindowError";
+
+		/**
+		 * @brief Converts a window error code to text.
+		 *
+		 * @param code Error code.
+		 * @return Human-readable description.
+		 */
+		[[nodiscard]] static constexpr std::string_view ToString(WindowErrorCode code) noexcept
 		{
-		case WindowErrorCode::Success: return "Success";
-		case WindowErrorCode::InvalidConfig: return "Invalid configuration parameters";
-		case WindowErrorCode::PlatformFailure: return "Platform failure";
-		case WindowErrorCode::OutOfMemory: return "Out of memory";
-		case WindowErrorCode::AlreadyInitialized: return "Already initialized";
-		case WindowErrorCode::GLContextFailed: return "GL context failed";
-		case WindowErrorCode::VulkanSurfaceFailed: return "Vulkan surface failed";
-		case WindowErrorCode::CreationFailed: return "Creation failed";
-		case WindowErrorCode::ContextLost: return "Context lost";
-		default: return "Unknown window error";
-		}
-	}
-
-	constexpr size_t MAX_WINDOW_ERROR_TRACE_DEPTH = 8;
-
-	struct WindowErrorTrace
-	{
-		std::array<Core::ErrorContext, MAX_WINDOW_ERROR_TRACE_DEPTH> frames;
-		uint8_t count = 0;
-
-		constexpr void Push(const Core::ErrorContext& ctx) noexcept
-		{
-			if (count < MAX_WINDOW_ERROR_TRACE_DEPTH)
+			switch (code)
 			{
-				frames[count++] = ctx;
-			}
-		}
-
-		[[nodiscard]] constexpr bool Empty() const noexcept { return count == 0; }
-	};
-
-	struct WindowError
-	{
-		WindowErrorCode code;
-		Core::ErrorSeverity severity;
-		std::string details;
-		WindowErrorTrace trace;
-
-		WindowError(WindowErrorCode c, std::string d = "",
-			Core::ErrorContext ctx = {},
-			Core::ErrorSeverity sev = Core::ErrorSeverity::Error) noexcept
-			: code(c)
-			, severity(sev)
-			, details(std::move(d))
-		{
-			trace.Push(ctx);
-		}
-
-		bool operator==(WindowErrorCode c) const noexcept { return code == c; }
-		bool operator!=(WindowErrorCode c) const noexcept { return code != c; }
-
-		template <typename OutputIt>
-		void FormatTo(OutputIt out) const
-		{
-			std::format_to(out, "WindowError: {}", ToErrorString(code));
-
-			if (!details.empty())
-			{
-				std::format_to(out, " -> {}", details);
+				case WindowErrorCode::Success:
+					return "Success";
+				case WindowErrorCode::InvalidConfig:
+					return "Invalid configuration parameters";
+				case WindowErrorCode::PlatformFailure:
+					return "Platform failure";
+				case WindowErrorCode::OutOfMemory:
+					return "Out of memory";
+				case WindowErrorCode::AlreadyInitialized:
+					return "Already initialized";
+				case WindowErrorCode::GLContextFailed:
+					return "OpenGL context creation failed";
+				case WindowErrorCode::VulkanSurfaceFailed:
+					return "Vulkan surface creation failed";
+				case WindowErrorCode::CreationFailed:
+					return "Window creation failed";
+				case WindowErrorCode::ContextLost:
+					return "Graphics context lost";
 			}
 
-			if (!trace.Empty())
-			{
-				std::format_to(out, "\nTrace:");
-				for (size_t i = 0; i < trace.count; ++i)
-				{
-					std::format_to(out, "\n  [{}] {}:{} ({})",
-						i, trace.frames[i].file, trace.frames[i].line, trace.frames[i].function);
-				}
-			}
-		}
-
-		[[nodiscard]] std::string ToString() const
-		{
-			std::string buffer;
-			buffer.reserve(256 + details.size());
-			FormatTo(std::back_inserter(buffer));
-			return buffer;
+			return "Unknown Window Error";
 		}
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const WindowError& e)
-	{
-		return os << e.ToString();
-	}
-}
+	static_assert(ErrorTraitsConcept<ErrorTraits<WindowErrorCode>, WindowErrorCode>);
+} // namespace NuEngine::Core
 
-template <>
-struct std::formatter<NuEngine::Platform::WindowError> : std::formatter<std::string> {
-	auto format(const NuEngine::Platform::WindowError& err, format_context& ctx) const {
-		err.FormatTo(ctx.out());
-		return ctx.out();
-	}
-};
+namespace NuEngine::Platform
+{
+	using WindowError = Core::BasicError<WindowErrorCode>;
+} // namespace NuEngine::Platform

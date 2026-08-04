@@ -4,7 +4,7 @@
 #pragma once
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Physics/Errors/PhysicsError.hpp>
 #include <Physics/Bodies/RigidBody.hpp>
 #include <NuMath/NuMath.hpp>

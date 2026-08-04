@@ -47,3 +47,5 @@ add_compile_definitions(NU_ROOT_DIR="${PROJECT_ROOT_DIR}")
 if (WIN32)
     target_compile_definitions(NuEngine PRIVATE "_CRT_SECURE_NO_WARNINGS" "NOMINMAX")
 endif()
+
+install(TARGETS NuEngine RUNTIME DESTINATION .)

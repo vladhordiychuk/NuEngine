@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 
 namespace NuEngine::Graphics::OpenGL

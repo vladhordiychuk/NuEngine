@@ -10,6 +10,9 @@
 
 namespace NuEngine::Core
 {
+	/**
+	 * @brief 
+	 */
 	class JobSystem
 	{
 	public:
@@ -25,4 +28,4 @@ namespace NuEngine::Core
 		std::vector<std::thread> m_workers;
 		unsigned int m_numThreads;
 	};
-}
+} // namespace NuEngine::Core

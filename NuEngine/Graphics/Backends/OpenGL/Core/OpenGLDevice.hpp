@@ -8,7 +8,7 @@
 #include <Graphics/Abstractions/Core/IGraphicsContext.hpp>
 #include <Graphics/Abstractions/Buffers/IVertexArray.hpp>
 #include <Graphics/Abstractions/Shaders/IShader.hpp>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 
 #include <Graphics/Abstractions/Buffers/IVertexArray.hpp>
 #include <Graphics/Abstractions/Buffers/IVertexBuffer.hpp>

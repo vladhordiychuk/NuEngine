@@ -9,6 +9,7 @@
 #include <Runtime/Application.hpp>
 #include <memory>
 #include <iostream>
+#include <format>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -29,8 +30,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdsh
 
     if (result.IsError())
     {
-        auto err = result.UnwrapError();
-        MessageBoxA(nullptr, err.ToString().c_str(), "NuEngine Fatal Error", MB_OK | MB_ICONERROR);
+        std::string errStr = std::format("{}", result.UnwrapError());
+        MessageBoxA(nullptr, errStr.c_str(), "NuEngine Fatal Error", MB_OK | MB_ICONERROR);
         return -1;
     }
 
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
 
     if (result.IsError())
     {
-        std::cerr << "[FATAL] " << result.UnwrapError().ToString() << std::endl;
+        std::cerr << "[FATAL] " << result.UnwrapError() << std::endl;
         return -1;
     }
 

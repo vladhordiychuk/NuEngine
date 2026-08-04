@@ -16,7 +16,7 @@ namespace NBT
         bool Generate(IProjectGenerator* generator);
         std::filesystem::path GetOutputDir() const { return m_outputDir; }
         std::filesystem::path GetProjectRoot() const { return m_projectRoot; }
-        std::filesystem::path GetProjectFileDir() const { return m_projectFileDir; } // Новий геттер
+        std::filesystem::path GetProjectFileDir() const { return m_projectFileDir; }
 
     private:
         void LoadTargets();
@@ -27,8 +27,8 @@ namespace NBT
         std::string m_projectName;
         std::unordered_map<std::string, Module> modules;
 
-        std::filesystem::path m_projectRoot;     // ../ (батьківська папка)
-        std::filesystem::path m_projectFileDir;  // Game/ (де .nuproject)
-        std::filesystem::path m_outputDir;       // ../build
+        std::filesystem::path m_projectRoot;
+        std::filesystem::path m_projectFileDir;
+        std::filesystem::path m_outputDir;
     };
 }

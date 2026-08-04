@@ -10,3 +10,6 @@ add_executable(GameStandalone
     source/SandboxApp.cpp
 )
 target_link_libraries(GameStandalone PRIVATE NuEngine)
+
+install(TARGETS GameStandalone 
+        RUNTIME DESTINATION .)

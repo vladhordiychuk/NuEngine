@@ -40,7 +40,7 @@ public:
         }
         else
         {
-            LOG_ERROR("Failed to load test_script.wbc! Перевірте, чи файл знаходиться у робочій директорії гри.");
+            LOG_ERROR("Failed to load test_script.wbc!");
         }
 
         m_Scene = std::make_shared<NuEngine::Runtime::Scene>();

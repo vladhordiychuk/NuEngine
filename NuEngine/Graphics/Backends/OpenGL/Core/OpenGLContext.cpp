@@ -15,10 +15,8 @@ namespace NuEngine::Graphics::OpenGL
     {
         if (window == nullptr)
         {
-            // 1. Створюємо derived вказівник і одразу зберігаємо як base
             std::unique_ptr<OpenGLContext> externalCtx = std::make_unique<OpenGLExternalContext>();
 
-            // 2. Переміщуємо (move) вже правильний тип
             return Core::Ok(std::move(externalCtx));
         }
 

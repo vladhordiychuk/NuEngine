@@ -14,8 +14,8 @@ namespace NBT
         void GenerateSolution(const std::string& solutionName, const std::vector<Module>& modules);
         void GenerateVCXProj(const Module& mod);
 
-        std::filesystem::path m_outputDir;       // ../build
-        std::filesystem::path m_projectRoot;     // ../
-        std::filesystem::path m_projectFileDir;  // Game/
+        std::filesystem::path m_outputDir;
+        std::filesystem::path m_projectRoot;
+        std::filesystem::path m_projectFileDir;
     };
 }

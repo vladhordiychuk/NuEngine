@@ -67,4 +67,4 @@ namespace NuEngine::Core
 		}
 		m_workers.clear();
 	}
-}
+} // namespace NuEngine::Core

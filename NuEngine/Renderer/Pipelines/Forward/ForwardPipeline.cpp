@@ -4,7 +4,7 @@
 #include <Core/IO/FileSystem.hpp>
 #include <Core/Timer/Time.hpp>
 #include <glad/glad.h>
-#include <cmath> // Для константи PI, якщо треба
+#include <cmath>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -31,16 +31,16 @@ namespace NuEngine::Renderer
         std::string vertexSrc;
         auto vertRes = fs.ReadTextFile("Resources/Shaders/Forward.vert");
         if (vertRes.IsOk()) vertexSrc = vertRes.Unwrap();
-        else { LOG_ERROR("Failed to load Vertex Shader! Error: {}", vertRes.UnwrapError().ToString()); return; }
+        else { LOG_ERROR("Failed to load Vertex Shader! Error: {}", vertRes.UnwrapError()); return; }
 
         std::string fragmentSrc;
         auto fragRes = fs.ReadTextFile("Resources/Shaders/Forward.frag");
         if (fragRes.IsOk()) fragmentSrc = fragRes.Unwrap();
-        else { LOG_ERROR("Failed to load Fragment Shader! Error: {}", fragRes.UnwrapError().ToString()); return; }
+        else { LOG_ERROR("Failed to load Fragment Shader! Error: {}", fragRes.UnwrapError()); return; }
 
         auto shaderRes = m_Device->CreateShader(vertexSrc, fragmentSrc);
         if (shaderRes.IsOk()) m_Shader = shaderRes.Unwrap();
-        else LOG_ERROR("Critical: Failed to create shader! Reason: {}", shaderRes.UnwrapError().ToString());
+        else LOG_ERROR("Critical: Failed to create shader! Reason: {}", shaderRes.UnwrapError());
 
         glEnable(GL_DEPTH_TEST);
 

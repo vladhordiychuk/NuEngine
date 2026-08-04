@@ -21,7 +21,8 @@
 ### ⚡ **13x Faster Vector2**
 ```cpp
 // Particle system update (1024 particles)
-for (auto& p : particles) {
+for (auto& p : particles) 
+W{
     p.pos += p.vel * dt;
 }
 
@@ -91,10 +92,10 @@ Color tint    { R=0.8, G=0.6, B=0.4 }
 
 | Scenario | Batch Size | NuMath | GLM | Speedup |
 |----------|-----------|--------|-----|---------|
-| **Vector2 Add** | 1,024 | 326 ns | 4,307 ns | **13.2x** 🔥🔥🔥 |
-| **Vector2 Add** | 4M | 6.84 ms | 17.17 ms | **2.5x** 🔥🔥 |
+| **Vector2 Add** | 1,024 | 326 ns | 4,307 ns | **13.2x**  |
+| **Vector2 Add** | 4M | 6.84 ms | 17.17 ms | **2.5x** |
 | **Vector3/4** | 4M | ~7 ms | ~7 ms | **≈1.0x** (parity) |
-| **Matrix4x4** | 4M | 29.87 ms | 31.87 ms | **1.07x** ⚡ |
+| **Matrix4x4** | 4M | 29.87 ms | 31.87 ms | **1.07x** |
 
 ### 💡 Real-World Impact
 
@@ -122,7 +123,8 @@ Time Savings:           39.8 μs per frame
 #include <NuMath/NuMath.hpp>
 using namespace NuMath;
 
-int main() {
+int main() 
+{
     // 1. Vectors (SIMD-optimized)
     Vector3 position(0, 10, 0);
     Vector3 velocity(1, 0, 0);
@@ -206,7 +208,7 @@ Real-world Tests
 | **Vec3/4 Performance** | 🟡 Parity | 🟡 Parity | 🟡 Parity |
 | **Color Management** | 🟢 **Linear workflow** | 🔴 None | 🔴 None |
 | **Batch SoA API** | 🟢 **AVX2/SSE** | 🔴 None | 🔴 None |
-| **Debugger Visualization** | 🟢 Full Natvis | 🟡 Basic | 🟢 Full |
+| **Debugger Visualization** | 🟢 Full Natvis | 🟢 Full | 🟢 Full |
 | **API Design** | 🟢 Modern C++20 | 🟡 Template-heavy | 🟢 Clean |
 | **Cross-Platform** | 🟢 Win/Linux/macOS | 🟢 Universal | 🔴 Windows-only |
 | **Ecosystem Maturity** | 🔴 New (2025) | 🟢 Mature (20+ years) | 🟢 Mature (MS) |
@@ -234,13 +236,15 @@ Real-world Tests
 
 ```cpp
 // NuMath architecture
-class Vector2 {
+class Vector2 
+{
     __m128 m_data;  // Full 128-bit register
     // x, y, [unused], [unused]
 };
 
 // GLM architecture
-struct vec2 {
+struct vec2 
+{
     float x, y;  // No SIMD
 };
 
@@ -327,7 +331,7 @@ NuMath is part of the **NuEngine** project. Currently closed-source, but feedbac
 
 - 🐛 Found a bug? [Open an issue](https://github.com/VladHordiichuk/NuEngine/issues)
 - 💡 Have a feature request? [Start a discussion](https://github.com/VladHordiichuk/NuEngine/discussions)
-- 📧 Contact: vladyslav.hordiychuk@example.com
+- 📧 Contact: gordijcukvlad64@gmail.com
 
 ---
 

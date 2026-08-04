@@ -1,0 +1,7 @@
+libdir=C:/Program Files (x86)/NuEngineWorkspace/lib
+
+Name: benchmark
+Description: Google microbenchmark framework (with main() function)
+Version: 1.9.4.32
+Requires: benchmark
+Libs: -L${libdir} -lbenchmark_main

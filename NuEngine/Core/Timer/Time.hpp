@@ -10,6 +10,9 @@
 
 namespace NuEngine::Core
 {
+	/**
+	 * @brief 
+	 */
 	class NU_API Time
 	{
 	public:
@@ -35,4 +38,4 @@ namespace NuEngine::Core
 		static std::chrono::high_resolution_clock::time_point s_StartTime;
 		static std::chrono::high_resolution_clock::time_point s_LastFrameTime;
 	};
-}
+} // namespace NuEngine::Core

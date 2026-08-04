@@ -6,7 +6,7 @@
 
 #include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Platform/IWindow.hpp>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 
 #include <memory>

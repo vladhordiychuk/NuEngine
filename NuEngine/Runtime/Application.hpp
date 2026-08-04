@@ -6,8 +6,8 @@
 
 #include <Core/Types/Types.hpp>
 #include <Core/IO/FileSystem.hpp>
-#include <Core/Types/Result.hpp>
-#include <Runtime/Errors/EngineError.hpp>
+#include <Core/Types/Result/Result.hpp>
+#include <Runtime/Errors/RuntimeError.hpp>
 #include <Renderer/Pipelines/Forward/ForwardPipeline.hpp>
 #include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Platform/IWindow.hpp>
@@ -18,7 +18,7 @@
 #include <memory>
 #include <string>
 
-namespace NuEngine::Runtime 
+namespace NuEngine::Runtime
 {
     struct NU_API ApplicationSpecification
     {
@@ -78,17 +78,19 @@ namespace NuEngine::Runtime
         /**
          * @brief Starts the main program loop.
          *
-         * @return Result with void (success) or EngineError.
+         * @return Result with void (success) or RuntimeError.
          */
-        [[nodiscard]] Core::Result<void, EngineError> Run() noexcept;
-        
+        [[nodiscard]] Core::Result<void, RuntimeError> Run() noexcept;
+
         /**
-         * @brief 
+         * @brief Renders a single frame. Intended for externally-driven loops
+         *        (e.g. an editor), as opposed to Run()'s own internal loop.
          */
         void RenderFrame();
 
         /**
-         * @brief
+         * @brief Processes window events and advances application state by one frame.
+         *        Intended for externally-driven loops (e.g. an editor).
          */
         void UpdateFrame(float deltaTime);
 
@@ -107,7 +109,7 @@ namespace NuEngine::Runtime
          */
         void ResizeViewport(int width, int height) noexcept
         {
-            if (m_pipeline) 
+            if (m_pipeline)
             {
                 m_pipeline->SetViewport(0, 0, width, height);
             }
@@ -122,6 +124,7 @@ namespace NuEngine::Runtime
         }
 
         virtual void OnInit() {}
+        virtual void OnShutdown() {}
 
     protected:
         /**
@@ -143,33 +146,33 @@ namespace NuEngine::Runtime
         /**
          * @brief Initializes subsystems (windows, etc.).
          */
-        [[nodiscard]] Core::Result<void, EngineError> Initialize() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> Initialize() noexcept;
 
         /**
          * @brief Completes the subsystem work.
          */
-        [[nodiscard]] Core::Result<void, EngineError> Shutdown() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> Shutdown() noexcept;
 
         /**
          * @brief Executes the main program loop (event handling, rendering).
          */
-        [[nodiscard]] Core::Result<void, EngineError> MainLoop() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> MainLoop() noexcept;
 
         /**
          * @brief Creates platform window
          */
-        [[nodiscard]] Core::Result<std::unique_ptr<Platform::IWindow>, EngineError> CreateAppWindow() noexcept;
+        [[nodiscard]] Core::Result<std::unique_ptr<Platform::IWindow>, RuntimeError> CreateAppWindow() noexcept;
 
         /**
          * @brief Creates render device
          */
-        [[nodiscard]] Core::Result<std::unique_ptr<Graphics::IRenderDevice>, EngineError>
+        [[nodiscard]] Core::Result<std::unique_ptr<Graphics::IRenderDevice>, RuntimeError>
             CreateRenderDevice(Platform::IWindow* window) noexcept;
 
         /**
          * @brief Polls system events
          */
-        [[nodiscard]] Core::Result<void, EngineError> PollEvents() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> PollEvents() noexcept;
 
         /**
          * @brief
@@ -184,12 +187,12 @@ namespace NuEngine::Runtime
         /**
          * @brief Updates application state
          */
-        [[nodiscard]] Core::Result<void, EngineError> Update() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> Update() noexcept;
 
         /**
          * @brief Renders frame
          */
-        [[nodiscard]] Core::Result<void, EngineError> Render() noexcept;
+        [[nodiscard]] Core::Result<void, RuntimeError> Render() noexcept;
 
         bool m_isRunning = false;
         AppState m_state = AppState::Created;

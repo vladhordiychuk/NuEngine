@@ -4,6 +4,9 @@
 
 namespace NuEngine::Core
 {
+	/**
+	 * @brief
+	 */
 	class ResourceManager
 	{
 	public:
@@ -11,4 +14,4 @@ namespace NuEngine::Core
 	private:
 
 	};
-}
+} // namespace NuEngine::Core

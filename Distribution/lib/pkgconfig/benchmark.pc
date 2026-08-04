@@ -1,0 +1,12 @@
+prefix=C:/Program Files (x86)/NuEngineWorkspace
+exec_prefix=${prefix}
+libdir=C:/Program Files (x86)/NuEngineWorkspace/lib
+includedir=C:/Program Files (x86)/NuEngineWorkspace/include
+
+Name: benchmark
+Description: Google microbenchmark framework
+Version: 1.9.4.32
+
+Libs: -L${libdir} -lbenchmark
+Libs.private: -lpthread -lshlwapi
+Cflags: -I${includedir}

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Platform/IWindow.hpp>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 #include <Graphics/Abstractions/Core/IGraphicsContext.hpp>
 #include <memory>

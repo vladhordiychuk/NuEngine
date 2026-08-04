@@ -21,7 +21,6 @@ namespace NuEditor::Weave
         setWindowTitle("Weave - NuEditor");
 
         SetupUI();
-        SpawnDemoNodes();
     }
 
     void WeaveWindow::SetupUI()

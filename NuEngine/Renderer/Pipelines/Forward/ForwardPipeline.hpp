@@ -7,7 +7,7 @@
 #include <Graphics/Abstractions/Core/IRenderDevice.hpp>
 #include <Graphics/Abstractions/Shaders/IShader.hpp>
 #include <Graphics/Abstractions/Buffers/IVertexArray.hpp>
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Graphics/Errors/GraphicsError.hpp>
 #include <Renderer/Camera.hpp>
 #include <NuEngine/Core/API.hpp>

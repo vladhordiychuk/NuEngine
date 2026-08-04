@@ -4,128 +4,87 @@
 
 #pragma once
 
-#include <array>
-#include <string>
-#include <string_view>
-#include <format>
-#include <ostream>
-#include <iterator>
-
-#include <Core/Types/Types.hpp>
-#include <Core/Types/ErrorContext.hpp>
+#include <Core/Types/ErrorTraits.hpp>
+#include <Core/Types/BasicError.hpp>
 
 namespace NuEngine::Physics
 {
-    enum class PhysicsErrorCode
-    {
-        Success,
-        SystemInitFailed,
-        AllocatorInitFailed,
-        JobSystemInitFailed,
-        BodyCreationFailed,
-        ShapeCreationFailed,
-        InvalidBodyID,
-        MaxBodiesExceeded,
-        SimulationError,
-        InvalidLayer,
-        InvalidParameter
-    };
+	/**
+	 * @brief Error codes for physics operations.
+	 */
+	enum class PhysicsErrorCode : uint8_t
+	{
+		Success,               ///> Operation completed successfully.
+		SystemInitFailed,      ///> Failed to initialize the physics system.
+		AllocatorInitFailed,   ///> Failed to initialize the memory allocator.
+		JobSystemInitFailed,   ///> Failed to initialize the job system.
+		BodyCreationFailed,    ///> Failed to create a physics body.
+		ShapeCreationFailed,   ///> Failed to create a collision shape.
+		InvalidBodyID,         ///> Invalid body identifier.
+		MaxBodiesExceeded,     ///> Maximum number of bodies exceeded.
+		SimulationError,       ///> Simulation step failed.
+		InvalidLayer,          ///> Invalid collision layer.
+		InvalidParameter       ///> Invalid parameter was provided.
+	};
+} // namespace NuEngine::Physics
 
-    [[nodiscard]] constexpr std::string_view ToErrorString(PhysicsErrorCode code) noexcept
-    {
-        switch (code)
-        {
-        case PhysicsErrorCode::Success: return "Success";
-        case PhysicsErrorCode::SystemInitFailed: return "System initialization failed";
-        case PhysicsErrorCode::AllocatorInitFailed: return "Allocator initialization failed";
-        case PhysicsErrorCode::JobSystemInitFailed: return "Job system initialization failed";
-        case PhysicsErrorCode::BodyCreationFailed: return "Body creation failed";
-        case PhysicsErrorCode::ShapeCreationFailed: return "Shape creation failed";
-        case PhysicsErrorCode::InvalidBodyID: return "Invalid body ID";
-        case PhysicsErrorCode::MaxBodiesExceeded: return "Maximum bodies limit exceeded";
-        case PhysicsErrorCode::SimulationError: return "Simulation update error";
-        case PhysicsErrorCode::InvalidLayer: return "Invalid collision layer";
-        case PhysicsErrorCode::InvalidParameter: return "Invalid parameter";
-        default: return "Unknown physics error";
-        }
-    }
+namespace NuEngine::Core
+{
+	using PhysicsErrorCode = NuEngine::Physics::PhysicsErrorCode;
 
-    constexpr size_t MAX_ERROR_TRACE_DEPTH = 8;
+	/**
+	 * @brief Error trait specialization for physics errors.
+	 *
+	 * Provides the error category name and conversion of
+	 * error codes to human-readable strings.
+	 */
+	template <>
+	struct ErrorTraits<PhysicsErrorCode>
+	{
+		static constexpr std::string_view Category = "PhysicsError";
 
-    struct ErrorTrace
-    {
-        std::array<Core::ErrorContext, MAX_ERROR_TRACE_DEPTH> frames;
-        uint8_t count = 0;
+		/**
+		 * @brief Converts a physics error code to text.
+		 *
+		 * @param code Error code.
+		 * @return Human-readable description.
+		 */
+		[[nodiscard]] static constexpr std::string_view ToString(PhysicsErrorCode code) noexcept
+		{
+			switch (code)
+			{
+				case PhysicsErrorCode::Success:
+					return "Success";
+				case PhysicsErrorCode::SystemInitFailed:
+					return "System initialization failed";
+				case PhysicsErrorCode::AllocatorInitFailed:
+					return "Allocator initialization failed";
+				case PhysicsErrorCode::JobSystemInitFailed:
+					return "Job system initialization failed";
+				case PhysicsErrorCode::BodyCreationFailed:
+					return "Body creation failed";
+				case PhysicsErrorCode::ShapeCreationFailed:
+					return "Shape creation failed";
+				case PhysicsErrorCode::InvalidBodyID:
+					return "Invalid body ID";
+				case PhysicsErrorCode::MaxBodiesExceeded:
+					return "Maximum bodies limit exceeded";
+				case PhysicsErrorCode::SimulationError:
+					return "Simulation update error";
+				case PhysicsErrorCode::InvalidLayer:
+					return "Invalid collision layer";
+				case PhysicsErrorCode::InvalidParameter:
+					return "Invalid parameter";
+			}
 
-        constexpr void Push(const Core::ErrorContext& ctx) noexcept
-        {
-            if (count < MAX_ERROR_TRACE_DEPTH)
-            {
-                frames[count++] = ctx;
-            }
-        }
+			return "Unknown Physics Error";
+		}
+	};
 
-        [[nodiscard]] constexpr bool Empty() const noexcept { return count == 0; }
-    };
+	static_assert(ErrorTraitsConcept<ErrorTraits<PhysicsErrorCode>, PhysicsErrorCode>);
+} // namespace NuEngine::Core
 
-    struct PhysicsError
-    {
-        PhysicsErrorCode code;
-        Core::ErrorSeverity severity;
-        std::string details;
-        ErrorTrace trace;
-
-        PhysicsError(PhysicsErrorCode c, std::string d = "",
-            Core::ErrorContext ctx = {},
-            Core::ErrorSeverity sev = Core::ErrorSeverity::Error) noexcept
-            : code(c), severity(sev), details(std::move(d))
-        {
-            trace.Push(ctx);
-        }
-
-        bool operator==(PhysicsErrorCode c) const noexcept { return code == c; }
-        bool operator!=(PhysicsErrorCode c) const noexcept { return code != c; }
-
-        template <typename OutputIt>
-        void FormatTo(OutputIt out) const
-        {
-            out = std::format_to(out, "PhysicsError: {}", ToErrorString(code));
-
-            if (!details.empty())
-            {
-                out = std::format_to(out, " -> {}", details);
-            }
-
-            if (!trace.Empty())
-            {
-                out = std::format_to(out, "\nTrace:");
-                for (size_t i = 0; i < trace.count; ++i)
-                {
-                    out = std::format_to(out, "\n  [{}] {}:{} ({})",
-                        i, trace.frames[i].file, trace.frames[i].line, trace.frames[i].function);
-                }
-            }
-        }
-
-        [[nodiscard]] std::string ToString() const
-        {
-            std::string buffer;
-            buffer.reserve(256 + details.size());
-            FormatTo(std::back_inserter(buffer));
-            return buffer;
-        }
-    }; // <-- Тут була пропущена крапка з комою
-
-    inline std::ostream& operator<<(std::ostream& os, const PhysicsError& e)
-    {
-        return os << e.ToString();
-    }
-}
-
-template <>
-struct std::formatter<NuEngine::Physics::PhysicsError> : std::formatter<std::string> {
-    auto format(const NuEngine::Physics::PhysicsError& err, format_context& ctx) const {
-        err.FormatTo(ctx.out());
-        return ctx.out();
-    }
-};
+namespace NuEngine::Physics
+{
+	using PhysicsError = Core::BasicError<PhysicsErrorCode>;
+} // namespace NuEngine::Physics

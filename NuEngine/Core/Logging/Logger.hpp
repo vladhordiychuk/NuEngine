@@ -12,8 +12,9 @@
 #include <mutex>
 #include <memory>
 
-#include <Core/Types/Result.hpp>
+#include <Core/Types/Result/Result.hpp>
 #include <Core/Errors/FileSystemError.hpp>
+#include <Core/Diagnostics/FatalReporter.hpp>
 #include <NuEngine/Core/API.hpp>
 
 namespace NuEngine::Core
@@ -25,7 +26,8 @@ namespace NuEngine::Core
         Info,
         Warning,
         Error,
-        Critical
+        Critical,
+        Fatal
     };
 
     /**
@@ -57,6 +59,7 @@ namespace NuEngine::Core
             LogLevel minLevel = LogLevel::Trace;
             bool colorsEnabled = true;
             bool initialized = false;
+            bool shuttingDown = false;
             std::mutex mutex;
             LogCallback editorCallback = nullptr;
         };
@@ -83,4 +86,11 @@ namespace NuEngine::Core
 #define LOG_WARNING(...)  NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Warning, std::format(__VA_ARGS__))
 #define LOG_ERROR(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Error, std::format(__VA_ARGS__))
 #define LOG_CRITICAL(...) NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Critical, std::format(__VA_ARGS__))
-#define LOG_FATAL(...)    NuEngine::Core::Logger::Log(NuEngine::Core::LogLevel::Critical, std::format(__VA_ARGS__))
+#define LOG_FATAL(...)                                                       \
+    do {                                                                     \
+        auto _msg_ = std::format(__VA_ARGS__);                               \
+        auto _loc_ = std::source_location::current();                        \
+        NuEngine::Core::Logger::Log(                                         \
+            NuEngine::Core::LogLevel::Fatal, _msg_, _loc_);                  \
+        NuEngine::Core::FatalReporter::Crash(_msg_, _loc_);                  \
+    } while(0)
